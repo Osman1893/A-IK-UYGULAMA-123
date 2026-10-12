@@ -1,0 +1,8 @@
+{
+  "name": "Uzaktan Turkolog",
+  "description": "Uzaktan Türkolog - Çift Yönlü Türkçe-Kazakça Dil Öğrenme Platformu ve Gamified Etaplar",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

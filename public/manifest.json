@@ -1,0 +1,41 @@
+{
+  "name": "Uzaktan Türkolog - Türkçe & Kazakça",
+  "short_name": "Türkolog",
+  "description": "Çift Yönlü Türkçe - Kazakça Dil Öğrenme Platformu ve Gamified Etaplar",
+  "start_url": "/",
+  "id": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F5F3FF",
+  "theme_color": "#7C3AED",
+  "lang": "tr",
+  "dir": "ltr",
+  "scope": "/",
+  "categories": ["education", "books", "games"],
+  "icons": [
+    {
+      "src": "https://api.dicebear.com/7.x/identicon/svg?seed=UzaktanTurkolog&backgroundColor=7c3aed",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://api.dicebear.com/7.x/identicon/svg?seed=UzaktanTurkolog&backgroundColor=7c3aed",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Etaplar & Yol Haritası",
+      "url": "/#stages",
+      "description": "Gamified Kazakça etap ve oyunları aç"
+    },
+    {
+      "name": "Konuşma Pratiği",
+      "url": "/#speak",
+      "description": "Kazakça telaffuz alıştırmaları"
+    }
+  ]
+}
