@@ -99,9 +99,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       }
       onClose();
     } else {
-      const finalName = name.trim() || email.split('@')[0];
-      onRegister(email.trim(), finalName, selectedDirection, selectedLevel, nickname.trim() || undefined, password);
-      onClose();
+      try {
+        const finalName = name.trim() || email.split('@')[0];
+        onRegister(email.trim(), finalName, selectedDirection, selectedLevel, nickname.trim() || undefined, password);
+        onClose();
+      } catch (err: any) {
+        setErrorMessage(err.message || 'Kayıt işlemi gerçekleştirilemedi.');
+        return;
+      }
     }
   };
 

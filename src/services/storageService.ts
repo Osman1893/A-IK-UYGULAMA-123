@@ -500,6 +500,9 @@ class StorageService {
     
     if (isOwner) {
       const adminRes = this.loginAsSuperAdmin(password);
+      if (!adminRes.success) {
+        throw new Error(adminRes.error || 'Bu e-posta sistem yöneticisine aittir. Lütfen geçerli yönetici şifresini giriniz.');
+      }
       return adminRes.user || defaultSuperAdminProfile;
     }
 
