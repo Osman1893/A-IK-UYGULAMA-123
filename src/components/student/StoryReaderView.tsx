@@ -23,9 +23,10 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { READING_STORIES, ReadingStory, StoryVocabItem, StoryQuestion } from '../../data/readingStories';
-import { audioService, LUVVOICE_PERSONAS, LuvVoicePersona } from '../../services/audioService';
+import { audioService, VOICE_PROFILES, VoicePersona } from '../../services/audioService';
 import { storageService } from '../../services/storageService';
 import { AlageyikMascot } from '../common/AlageyikMascot';
+import { NaturalVoiceGuideModal } from '../common/NaturalVoiceGuideModal';
 import { UserProfile } from '../../types';
 
 interface StoryReaderViewProps {
@@ -111,7 +112,8 @@ export const StoryReaderView: React.FC<StoryReaderViewProps> = ({
   // Audio Playback
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [activeSentenceIndex, setActiveSentenceIndex] = useState<number | null>(null);
-  const [selectedVoice, setSelectedVoice] = useState<LuvVoicePersona>(audioService.getKazakhPersona());
+  const [selectedVoice, setSelectedVoice] = useState<VoicePersona>(audioService.getKazakhPersona());
+  const [isVoiceGuideOpen, setIsVoiceGuideOpen] = useState(false);
   const [savedWords, setSavedWords] = useState<string[]>([]);
   
   // Reading Comprehension Quiz States
@@ -209,7 +211,7 @@ export const StoryReaderView: React.FC<StoryReaderViewProps> = ({
       latin
     });
 
-    // Pronounce the word with LuvVoice Daulet/Aigul
+    // Pronounce the word with natural voice
     audioService.speak(clean, 'kk', 0.85);
   };
 
@@ -237,12 +239,11 @@ export const StoryReaderView: React.FC<StoryReaderViewProps> = ({
   };
 
   // Voice Persona Changer
-  const handleVoicePersonaChange = (persona: LuvVoicePersona) => {
+  const handleVoicePersonaChange = (persona: VoicePersona) => {
     setSelectedVoice(persona);
     audioService.setKazakhPersona(persona);
     audioService.playFeedbackSound('click');
-    const p = LUVVOICE_PERSONAS.find(x => x.id === persona);
-    audioService.speakWithPersona(`Сәлем! Мен ${p?.name.split(' ')[0]} дауысымын. Оқуға дайынбыз!`, persona);
+    audioService.speakWithPersona('Сәлеметсіз бе! Бұл табиғи дауыс үлгісі. Оқуға дайынбыз!', persona);
   };
 
   // Check Reading Comprehension Quiz
@@ -336,19 +337,26 @@ export const StoryReaderView: React.FC<StoryReaderViewProps> = ({
               </button>
             )}
 
-            {/* LuvVoice Selector Dropdown Button */}
+            {/* Doğal Ses Seçici Dropdown */}
             <div className="flex items-center gap-1 bg-slate-800 px-2 py-1 rounded-xl border border-slate-700 text-xs">
               <span className="text-[10px] text-slate-400 font-bold hidden sm:inline">Ses:</span>
               <select
                 value={selectedVoice}
-                onChange={(e) => handleVoicePersonaChange(e.target.value as LuvVoicePersona)}
+                onChange={(e) => handleVoicePersonaChange(e.target.value as VoicePersona)}
                 className="bg-transparent text-amber-400 font-black text-xs outline-none cursor-pointer"
               >
-                <option value="kk-Daulet" className="bg-slate-900 text-white">👨 Daulet (Doğal Bozkır)</option>
-                <option value="kk-Aigul" className="bg-slate-900 text-white">👩 Aigul (Zarif Aksan)</option>
-                <option value="tr-Ahmet" className="bg-slate-900 text-white">👨 Ahmet (Türkçe)</option>
-                <option value="tr-Emel" className="bg-slate-900 text-white">👩 Emel (Türkçe)</option>
+                <option value="kk-female" className="bg-slate-900 text-white">👩 Kazakça (Kadın)</option>
+                <option value="kk-male" className="bg-slate-900 text-white">👨 Kazakça (Erkek)</option>
+                <option value="tr-female" className="bg-slate-900 text-white">👩 Türkçe (Kadın)</option>
+                <option value="tr-male" className="bg-slate-900 text-white">👨 Türkçe (Erkek)</option>
               </select>
+              <button
+                onClick={() => setIsVoiceGuideOpen(true)}
+                className="text-[10px] text-amber-300 hover:text-white font-bold ml-1"
+                title="Ses kalitesi ve doğal ses rehberi"
+              >
+                💡
+              </button>
             </div>
           </div>
 
@@ -364,7 +372,7 @@ export const StoryReaderView: React.FC<StoryReaderViewProps> = ({
             pose="studying"
             size="sm"
             message="Kelimelerin üzerine dokunarak anında kök ve ek tahlilini gör!"
-            subMessage="Bozkırın hikayelerini okurken bilmediğin kelimelere tıkla; LuvVoice aksanı ile dinle ve kelime defterine kaydet."
+            subMessage="Bozkırın hikayelerini okurken bilmediğin kelimelere tıkla; doğal seslendirme ile dinle ve kelime defterine kaydet."
           />
         </div>
 
@@ -562,7 +570,7 @@ export const StoryReaderView: React.FC<StoryReaderViewProps> = ({
                     <button
                       onClick={() => handlePlayParagraph(paragraph, pIdx)}
                       className="p-1.5 rounded-xl bg-violet-500/15 hover:bg-violet-500/25 text-violet-700 transition shrink-0 mt-1"
-                      title="Bu paragrafı LuvVoice ile dinle"
+                      title="Bu paragrafı sesli dinle"
                     >
                       <Volume2 className="w-4 h-4" />
                     </button>
@@ -800,6 +808,12 @@ export const StoryReaderView: React.FC<StoryReaderViewProps> = ({
           </div>
         </div>
       )}
+
+      {/* Natural Voice Diagnostic Guide Modal */}
+      <NaturalVoiceGuideModal
+        isOpen={isVoiceGuideOpen}
+        onClose={() => setIsVoiceGuideOpen(false)}
+      />
 
     </div>
   );

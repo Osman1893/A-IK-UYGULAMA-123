@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Sparkles, BookOpen, Heart, X, Award, Info, ChevronRight, Volume2 } from 'lucide-react';
 import { audioService } from '../../services/audioService';
+import duoDeerMascotImg from '../../assets/images/duo_style_deer_mascot_1793124498058.jpg';
 
 export type AlageyikPose = 
   | 'guide'        // Bilge Yol Gösterici
@@ -35,10 +36,10 @@ export const AlageyikMascot: React.FC<AlageyikMascotProps> = ({
   const [isLoreModalOpen, setIsLoreModalOpen] = useState(false);
 
   const sizeDimensions = {
-    sm: { box: 'w-16 h-16', svg: 'w-14 h-14' },
-    md: { box: 'w-24 h-24', svg: 'w-22 h-22' },
-    lg: { box: 'w-36 h-36', svg: 'w-32 h-32' },
-    xl: { box: 'w-48 h-48', svg: 'w-44 h-44' },
+    sm: { box: 'w-16 h-16', img: 'w-14 h-14' },
+    md: { box: 'w-24 h-24', img: 'w-22 h-22' },
+    lg: { box: 'w-36 h-36', img: 'w-32 h-32' },
+    xl: { box: 'w-48 h-48', img: 'w-44 h-44' },
   }[size];
 
   // Play mythological wisdom sound
@@ -52,135 +53,30 @@ export const AlageyikMascot: React.FC<AlageyikMascotProps> = ({
   return (
     <div className={`relative flex items-center gap-3.5 ${className}`}>
       
-      {/* Mascot SVG Character Container */}
+      {/* Duolingo-Style Alageyik Mascot Emblem Container */}
       <div 
         onClick={() => setIsLoreModalOpen(true)}
         title="Alageyik: Türk Mitolojisinin Kutsal Bilgelik Maskotu (Tıkla ve Efsaneyi Oku)"
         className={`relative ${sizeDimensions.box} flex items-center justify-center shrink-0 cursor-pointer group transition-transform hover:scale-105 active:scale-95`}
       >
         {/* Glow / Aura Behind Alageyik */}
-        <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-amber-400/20 via-teal-400/20 to-violet-500/25 blur-md group-hover:blur-lg transition-all animate-pulse" />
+        <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-amber-400/30 via-teal-400/30 to-emerald-500/30 blur-md group-hover:blur-lg transition-all animate-pulse" />
 
-        {/* Master Vector Art for Alageyik */}
-        <svg 
-          viewBox="0 0 120 120" 
-          className={`${sizeDimensions.svg} relative drop-shadow-md z-10 transition-transform group-hover:-translate-y-1`}
-          fill="none" 
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          {/* Celestial Stars around antlers */}
-          <circle cx="28" cy="18" r="2.2" fill="#FBBF24" className="animate-ping" style={{ animationDuration: '3s' }} />
-          <circle cx="92" cy="18" r="2" fill="#38BDF8" className="animate-ping" style={{ animationDuration: '2.5s' }} />
-          <polygon points="60,6 62,11 67,11 63,14 65,19 60,16 55,19 57,14 53,11 58,11" fill="#F59E0B" opacity="0.9" />
-
-          {/* Golden Antlers (Altın Boynuzlar - Sacred Branching) */}
-          <g stroke="#D97706" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-            {/* Left Antler Main Stem */}
-            <path d="M 48 38 C 42 28 32 20 24 16" fill="none" stroke="#F59E0B" strokeWidth="3.5" />
-            <path d="M 40 30 C 35 24 33 16 35 12" fill="none" stroke="#F59E0B" strokeWidth="2.5" />
-            <path d="M 33 22 C 26 21 21 25 18 28" fill="none" stroke="#F59E0B" strokeWidth="2" />
-            <path d="M 44 34 C 40 33 37 36 34 39" fill="none" stroke="#F59E0B" strokeWidth="2" />
-
-            {/* Right Antler Main Stem */}
-            <path d="M 72 38 C 78 28 88 20 96 16" fill="none" stroke="#F59E0B" strokeWidth="3.5" />
-            <path d="M 80 30 C 85 24 87 16 85 12" fill="none" stroke="#F59E0B" strokeWidth="2.5" />
-            <path d="M 87 22 C 94 21 99 25 102 28" fill="none" stroke="#F59E0B" strokeWidth="2" />
-            <path d="M 76 34 C 80 33 83 36 86 39" fill="none" stroke="#F59E0B" strokeWidth="2" />
-          </g>
-
-          {/* Antler Tips Glow */}
-          <circle cx="24" cy="16" r="3" fill="#FDE68A" />
-          <circle cx="35" cy="12" r="2.5" fill="#FDE68A" />
-          <circle cx="96" cy="16" r="3" fill="#FDE68A" />
-          <circle cx="85" cy="12" r="2.5" fill="#FDE68A" />
-
-          {/* Deer Ears (Sevimli Kulaklar) */}
-          <path d="M 36 44 C 22 42 18 52 28 58 C 34 56 36 50 38 46 Z" fill="#D97706" />
-          <path d="M 34 46 C 26 45 22 51 28 55 C 32 54 34 49 35 47 Z" fill="#FDE68A" />
-
-          <path d="M 84 44 C 98 42 102 52 92 58 C 86 56 84 50 82 46 Z" fill="#D97706" />
-          <path d="M 86 46 C 94 45 98 51 92 55 C 88 54 86 49 85 47 Z" fill="#FDE68A" />
-
-          {/* Deer Head Shape (Zarif Baş Yapısı) */}
-          <path 
-            d="M 44 42 C 40 50 42 66 45 78 C 47 88 52 94 60 94 C 68 94 73 88 75 78 C 78 66 80 50 76 42 C 70 38 50 38 44 42 Z" 
-            fill="#F59E0B" 
+        {/* Official Duolingo-Style Circular Emblem Badge */}
+        <div className={`${sizeDimensions.img} relative rounded-full p-1 bg-gradient-to-br from-amber-400 via-teal-500 to-emerald-600 shadow-lg shadow-teal-500/25 border-2 border-white/90 overflow-hidden flex items-center justify-center z-10 transition-transform group-hover:-translate-y-0.5`}>
+          <img 
+            src={duoDeerMascotImg} 
+            alt="Alageyik Duolingo Tarzı Resmi Maskot" 
+            className="w-full h-full object-cover rounded-full"
           />
+        </div>
 
-          {/* Cheek & Muzzle (Açık Renkli Yüz & Burun Bölgesi) */}
-          <ellipse cx="60" cy="78" rx="15" ry="12" fill="#FEF3C7" />
-
-          {/* Sacred White Spots (Alageyik Kutsal Benekleri) */}
-          <circle cx="49" cy="52" r="1.8" fill="#FFFBEB" opacity="0.9" />
-          <circle cx="46" cy="60" r="1.5" fill="#FFFBEB" opacity="0.9" />
-          <circle cx="71" cy="52" r="1.8" fill="#FFFBEB" opacity="0.9" />
-          <circle cx="74" cy="60" r="1.5" fill="#FFFBEB" opacity="0.9" />
-          <circle cx="60" cy="48" r="2.2" fill="#FFFBEB" opacity="0.9" />
-
-          {/* Eyes (Bilge ve Parlak Gözler) */}
-          {pose === 'celebrating' ? (
-            /* Joyful Closed Eyes */
-            <g stroke="#1E293B" strokeWidth="2.5" strokeLinecap="round">
-              <path d="M 47 60 Q 52 54 57 60" fill="none" />
-              <path d="M 63 60 Q 68 54 73 60" fill="none" />
-            </g>
-          ) : (
-            /* Wise Open Eyes with Sparkle */
-            <g>
-              <ellipse cx="51" cy="61" rx="4.5" ry="5.5" fill="#1E293B" />
-              <circle cx="49.5" cy="59" r="2" fill="#FFFFFF" />
-              <circle cx="53" cy="63" r="0.8" fill="#FFFFFF" />
-
-              <ellipse cx="69" cy="61" rx="4.5" ry="5.5" fill="#1E293B" />
-              <circle cx="67.5" cy="59" r="2" fill="#FFFFFF" />
-              <circle cx="71" cy="63" r="0.8" fill="#FFFFFF" />
-            </g>
-          )}
-
-          {/* Rosy Cheeks (Sevimli Yanaklar) */}
-          <circle cx="44" cy="70" r="3.5" fill="#F87171" opacity="0.45" />
-          <circle cx="76" cy="70" r="3.5" fill="#F87171" opacity="0.45" />
-
-          {/* Nose & Smile */}
-          <path d="M 57 74 C 57 73 63 73 63 74 C 63 76 61 78 60 78 C 59 78 57 76 57 74 Z" fill="#92400E" />
-          <path d="M 60 78 L 60 82" stroke="#92400E" strokeWidth="1.5" strokeLinecap="round" />
-          {pose === 'encouraging' ? (
-            /* Gentle Comforting Mouth */
-            <path d="M 55 83 Q 60 87 65 83" stroke="#92400E" strokeWidth="1.8" strokeLinecap="round" fill="none" />
-          ) : (
-            /* Warm Big Smile */
-            <path d="M 54 82 Q 60 88 66 82" stroke="#92400E" strokeWidth="2" strokeLinecap="round" fill="none" />
-          )}
-
-          {/* Traditional Turkic Turquoise Talisman Pendant (Kutsal Turkuaz Kolye) */}
-          <path d="M 48 94 C 54 102 66 102 72 94" stroke="#D97706" strokeWidth="2.5" fill="none" />
-          <circle cx="60" cy="102" r="5" fill="#0D9488" stroke="#FDE68A" strokeWidth="1.5" />
-          <circle cx="60" cy="102" r="2" fill="#FDE68A" />
-
-          {/* Pose Accessories */}
-          {pose === 'studying' && (
-            /* Little Scholar Glasses & Scroll */
-            <g stroke="#0369A1" strokeWidth="1.6" fill="none">
-              <circle cx="51" cy="61" r="7" />
-              <circle cx="69" cy="61" r="7" />
-              <path d="M 58 61 L 62 61" />
-            </g>
-          )}
-
-          {pose === 'celebrating' && (
-            /* Victory Laurel / Stars */
-            <g fill="#F59E0B">
-              <polygon points="20,40 22,43 25,43 23,45 24,48 21,46 18,48 19,45 17,43 20,43" />
-              <polygon points="100,40 102,43 105,43 103,45 104,48 101,46 98,48 99,45 97,43 100,43" />
-            </g>
-          )}
-        </svg>
-
-        {/* Mascot Name Badge under character */}
-        <span className="absolute -bottom-1 px-1.5 py-0.5 rounded-full bg-amber-500 text-slate-950 text-[9px] font-black uppercase tracking-wider shadow-xs border border-amber-300">
-          Alageyik
+        {/* Mascot Name / Pose Badge under character */}
+        <span className="absolute -bottom-1 px-1.5 py-0.5 rounded-full bg-amber-500 text-slate-950 text-[9px] font-black uppercase tracking-wider shadow-xs border border-amber-300 z-20">
+          {pose === 'celebrating' ? '🎉 Kutlama' : pose === 'studying' ? '📖 Bilge' : 'Alageyik'}
         </span>
       </div>
+
 
       {/* Speech Bubble / Message Content */}
       {(message || subMessage) && (

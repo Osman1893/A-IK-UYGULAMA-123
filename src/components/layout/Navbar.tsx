@@ -8,11 +8,10 @@ import {
   ArrowLeftRight, 
   LogOut,
   Sparkles,
-  BookOpen,
-  LogIn,
-  KeyRound
+  LogIn
 } from 'lucide-react';
 import { UserProfile, LanguageDirection } from '../../types';
+import duoDeerMascotImg from '../../assets/images/duo_style_deer_mascot_1793124498058.jpg';
 
 interface NavbarProps {
   user: UserProfile;
@@ -52,8 +51,16 @@ export const Navbar: React.FC<NavbarProps> = ({
         
         {/* Brand Logo & Name with Alageyik Mascot */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 via-amber-600 to-violet-700 flex items-center justify-center text-white shadow-md shadow-amber-500/30 text-xl cursor-pointer" title="Uzaktan Türkolog Maskotu: Alageyik">
-            🦌
+          <div 
+            onClick={handleSecretOwnerTap}
+            className="w-11 h-11 rounded-2xl p-0.5 bg-gradient-to-tr from-amber-400 via-teal-500 to-emerald-600 shadow-md shadow-teal-500/25 flex items-center justify-center cursor-pointer overflow-hidden transition-transform hover:scale-105 active:scale-95 group" 
+            title="Uzaktan Türkolog Resmi Maskotu: Alageyik (Duolingo Tarzı Bilgelik Amblemi)"
+          >
+            <img 
+              src={duoDeerMascotImg} 
+              alt="Alageyik Amblemi" 
+              className="w-full h-full object-cover rounded-[14px]"
+            />
           </div>
           <div>
             <div className="flex items-center gap-2">

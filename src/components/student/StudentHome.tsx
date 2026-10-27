@@ -19,6 +19,7 @@ import {
 import { UserProfile, Unit, Lesson, CefrLevel } from '../../types';
 import { MainStudentTab } from './BottomNavBar';
 import { AlageyikMascot } from '../common/AlageyikMascot';
+import { audioService } from '../../services/audioService';
 
 interface StudentHomeProps {
   user: UserProfile;
@@ -192,6 +193,86 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
           />
         </div>
 
+        {/* HERO CARD 1: A1 1. TEMEL KONU: KAZAK ALFABESİ VE AĞIZ ŞEKİLLERİ */}
+        <div className="bg-gradient-to-br from-emerald-800 via-teal-800 to-cyan-900 text-white p-4 rounded-3xl border-2 border-emerald-400/40 shadow-xl relative overflow-hidden group">
+          {/* Top Label */}
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 bg-amber-400 text-slate-950 rounded-full shadow-xs flex items-center gap-1">
+                <span>⭐ A1 • 1. TEMEL KONU</span>
+              </span>
+              <span className="text-[11px] text-teal-200 font-bold">
+                Dudak & Dil Anatomisi
+              </span>
+            </div>
+            <span className="text-[10px] font-extrabold text-teal-300 bg-white/10 px-2 py-0.5 rounded-md">
+              9 Özel Ses + 42 Harf
+            </span>
+          </div>
+
+          {/* Title & Description */}
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h3 className="text-base sm:text-lg font-black text-white group-hover:text-amber-200 transition">
+                {isTr ? 'Kazak Alfabesi ve Ağız Şekilleri' : 'Қазақ әліпбиі және ауыз артикуляциясы'}
+              </h3>
+              <p className="text-xs text-teal-100/90 leading-relaxed mt-1 max-w-sm">
+                {isTr 
+                  ? 'Kazakçaya özgü 9 özel harfi (Ә, І, Ң, Ғ, Ү, Ұ, Қ, Ө, Һ) dudak büzülme ve dil pozisyonu görselleriyle öğrenin, doğru Kazakça seslendirmeyi dinleyin.'
+                  : 'Қазақ тілінің 9 төл дыбысын ерін мен тіл қозғалысының анатомиялық сызбаларымен үйреніңіз.'}
+              </p>
+            </div>
+
+            <div className="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-xs flex items-center justify-center text-2xl shrink-0 border border-white/20 shadow-inner group-hover:scale-105 transition">
+              👄
+            </div>
+          </div>
+
+          {/* Quick Interactive 9 Special Letters Grid */}
+          <div className="mt-3 p-2 bg-black/20 backdrop-blur-xs rounded-2xl border border-white/10">
+            <div className="text-[10px] font-bold text-amber-300 mb-1.5 flex items-center justify-between">
+              <span>Dokun, Ağız Şeklini Gör ve Doğru Kazakça Telaffuzu Dinle:</span>
+              <span className="text-teal-200">9 Özel Harf</span>
+            </div>
+            <div className="grid grid-cols-9 gap-1 text-center">
+              {['Ә', 'І', 'Ң', 'Ғ', 'Ү', 'Ұ', 'Қ', 'Ө', 'Һ'].map((ch) => (
+                <button
+                  key={ch}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    audioService.playFeedbackSound('click');
+                    audioService.speakKazakhLetterComplete(ch);
+                  }}
+                  className="py-1.5 px-0.5 rounded-xl bg-white/15 hover:bg-amber-400 hover:text-slate-950 font-black text-xs sm:text-sm text-white transition active:scale-95 shadow-xs border border-white/15"
+                  title={`${ch} harfi telaffuzu`}
+                >
+                  {ch}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Action Bar */}
+          <div className="mt-3.5 pt-2.5 border-t border-white/15 flex items-center justify-between">
+            <span className="text-[11px] text-teal-200 font-medium">
+              Önden Dudak • Yandan Dil Anatomisi • Doğal Seslendirme
+            </span>
+            <button
+              onClick={() => {
+                const unit1 = units.find(u => u.level === 'A1' && (u.unitNumber === 1 || u.id === 'unit-a1-1')) || units[0];
+                const lesson1 = unit1?.lessons[0];
+                if (unit1 && lesson1) {
+                  onSelectLesson(unit1, lesson1);
+                }
+              }}
+              className="px-3.5 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-xs transition shadow-md flex items-center gap-1 active:scale-95 cursor-pointer"
+            >
+              <span>1. Konuya Başla (Alfabeyi Aç)</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+
         {/* HERO PROMOTED CARD: KİTAPLIK & İNTERAKTİF OKUMA (Kelimelere Dokunarak Oku) */}
         <div 
           onClick={() => onNavigateTab('prompter')}
@@ -212,7 +293,7 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
               </h4>
               <p className="text-[11px] text-teal-100 leading-relaxed max-w-xs">
                 {isTr 
-                  ? 'Metindeki kelimelerin üstüne basarak tercümesini görün, LuvVoice Daulet & Aigul sesleriyle dinleyin.' 
+                  ? 'Metindeki kelimelerin üstüne basarak tercümesini görün, doğal ses motoru ile dinleyin.' 
                   : 'Мәтіндегі сөздерді басып аудармасын көріңіз және табиғи дауыспен тыңдаңыз.'}
               </p>
             </div>

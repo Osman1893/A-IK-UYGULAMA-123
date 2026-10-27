@@ -6,11 +6,12 @@ import {
   ALL_42_KAZAKH_LETTERS,
   FullAlphabetLetter,
   KazakhPhoneticData,
-  LUVVOICE_PERSONAS,
-  LuvVoicePersona
+  VOICE_PROFILES,
+  VoicePersona
 } from '../../services/audioService';
 import { PhoneticMouthVisual, ArticulatoryCategory } from '../common/PhoneticMouthVisual';
 import { AlageyikMascot } from '../common/AlageyikMascot';
+import { NaturalVoiceGuideModal } from '../common/NaturalVoiceGuideModal';
 
 interface KazakhAlphabetVoiceGuideProps {
   isOpen: boolean;
@@ -52,7 +53,8 @@ export const KazakhAlphabetVoiceGuide: React.FC<KazakhAlphabetVoiceGuideProps> =
   const [selectedMouthLetter, setSelectedMouthLetter] = useState<string | null>('Ә');
   const [tab, setTab] = useState<'special9' | 'all42'>('special9');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedVoice, setSelectedVoice] = useState<LuvVoicePersona>(audioService.getKazakhPersona());
+  const [selectedVoice, setSelectedVoice] = useState<VoicePersona>(audioService.getKazakhPersona());
+  const [isVoiceGuideOpen, setIsVoiceGuideOpen] = useState(false);
 
   if (!isOpen) return null;
 
@@ -70,12 +72,11 @@ export const KazakhAlphabetVoiceGuide: React.FC<KazakhAlphabetVoiceGuideProps> =
     setActiveLetter(null);
   };
 
-  const handleVoiceChange = (personaId: LuvVoicePersona) => {
+  const handleVoiceChange = (personaId: VoicePersona) => {
     setSelectedVoice(personaId);
     audioService.setKazakhPersona(personaId);
     audioService.playFeedbackSound('click');
-    const p = LUVVOICE_PERSONAS.find(x => x.id === personaId);
-    audioService.speakWithPersona(`Сәлеметсіз бе! Мен ${p?.name.split(' ')[0]} дауысымын.`, personaId);
+    audioService.speakWithPersona('Сәлеметсіз бе! Бұл табиғи дауыс үлгісі.', personaId);
   };
 
   const filtered42Letters = ALL_42_KAZAKH_LETTERS.filter(l => 
@@ -103,7 +104,7 @@ export const KazakhAlphabetVoiceGuide: React.FC<KazakhAlphabetVoiceGuideProps> =
                 Kazakça Alfabe, Ağız Şekli & Fonetik Seslendirici
               </h3>
               <p className="text-[10px] text-teal-200 font-medium">
-                Dudak/Dil Anatomisi, LuvVoice Aksanları ve Akustik Formant Sentezi
+                Dudak/Dil Anatomisi, Doğal Nöral Ses ve Fonetik Kılavuzu
               </p>
             </div>
           </div>
@@ -112,15 +113,15 @@ export const KazakhAlphabetVoiceGuide: React.FC<KazakhAlphabetVoiceGuideProps> =
           </button>
         </div>
 
-        {/* LuvVoice Inspired Persona & Accent Switcher Bar */}
+        {/* Natural Voice Selector Bar */}
         <div className="px-4 py-2.5 bg-slate-900 text-white flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 shrink-0">
           <div className="flex items-center gap-2">
             <span className="text-[10px] text-amber-400 font-extrabold uppercase tracking-wider flex items-center gap-1">
               <Mic className="w-3.5 h-3.5" />
-              <span>LuvVoice Doğal Aksan:</span>
+              <span>Kazakça Ses:</span>
             </span>
             <div className="flex items-center gap-1">
-              {LUVVOICE_PERSONAS.filter(p => p.lang === 'kk').map(p => (
+              {VOICE_PROFILES.filter(p => p.lang === 'kk').map(p => (
                 <button
                   key={p.id}
                   onClick={() => handleVoiceChange(p.id)}
@@ -130,16 +131,20 @@ export const KazakhAlphabetVoiceGuide: React.FC<KazakhAlphabetVoiceGuideProps> =
                       : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
                   }`}
                 >
-                  <span>{p.gender === 'male' ? '👨 Daulet' : '👩 Aigul'}</span>
+                  <span>{p.gender === 'male' ? '👨 Erkek Sesi' : '👩 Kadın Sesi'}</span>
                   {selectedVoice === p.id && <Check className="w-3 h-3 stroke-[3]" />}
                 </button>
               ))}
             </div>
           </div>
 
-          <span className="text-[10px] text-slate-400 italic">
-            Doğru telaffuz ve ses motoru aktif
-          </span>
+          <button
+            onClick={() => setIsVoiceGuideOpen(true)}
+            className="text-[10px] text-amber-300 hover:text-white font-bold underline flex items-center gap-1 transition"
+            title="Ses kalitesi ve doğal insan sesi çözüm rehberi"
+          >
+            <span>💡 Ses Robotikse Çözüm</span>
+          </button>
         </div>
 
         {/* Mascot Guidance Banner */}
@@ -211,12 +216,23 @@ export const KazakhAlphabetVoiceGuide: React.FC<KazakhAlphabetVoiceGuideProps> =
                   `${selectedMouthLetter} Harfi`
                 }
               />
-              <button
-                onClick={() => setSelectedMouthLetter(null)}
-                className="absolute top-6 right-6 text-slate-400 hover:text-slate-600 text-[10px] font-bold"
-              >
-                Kapat ×
-              </button>
+              <div className="mt-2.5 flex items-center gap-2">
+                <button
+                  onClick={() => handlePlayLetter(selectedMouthLetter)}
+                  className="flex-1 py-2.5 px-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-black text-xs shadow-xs transition flex items-center justify-center gap-1.5 active:scale-95"
+                >
+                  <Volume2 className="w-3.5 h-3.5" />
+                  <span>🔊 Doğru Kazakça Telaffuz ({selectedMouthLetter})</span>
+                </button>
+                <button
+                  onClick={(e) => handlePlayAcousticFormant(selectedMouthLetter, e)}
+                  className="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition flex items-center gap-1 active:scale-95"
+                  title="F1, F2, F3 saf formant frekans rezonansı"
+                >
+                  <Activity className="w-3.5 h-3.5 text-teal-600" />
+                  <span>Saf Akustik Formant</span>
+                </button>
+              </div>
             </div>
           )}
 
@@ -374,6 +390,13 @@ export const KazakhAlphabetVoiceGuide: React.FC<KazakhAlphabetVoiceGuideProps> =
         </div>
 
       </div>
+
+      {/* Natural Voice Quality Diagnostic & Solution Modal */}
+      <NaturalVoiceGuideModal
+        isOpen={isVoiceGuideOpen}
+        onClose={() => setIsVoiceGuideOpen(false)}
+      />
+
     </div>
   );
 };

@@ -15,14 +15,24 @@ import {
   FileText, 
   Sparkles,
   AlertCircle,
-  HelpCircle,
   Check,
-  ChevronRight
+  ChevronRight,
+  Activity
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { Lesson, Unit, UserProfile, VocabItem, ExerciseItem } from '../../types';
-import { audioService } from '../../services/audioService';
+import { 
+  audioService, 
+  KAZAKH_PHONETIC_ATLAS, 
+  ALL_42_KAZAKH_LETTERS, 
+  VOICE_PROFILES, 
+  VoicePersona 
+} from '../../services/audioService';
 import { storageService } from '../../services/storageService';
+import { PhoneticMouthVisual } from '../common/PhoneticMouthVisual';
+import { LETTER_MOUTH_MAP } from './KazakhAlphabetVoiceGuide';
+import { AlageyikMascot } from '../common/AlageyikMascot';
+import { NaturalVoiceGuideModal } from '../common/NaturalVoiceGuideModal';
 
 interface LessonViewProps {
   unit: Unit;
@@ -42,7 +52,16 @@ export const LessonView: React.FC<LessonViewProps> = ({
   onToggleMastery
 }) => {
   const isTr = user.currentDirection === 'TR_TO_KZ';
-  const [activeTab, setActiveTab] = useState<'vocab' | 'dialogue' | 'grammar' | 'speaking' | 'quiz'>('vocab');
+  const isAlphabetLesson = unit.id === 'unit-a1-1' || lesson.id.includes('a1-1') || lesson.titleTr.toLowerCase().includes('harf') || lesson.titleTr.toLowerCase().includes('alfabe');
+  const [activeTab, setActiveTab] = useState<'alphabet' | 'vocab' | 'dialogue' | 'grammar' | 'speaking' | 'quiz'>(
+    isAlphabetLesson ? 'alphabet' : 'vocab'
+  );
+
+  // Phonetic Alphabet & Mouth Shape Visual Studio State
+  const [selectedLetter, setSelectedLetter] = useState<string>('Ә');
+  const [alphabetViewMode, setAlphabetViewMode] = useState<'special9' | 'all42'>('special9');
+  const [selectedPersona, setSelectedPersona] = useState<VoicePersona>(audioService.getKazakhPersona());
+  const [isVoiceGuideOpen, setIsVoiceGuideOpen] = useState(false);
 
   // Audio Playback state
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
@@ -218,8 +237,22 @@ export const LessonView: React.FC<LessonViewProps> = ({
         </div>
       </div>
 
-      {/* 5-Step Segmented Navigation (matches mockup) */}
+      {/* Segmented Navigation with Alfabe & Ağız Şekilleri */}
       <div className="bg-white border-b border-slate-200 px-2 py-2 flex items-center justify-between gap-1 overflow-x-auto select-none">
+        {isAlphabetLesson && (
+          <button
+            onClick={() => setActiveTab('alphabet')}
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold transition shrink-0 ${
+              activeTab === 'alphabet' 
+                ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-xs font-black' 
+                : 'text-teal-800 bg-teal-50 hover:bg-teal-100 font-bold border border-teal-200'
+            }`}
+          >
+            <Activity className="w-3.5 h-3.5" />
+            <span>👄 Ağız Şekli & Alfabe</span>
+          </button>
+        )}
+
         <button
           onClick={() => setActiveTab('vocab')}
           className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold transition shrink-0 ${
@@ -227,7 +260,7 @@ export const LessonView: React.FC<LessonViewProps> = ({
           }`}
         >
           <BookOpen className="w-3.5 h-3.5" />
-          <span>1. Kelimeler</span>
+          <span>{isAlphabetLesson ? '2. Kelimeler' : '1. Kelimeler'}</span>
         </button>
 
         <button
@@ -237,7 +270,7 @@ export const LessonView: React.FC<LessonViewProps> = ({
           }`}
         >
           <Headphones className="w-3.5 h-3.5" />
-          <span>2. Dinleme</span>
+          <span>{isAlphabetLesson ? '3. Dinleme' : '2. Dinleme'}</span>
         </button>
 
         <button
@@ -247,7 +280,7 @@ export const LessonView: React.FC<LessonViewProps> = ({
           }`}
         >
           <FileText className="w-3.5 h-3.5" />
-          <span>3. Gramer</span>
+          <span>{isAlphabetLesson ? '4. Gramer' : '3. Gramer'}</span>
         </button>
 
         <button
@@ -257,7 +290,7 @@ export const LessonView: React.FC<LessonViewProps> = ({
           }`}
         >
           <Mic className="w-3.5 h-3.5" />
-          <span>4. Konuşma</span>
+          <span>{isAlphabetLesson ? '5. Konuşma' : '4. Konuşma'}</span>
         </button>
 
         <button
@@ -267,13 +300,213 @@ export const LessonView: React.FC<LessonViewProps> = ({
           }`}
         >
           <Award className="w-3.5 h-3.5" />
-          <span>5. Sınav</span>
+          <span>{isAlphabetLesson ? '6. Sınav' : '5. Sınav'}</span>
         </button>
       </div>
 
       {/* Main Tab Content */}
       <div className="flex-1 p-4 overflow-y-auto">
         
+        {/* ==================================================== */}
+        {/* TAB 0: ALFABE VE AĞIZ ŞEKİLLERİ (FONETİK ATÖLYESİ) */}
+        {/* ==================================================== */}
+        {activeTab === 'alphabet' && (
+          <div className="space-y-4">
+            
+            {/* Mascot Banner */}
+            <div className="p-3 bg-gradient-to-r from-amber-50 via-teal-50 to-emerald-50 border border-teal-200/80 rounded-2xl shadow-xs">
+              <AlageyikMascot
+                pose="studying"
+                size="sm"
+                message="Dudak ve dil hareketlerini görerek tekrarla!"
+                subMessage="Kazakçanın 9 özel sesi için dudakların yuvarlaklığı ve dilin damağa göre konumu çok önemlidir. Her harfe dokunup ağız şeklini incele ve sesi dinle."
+                showLoreButton={false}
+              />
+            </div>
+
+            {/* Persona Accent Selector */}
+            <div className="flex items-center justify-between p-2.5 bg-slate-900 text-white rounded-2xl border border-slate-800">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-extrabold text-amber-400 uppercase tracking-wider">
+                  🎙️ Kazakça Ses:
+                </span>
+                <div className="flex items-center gap-1">
+                  {VOICE_PROFILES.filter(p => p.lang === 'kk').map(p => (
+                    <button
+                      key={p.id}
+                      onClick={() => {
+                        setSelectedPersona(p.id);
+                        audioService.setKazakhPersona(p.id);
+                        audioService.playFeedbackSound('click');
+                      }}
+                      className={`px-2.5 py-1 rounded-xl text-[10px] font-bold transition flex items-center gap-1 ${
+                        selectedPersona === p.id 
+                          ? 'bg-amber-500 text-slate-950 font-black shadow-xs' 
+                          : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                      }`}
+                    >
+                      <span>{p.gender === 'male' ? '👨 Erkek Sesi' : '👩 Kadın Sesi'}</span>
+                      {selectedPersona === p.id && <Check className="w-3 h-3 stroke-[3]" />}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <button
+                onClick={() => setIsVoiceGuideOpen(true)}
+                className="text-[10px] text-amber-300 hover:text-white font-bold underline flex items-center gap-1 transition"
+                title="Ses kalitesi ve doğal insan sesi çözüm rehberi"
+              >
+                <span>💡 Ses Robotik Çıkıyorsa Çözüm</span>
+              </button>
+            </div>
+
+            {/* 9 Özel Harf Seçim Bandı */}
+            <div className="bg-white p-3 rounded-2xl border border-slate-200 shadow-xs">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-black text-slate-900 flex items-center gap-1">
+                  <Sparkles className="w-3.5 h-3.5 text-teal-600" />
+                  <span>Harfi Seç ve Ağız Şeklini İncele:</span>
+                </span>
+                <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg text-[10px] font-bold">
+                  <button
+                    onClick={() => setAlphabetViewMode('special9')}
+                    className={`px-2 py-0.5 rounded-md transition ${
+                      alphabetViewMode === 'special9' ? 'bg-white text-teal-800 shadow-2xs font-black' : 'text-slate-600'
+                    }`}
+                  >
+                    9 Özel Harf
+                  </button>
+                  <button
+                    onClick={() => setAlphabetViewMode('all42')}
+                    className={`px-2 py-0.5 rounded-md transition ${
+                      alphabetViewMode === 'all42' ? 'bg-white text-teal-800 shadow-2xs font-black' : 'text-slate-600'
+                    }`}
+                  >
+                    42 Harf
+                  </button>
+                </div>
+              </div>
+
+              {alphabetViewMode === 'special9' ? (
+                <div className="grid grid-cols-5 sm:grid-cols-9 gap-1.5">
+                  {KAZAKH_PHONETIC_ATLAS.map((p) => {
+                    const isSelected = selectedLetter === p.letter;
+                    return (
+                      <button
+                        key={p.letter}
+                        onClick={() => {
+                          setSelectedLetter(p.letter);
+                          audioService.playFeedbackSound('click');
+                          audioService.speakKazakhLetterComplete(p.letter);
+                        }}
+                        className={`flex flex-col items-center justify-center p-2 rounded-xl transition border ${
+                          isSelected
+                            ? 'bg-gradient-to-b from-teal-600 to-cyan-700 text-white border-teal-500 shadow-md scale-105 ring-2 ring-teal-400/40'
+                            : 'bg-slate-50 text-slate-800 border-slate-200 hover:border-teal-300 hover:bg-teal-50/50'
+                        }`}
+                      >
+                        <span className="text-lg font-black leading-none">{p.letter}</span>
+                        <span className={`text-[9px] mt-0.5 font-bold ${isSelected ? 'text-teal-100' : 'text-slate-500'}`}>
+                          {p.latin}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="grid grid-cols-7 sm:grid-cols-11 gap-1 max-h-36 overflow-y-auto p-1 bg-slate-50 rounded-xl">
+                  {ALL_42_KAZAKH_LETTERS.map((l) => {
+                    const isSelected = selectedLetter === l.char;
+                    return (
+                      <button
+                        key={l.char}
+                        onClick={() => {
+                          setSelectedLetter(l.char);
+                          audioService.playFeedbackSound('click');
+                          audioService.speakKazakhLetterComplete(l.char);
+                        }}
+                        className={`p-1.5 rounded-lg text-center font-black text-xs transition border ${
+                          isSelected
+                            ? 'bg-teal-600 text-white border-teal-600 shadow-xs scale-105'
+                            : 'bg-white text-slate-800 border-slate-200 hover:border-teal-300'
+                        }`}
+                      >
+                        {l.char}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Büyük Ağız Şekli Görsel Kartı (PhoneticMouthVisual) */}
+            <div className="bg-white rounded-3xl border border-teal-200 shadow-lg p-4">
+              <PhoneticMouthVisual
+                category={LETTER_MOUTH_MAP[selectedLetter] || 'unrounded_open'}
+                letter={selectedLetter}
+                nameTr={
+                  KAZAKH_PHONETIC_ATLAS.find(x => x.letter === selectedLetter)?.nameTr ||
+                  ALL_42_KAZAKH_LETTERS.find(x => x.char === selectedLetter)?.nameTr ||
+                  `${selectedLetter} Harfi`
+                }
+                showLabels={true}
+              />
+
+              {/* Ses ve Kelime Butonları */}
+              <div className="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
+                <button
+                  onClick={() => audioService.speakKazakhLetterComplete(selectedLetter)}
+                  className="flex-1 py-3 px-4 rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-black text-xs shadow-md shadow-teal-500/20 transition flex items-center justify-center gap-2 active:scale-95"
+                >
+                  <Volume2 className="w-4 h-4" />
+                  <span>🔊 Doğru Kazakça Telaffuzu Dinle ({selectedLetter})</span>
+                </button>
+
+                <button
+                  onClick={() => audioService.playAcousticPhoneme(selectedLetter)}
+                  className="py-3 px-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition flex items-center gap-1.5 active:scale-95"
+                  title="F1, F2, F3 saf formant frekans rezonansı"
+                >
+                  <Activity className="w-3.5 h-3.5 text-teal-600" />
+                  <span>Akustik Rezonans</span>
+                </button>
+              </div>
+
+              {/* Örnek Kelimeler */}
+              {KAZAKH_PHONETIC_ATLAS.find(x => x.letter === selectedLetter) && (
+                <div className="mt-3 p-3 bg-teal-50/70 border border-teal-200 rounded-2xl">
+                  <span className="text-[10px] font-black uppercase text-teal-800 tracking-wider block mb-1.5">
+                    Örnek Kazakça Kelimeler & Sesler:
+                  </span>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {KAZAKH_PHONETIC_ATLAS.find(x => x.letter === selectedLetter)?.exampleKz.split(', ').map((wordItem, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => audioService.speak(wordItem.split(' ')[0], 'kk')}
+                        className="px-2.5 py-1 rounded-xl bg-white border border-teal-300 text-teal-950 font-bold text-xs hover:bg-teal-600 hover:text-white transition shadow-2xs flex items-center gap-1"
+                      >
+                        <Volume2 className="w-3 h-3 text-teal-600" />
+                        <span>{wordItem}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* İlerleme / Sonraki Adıma Geç Butonu */}
+            <div className="flex justify-end pt-2">
+              <button
+                onClick={() => setActiveTab('vocab')}
+                className="py-2.5 px-5 rounded-2xl bg-teal-700 hover:bg-teal-800 text-white font-black text-xs shadow-md transition flex items-center gap-1.5"
+              >
+                <span>Kelimeler Bölümüne Geç</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* ==================================================== */}
         {/* TAB 1: KELİMELER (СӨЗДІК) FLASHCARDS */}
         {/* ==================================================== */}
@@ -825,6 +1058,12 @@ export const LessonView: React.FC<LessonViewProps> = ({
         )}
 
       </div>
+
+      {/* Natural Voice Quality Diagnostic & Solution Modal */}
+      <NaturalVoiceGuideModal
+        isOpen={isVoiceGuideOpen}
+        onClose={() => setIsVoiceGuideOpen(false)}
+      />
 
     </div>
   );

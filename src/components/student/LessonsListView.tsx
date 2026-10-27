@@ -50,6 +50,33 @@ export const LessonsListView: React.FC<LessonsListViewProps> = ({
         </div>
       </div>
 
+      {/* A1 1. Konu: Kazak Alfabesi ve Ağız Şekilleri Promoted Banner */}
+      {user.currentLevel === 'A1' && (
+        <div 
+          onClick={() => {
+            const unit1 = activeUnits.find(u => u.unitNumber === 1) || activeUnits[0];
+            const lesson1 = unit1?.lessons[0];
+            if (unit1 && lesson1) onSelectLesson(unit1, lesson1);
+          }}
+          className="p-4 rounded-3xl bg-gradient-to-r from-teal-700 via-emerald-800 to-cyan-900 text-white shadow-md hover:shadow-lg cursor-pointer transition flex items-center justify-between border-2 border-emerald-400/50 group"
+        >
+          <div className="space-y-1">
+            <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-400 text-slate-950">
+              ⭐ A1 • 1. TEMEL KONU
+            </span>
+            <h3 className="text-sm font-black text-white group-hover:text-amber-200 transition">
+              Kazak Alfabesi ve Ağız Şekilleri
+            </h3>
+            <p className="text-[11px] text-teal-100 max-w-xs">
+              9 özel harf, dudak ve dil anatomisi görselleri, doğal Kazakça seslendirmesi.
+            </p>
+          </div>
+          <div className="w-11 h-11 rounded-2xl bg-white/20 flex items-center justify-center text-2xl shrink-0 group-hover:scale-105 transition shadow-inner">
+            👄
+          </div>
+        </div>
+      )}
+
       {/* Units & Lessons */}
       <div className="space-y-4">
         {activeUnits.map(unit => (
