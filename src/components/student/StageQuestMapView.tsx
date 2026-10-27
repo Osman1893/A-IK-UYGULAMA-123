@@ -22,6 +22,8 @@ import confetti from 'canvas-confetti';
 import { audioService } from '../../services/audioService';
 import { storageService } from '../../services/storageService';
 import { UserProfile, Unit, Lesson } from '../../types';
+import { StageEvaluationModal, EvaluationQuestion } from './StageEvaluationModal';
+import { AlageyikMascot } from '../common/AlageyikMascot';
 
 interface StageQuestMapViewProps {
   user: UserProfile;
@@ -195,8 +197,196 @@ const DEFAULT_STAGES: QuestStage[] = [
       wordBank: ['Abay\'ın', 'sözü', 'halkın', 'gözüdür.', 'yoludur'],
       correctOrder: ['Abay\'ın', 'sözü', 'halkın', 'gözüdür.']
     }
+  },
+  {
+    id: 'stage-8',
+    stageNumber: 8,
+    titleTr: 'Doğa, Mevsimler & Coğrafya',
+    titleKz: 'Табиғат, Мезгілдер мен Жер-су',
+    icon: '🏔️',
+    stars: 0,
+    status: 'locked',
+    totalTasks: 6,
+    description: 'Aladağlar, Tiyanşan, Hazar Denizi ve bozkır coğrafyası.',
+    sentencePrompt: {
+      kz: 'Таудың басында ақ қар жатыр.',
+      tr: 'Dağın başında ak kar yatmaktadır.',
+      audio: 'Таудың басында ақ қар жатыр.',
+      wordBank: ['Dağın', 'başında', 'ak', 'kar', 'yatmaktadır.', 'yeşil'],
+      correctOrder: ['Dağın', 'başında', 'ak', 'kar', 'yatmaktadır.']
+    }
+  },
+  {
+    id: 'stage-9',
+    stageNumber: 9,
+    titleTr: 'Meslekler & İş Dünyası',
+    titleKz: 'Мамандықтар мен Еңбек',
+    icon: '💼',
+    stars: 0,
+    status: 'locked',
+    totalTasks: 6,
+    description: 'Öğretmen, doktor, mühendis ve iş hayatı terimleri.',
+    sentencePrompt: {
+      kz: 'Ұстаз — мектептің жүрегі.',
+      tr: 'Öğretmen okulun kalbidir.',
+      audio: 'Ұстаз — мектептің жүрегі.',
+      wordBank: ['Öğretmen', 'okulun', 'kalbidir.', 'öğrenci', 'bilgi'],
+      correctOrder: ['Öğretmen', 'okulun', 'kalbidir.']
+    }
+  },
+  {
+    id: 'stage-10',
+    stageNumber: 10,
+    titleTr: 'Büyük Kurultay & Usta Türkolog',
+    titleKz: 'Ұлы Құрылтай және Бас Түркітанушы',
+    icon: '👑',
+    stars: 0,
+    status: 'locked',
+    totalTasks: 10,
+    description: 'Tüm etapların birleşimi ve Usta Türkolog Şeref Nişanı.',
+    sentencePrompt: {
+      kz: 'Тіл — ұлттың ең биік туы.',
+      tr: 'Dil milletin en yüce bayrağıdır.',
+      audio: 'Тіл — ұлттың ең биік туы.',
+      wordBank: ['Dil', 'milletin', 'en', 'yüce', 'bayrağıdır.', 'sözüdür'],
+      correctOrder: ['Dil', 'milletin', 'en', 'yüce', 'bayrağıdır.']
+    }
   }
 ];
+
+// Questions bank for stage evaluation tests
+export const getStageQuestions = (stageNumber: number): EvaluationQuestion[] => {
+  const map: Record<number, EvaluationQuestion[]> = {
+    1: [
+      {
+        id: 'q-1-1',
+        questionTr: 'Kazakçada saygılı «Merhaba, benim adım...» nasıl denir?',
+        questionKz: '«Сәлеметсіз бе, менің атым...» дұрыс па?',
+        options: ['Сәлеметсіз бе, менің атым...', 'Сау болыңыз, мен барамын', 'Қайырлы түн, достар', 'Көріскенше!'],
+        correctAnswer: 'Сәлеметсіз бе, менің атым...',
+        explanationTr: '«Сәлеметсіз бе» saygılı merhaba, «менің атым» benim adım demektir.',
+        explanationKz: 'Сәлеметсіз бе – сыпайы сәлем.'
+      },
+      {
+        id: 'q-1-2',
+        questionTr: '«Қалайсыз?» sorusuna en uygun nezaket cevabı hangisidir?',
+        questionKz: '«Қалайсыз?» сұрағына қай жауап дұрыс?',
+        options: ['Жақсы, рахмет! Өзіңіз қалайсыз?', 'Жоқ, келмеймін', 'Бұл кітап қанша?', 'Сағат бес'],
+        correctAnswer: 'Жақсы, рахмет! Өзіңіз қалайсыз?',
+        explanationTr: '«Жақсы, рахмет!» (İyiyim, teşekkür ederim) kalıbı kullanılır.',
+        explanationKz: 'Жақсы, рахмет.'
+      },
+      {
+        id: 'q-1-3',
+        questionTr: 'Kazakçadaki 9 özel harften hangisi genizden gelen «sağır n» sesidir?',
+        questionKz: 'Мұрын жолды төл дыбыс қайсысы?',
+        options: ['Ң', 'Ғ', 'Ү', 'Қ'],
+        correctAnswer: 'Ң',
+        explanationTr: 'Ң harfi geniz n\'si (sağır kâf) sesidir.',
+        explanationKz: 'Ң – төл дыбыс.'
+      },
+      {
+        id: 'q-1-4',
+        questionTr: '«Сау болыңыз!» ne anlama gelir?',
+        questionKz: '«Сау болыңыз!» мағынасы?',
+        options: ['Hoşça kalın / Sağlıcakla kalın', 'Günaydın', 'Lütfen', 'Rica ederim'],
+        correctAnswer: 'Hoşça kalın / Sağlıcakla kalın',
+        explanationTr: 'Ayrılırken «Sağlıcakla kalın» manasında söylenir.',
+        explanationKz: 'Қоштасу сөзі.'
+      }
+    ],
+    2: [
+      {
+        id: 'q-2-1',
+        questionTr: '«Бұл кітап қанша тұрады?» ne anlama gelir?',
+        questionKz: 'Бұл сөйлем қалай аударылады?',
+        options: ['Bu kitap ne kadar / kaç para?', 'Bu kitap nerede?', 'Kitap okuyor musunuz?', 'Yeni kitap aldım'],
+        correctAnswer: 'Bu kitap ne kadar / kaç para?',
+        explanationTr: '«Қанша тұрады?» fiyat sorma kalıbıdır.',
+        explanationKz: 'Баға сұрау.'
+      },
+      {
+        id: 'q-2-2',
+        questionTr: '«Жеті жүз теңге» kaç parayı ifade eder?',
+        questionKz: '«Жеті жүз» қай сан?',
+        options: ['700', '70', '7000', '750'],
+        correctAnswer: '700',
+        explanationTr: 'Жеті (7) + жүз (100) = 700.',
+        explanationKz: '700 саны.'
+      },
+      {
+        id: 'q-2-3',
+        questionTr: 'Alışverişte «Çok pahalı, biraz indirim yapınız» nasıl denir?',
+        questionKz: '«Өте қымбат, аздап түсіріңіз» деген не?',
+        options: ['Өте қымбат, аздап түсіріңіз', 'Бәрі тегін', 'Ақшам жоқ', 'Қош келдіңіз'],
+        correctAnswer: 'Өте қымбат, аздап түсіріңіз',
+        explanationTr: 'Қымбат = Pahalı, түсіріңіз = İndiriniz.',
+        explanationKz: 'Саудаласу үлгісі.'
+      }
+    ],
+    3: [
+      {
+        id: 'q-3-1',
+        questionTr: 'Kazakçada «Küçük erkek kardeş» için ne denir?',
+        questionKz: 'Кіші ер бауыр қалай аталады?',
+        options: ['Іні', 'Аға', 'Әпке', 'Қарындас'],
+        correctAnswer: 'Іні',
+        explanationTr: 'Іні = Küçük erkek kardeş.',
+        explanationKz: 'Іні.'
+      },
+      {
+        id: 'q-3-2',
+        questionTr: '«Әке» ve «Ана» kimdir?',
+        questionKz: '«Әке» мен «Ана» кімдер?',
+        options: ['Baba ve Anne', 'Dede ve Nine', 'Kardeşler', 'Arkadaş ve Komşu'],
+        correctAnswer: 'Baba ve Anne',
+        explanationTr: 'Әке = Baba, Ана = Anne.',
+        explanationKz: 'Ата-ана.'
+      },
+      {
+        id: 'q-3-3',
+        questionTr: 'Kazakçada dedeye ne denir?',
+        questionKz: '«Ата» сөзінің мағынасы қайсысы?',
+        options: ['Ата', 'Аға', 'Бөле', 'Жеңге'],
+        correctAnswer: 'Ата',
+        explanationTr: '«Ата» büyükbaba, dede demektir.',
+        explanationKz: 'Ата – үлкен кісі, атамыз.'
+      }
+    ]
+  };
+
+  const defaultQ: EvaluationQuestion[] = [
+    {
+      id: `q-${stageNumber}-1`,
+      questionTr: `Etap ${stageNumber} temel kuralı ve kelimeleri başarıyla kavrandı mı?`,
+      questionKz: `Кезең мақсаттары толық меңгерілді ме?`,
+      options: ['Evet, konuyu ve kelimeleri tam olarak kavradım', 'Hayır, eksiklerim var', 'Kararsızım', 'Tekrar etmeliyim'],
+      correctAnswer: 'Evet, konuyu ve kelimeleri tam olarak kavradım',
+      explanationTr: 'Tebrikler, etap hedefleri tamamlandı.',
+      explanationKz: 'Жарайсыз!'
+    },
+    {
+      id: `q-${stageNumber}-2`,
+      questionTr: 'Kazakçada soru eki hangisinde doğru kullanılmıştır?',
+      questionKz: 'Сұраулық шылау қайсысында дұрыс?',
+      options: ['Бұл кітап па?', 'Бұл кітап ма?', 'Бұл кітап ба?', 'Бұл кітап пе?'],
+      correctAnswer: 'Бұл кітап па?',
+      explanationTr: 'П ile biten sert kelimeden sonra «па» gelir.',
+      explanationKz: 'Кітап па.'
+    },
+    {
+      id: `q-${stageNumber}-3`,
+      questionTr: 'Kazakçada şimdiki zaman tasvir fiili hangisidir?',
+      questionKz: 'Қазіргі шақ көмекші етістігі қайсысы?',
+      options: ['отыр / тұр / жүр / жатыр', 'келді / кетті', 'алды / берді', 'көрді / естіді'],
+      correctAnswer: 'отыр / тұр / жүр / жатыр',
+      explanationTr: 'Kazakçada esas anlık şimdiki zaman 4 ana tasvir fiiliyle (отыр, тұр, жүр, жатыр) kurulur.',
+      explanationKz: 'Отыр, тұр, жүр, жатыр – қалып етістіктері.'
+    }
+  ];
+
+  return map[stageNumber] || defaultQ;
+};
 
 export const StageQuestMapView: React.FC<StageQuestMapViewProps> = ({
   user,
@@ -208,6 +398,7 @@ export const StageQuestMapView: React.FC<StageQuestMapViewProps> = ({
 }) => {
   const [stages, setStages] = useState<QuestStage[]>(DEFAULT_STAGES);
   const [selectedStage, setSelectedStage] = useState<QuestStage | null>(null);
+  const [evaluatingStage, setEvaluatingStage] = useState<QuestStage | null>(null);
   const [isGameActive, setIsGameActive] = useState(false);
   const [lives, setLives] = useState(5);
 
@@ -302,23 +493,33 @@ export const StageQuestMapView: React.FC<StageQuestMapViewProps> = ({
     }
   };
 
-  // Continue to next question or complete stage (only allowed when answer is correct!)
+  // Continue to next question or complete stage (triggers mandatory evaluation gatekeeper!)
   const handleContinue = () => {
     if (isAnswerCorrect && selectedStage) {
-      // Mark stage as completed and unlock next
-      setStages(prev => prev.map(s => {
-        if (s.id === selectedStage.id) {
-          return { ...s, status: 'completed', stars: 3 };
-        }
-        if (s.stageNumber === selectedStage.stageNumber + 1) {
-          return { ...s, status: 'active' };
-        }
-        return s;
-      }));
+      setEvaluatingStage(selectedStage);
+      setIsGameActive(false);
     }
+  };
 
-    setIsGameActive(false);
+  const handlePassStageEvaluation = (stage: QuestStage) => {
+    setStages(prev => prev.map(s => {
+      if (s.id === stage.id) {
+        return { ...s, status: 'completed', stars: 3 };
+      }
+      if (s.stageNumber === stage.stageNumber + 1) {
+        return { ...s, status: 'active' };
+      }
+      return s;
+    }));
+    onEarnXp(50);
+    setEvaluatingStage(null);
     setSelectedStage(null);
+  };
+
+  const handleReviewLessonForStage = () => {
+    setEvaluatingStage(null);
+    setSelectedStage(null);
+    onNavigateTab('lessons');
   };
 
   // Requirement 2: Strict error detection! Student CANNOT pass until correct.
@@ -386,6 +587,16 @@ export const StageQuestMapView: React.FC<StageQuestMapViewProps> = ({
           <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center text-2xl shadow-inner">
             🗺️
           </div>
+        </div>
+
+        {/* Mascot Road Guide */}
+        <div className="mt-3 p-3.5 bg-gradient-to-r from-amber-50 via-white to-violet-50 border border-amber-200/80 rounded-3xl shadow-xs">
+          <AlageyikMascot
+            pose="guide"
+            size="sm"
+            message="Her etaptan sonra değerlendirme sınavı seni bekliyor!"
+            subMessage="Geçme notu %75'tir. Başarısız olursan pes etme, konuyu tekrar edip yeniden dene."
+          />
         </div>
       </div>
 
@@ -681,6 +892,19 @@ export const StageQuestMapView: React.FC<StageQuestMapViewProps> = ({
             </button>
           </div>
         </div>
+      )}
+
+      {/* Mandatory Stage Evaluation Test Modal */}
+      {evaluatingStage && (
+        <StageEvaluationModal
+          isOpen={true}
+          stageTitle={evaluatingStage.titleTr}
+          stageNumber={Math.floor(evaluatingStage.stageNumber)}
+          questions={getStageQuestions(Math.floor(evaluatingStage.stageNumber))}
+          onPassStage={() => handlePassStageEvaluation(evaluatingStage)}
+          onReviewLesson={handleReviewLessonForStage}
+          onClose={() => setEvaluatingStage(null)}
+        />
       )}
 
     </div>

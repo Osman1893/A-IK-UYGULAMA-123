@@ -34,6 +34,135 @@ export interface ReadingStory {
 
 export const READING_STORIES: ReadingStory[] = [
   // ==========================================
+  // TÜRK MİTOLOJİSİ VE EFSANELER - ÖZEL KOLEKSİYON
+  // ==========================================
+  {
+    id: 'story-mytho-alageyik',
+    level: 'A2',
+    levelLabel: 'A2 - Türk Mitolojisi',
+    titleTr: 'Kutsal Alageyik Efsanesi: Altay Dağlarının Rehberi',
+    titleKz: 'Қасиетті Алагеяк аңызы: Алтай тауларының жолбасшысы',
+    subtitle: 'Bozkırın karanlığında yol gösteren altın boynuzlu kutlu geyik',
+    category: 'Türk Mitolojisi & Efsaneler',
+    wordCount: 220,
+    readingMinutes: 3,
+    contentKz: `Ерте заманда, Ұлы Даланың төсінде, қатал қыс басталған екен. Қалың қар басып, адамдар мен үйір-үйір жылқылар жол таба алмай, суықтан қатты қиналыпты. Қараңғы түнде боран соғып, ешкім қайда барарын білмепті.
+    
+Сол кезде аспаннан ерекше бір жарық пайда болыпты. Бұл – алтын мүйізді, сүттей аппақ Алагеяк (Сығын) екен. Оның мүйіздерінен күннің шуағындай нұр шашырап тұрды. Алагеяк еш қорықпай, адасқан елдің алдына шығып, басын изеп, өзінің артынан еруге шақырды.
+
+Халық осы қасиетті жануарға сенді. Олар Алагеяқтың ізімен биік тау шатқалдарынан аман-есен өтіп, жылы әрі шөбі шүйгін құтты қонысқа жетті. Адамдар дін аман құтылып, Тәңірге шүкіршілік етті.
+
+Сол күннен бастап қазақ және түркі халықтары үшін Алагеяк – ақылдың, адалдықтың, ізгілік пен тура жолдың мәңгілік киелі нышанына айналды. Сондықтан бабаларымыз: «Алагеяқты ренжітпе, ол – жақсылықтың жаршысы» деп өсиет қалдырған.`,
+    contentTr: `Eski zamanlarda, Ulu Bozkır'ın bağrında çok çetin bir kış başlamıştı. Kalın kar her yanı örtmüş, insanlar ve yılkı yılkı atlar yollarını bulamayarak dondurucu soğuktan büyük ızdırap çekmişti. Zifiri karanlık gecede fırtına esiyor, hiç kimse nereye gideceğini bilemiyordu.
+
+Tam o anda gökyüzünden eşsiz bir ışık belirdi. Bu; altın boynuzlu, süt gibi bembeyaz Alageyik (Sıgun) idi. Onun boynuzlarından güneşin ışığı gibi nurlar saçılıyordu. Alageyik hiç korkmadan, yolunu şaşırmış halkın önüne çıktı; başını sallayarak kendi ardından gelmelerini işaret etti.
+
+Halk bu kutsal hayvana güvendi. Onlar Alageyik'in ayak izlerini takip ederek sarp dağ vadilerinden sağ salim geçti ve sıcak, otu bol bereketli bir yurda ulaştı. İnsanlar esenliğe kavuşup Tanrı'ya şükretti.
+
+O günden sonra Kazak ve Türk halkları için Alageyik; aklın, dürüstlüğün, iyiliğin ve doğru yolun ebedi kutsal sembolü haline geldi. Bu yüzden atalarımız: «Alageyik'i incitme, o hayrın ve bereketin müjdecisidir» diye vasiyet bırakmıştır.`,
+    vocabulary: [
+      { kz: 'Алагеяк / Сығын', tr: 'Alageyik / Erkek Geyik', note: 'Türk mitolojisinin kutsal yol göstericisi' },
+      { kz: 'Алтын мүйізді', tr: 'Altın boynuzlu', note: 'Güneş ışığını ve bilgeliği simgeler' },
+      { kz: 'Ұлы Дала', tr: 'Ulu Bozkır', note: 'Avrasya bozkır coğrafyası' },
+      { kz: 'Құтты қоныс', tr: 'Kutlu yurt / Bereketli yayla', note: 'Kut kavramı Türk inancında berekettir' },
+      { kz: 'Жолбасшы', tr: 'Yol gösterici / Rehber / Kılavuz', note: 'Jol (Yol) + Bas (Baş) türetimi' }
+    ],
+    questions: [
+      {
+        question: 'Efsaneye göre Alageyik\'in boynuzları nasıldır ve ne saçmaktadır?',
+        options: ['Altın boynuzludur ve güneş gibi nur saçmaktadır', 'Gümüş renklidir', 'Ağaç dalı gibidir', 'Işık saçmamaktadır'],
+        correctAnswer: 'Altın boynuzludur ve güneş gibi nur saçmaktadır',
+        explanation: 'Metinde: «Бұл – алтын мүйізді, сүттей аппақ Алагеяк екен. Оның мүйіздерінен күннің шуағындай нұр шашырап тұрды» denmektedir.'
+      },
+      {
+        question: 'Türk ve Kazak kültüründe Alageyik neyin sembolüdür?',
+        options: ['Aklın, dürüstlüğün, iyiliğin ve doğru yolun kutsal sembolüdür', 'Sadece bir av hayvanıdır', 'Savaş sembolüdür', 'Kış mevsiminin işaretidir'],
+        correctAnswer: 'Aklın, dürüstlüğün, iyiliğin ve doğru yolun kutsal sembolüdür',
+        explanation: 'Metinde: «Алагеяк – ақылдың, адалдықтың, ізгілік пен тура жолдың мәңгілік киелі нышанына айналды» ifadesi geçmektedir.'
+      }
+    ]
+  },
+  {
+    id: 'story-korkut-ata',
+    level: 'B1',
+    levelLabel: 'B1 - Kültür & Tarih',
+    titleTr: 'Korkut Ata ve Kopuzun Doğuşu',
+    titleKz: 'Қорқыт ата және қобыздың тууы',
+    subtitle: 'Ölüme meydan okuyan bilge ozan ve bozkırın ilk çalgısı',
+    category: 'Mitoloji & Edebiyat',
+    wordCount: 240,
+    readingMinutes: 3,
+    contentKz: `Қорқыт ата – барша түркі дүниесінің ұлы ойшылы, дана жырауы әрі тұңғыш күйшісі. Аңыз бойынша, Қорқыт өлімнен қашып, дүниенің төрт бұрышын аралапты. Бірақ қайда барса да, көр қазып жатқан адамдарды көріп: «Бұл кімнің көрі?» деп сұрағанда, олар: «Қорқыттың көрі» деп жауап береді екен.
+    
+Сонда Қорқыт өлімнің денеге ғана билік ететінін, ал мәңгілік өмір тек өнер мен ізгі сөзде ғана бар екенін түсінеді. Ол қарағай ағашын шауып, оның ішін ойып, түйенің терісімен қаптап, нар ішегін тағып, дүниедегі тұңғыш қобызды жасап шығарады.
+
+Қорқыт Сырдария өзенінің үстіне кілем жайып, қобызын тартып, ғажайып күйлер төгеді. Оның қобызынан шыққан күй желді тоқтатып, ұшқан құсты қондырып, ағып жатқан суды кідірткен екен. Өлімнің өзі осы сұлу саздың алдында дәрменсіз қалыпты.
+
+Қорқыттың осы өнері арқылы оның аты ғасырлар бойы өлмей, ұрпақтан ұрпаққа жетті.`,
+    contentTr: `Korkut Ata; bütün Türk dünyasının ulu düşünürü, bilge ozanı ve ilk küy (beste) üstadıdır. Efsaneye göre Korkut, ölümden kaçmak için dünyanın dört bir bucağını dolaşmıştır. Fakat nereye varsa, mezar kazan insanları görüp: «Bu kimin mezarıdır?» diye sorduğunda, onlar: «Korkut\'un mezarıdır» diye cevap verirmiş.
+
+Bunun üzerine Korkut, ölümün yalnızca ete ve kemiğe hükmettiğini; ebedi diriliğin ise ancak sanatta ve hakikatli sözde olduğunu anlamıştır. O, bir çam ağacını yontup içini oymuş, üzerini deve derisiyle kaplamış, atın kıl kirişlerini takarak dünyadaki ilk kopuzu yapmıştır.
+
+Korkut, Seyhun (Sırderya) nehrinin üzerine bir kilim serip kopuzunu çalarak eşsiz besteler terennüm etmiştir. Onun kopuzundan çıkan nağmeler esen yeli dindirmiş, uçan kuşu gökten indirip dinletmiş, coşkun akan suları durdurmuştur. Ölümün kendisi bile bu kutlu melodinin önünde çaresiz kalmıştır.
+
+Korkut\'un bu sanatı sayesinde onun adı asırlar boyunca ölmemiş, nesilden nesile yaşamıştır.`,
+    vocabulary: [
+      { kz: 'Жырау', tr: 'Bilge ozan / Destan anlatıcısı', note: 'Topluma nasihat veren halk bilgesi' },
+      { kz: 'Қобыз', tr: 'Kopuz', note: 'Korkut Ata\'nın icat ettiği yaylı çalgı' },
+      { kz: 'Күй / Күйші', tr: 'Küy (Beste) / Küy ustası', note: 'Dombra ve kopuzla çalınan sözsüz felsefi beste' },
+      { kz: 'Сырдария', tr: 'Sırderya (Seyhun)', note: 'Korkut Ata türbesinin bulunduğu tarihi nehir' }
+    ],
+    questions: [
+      {
+        question: 'Korkut Ata dünyadaki ilk kopuzu hangi malzemelerden yapmıştır?',
+        options: ['Çam ağacını oyup deve derisi ve at kılı kiriş takarak', 'Demir ve telden', 'Taştan', 'Sadece kamıştan'],
+        correctAnswer: 'Çam ağacını oyup deve derisi ve at kılı kiriş takarak',
+        explanation: 'Metinde: «Ол қарағай ағашын шауып, оның ішін ойып, түйенің терісімен қаптап, нар ішегін тағып қобыз жасады» denmektedir.'
+      }
+    ]
+  },
+  {
+    id: 'story-kiyiz-uy',
+    level: 'A2',
+    levelLabel: 'A2 - Bozkır Kültürü',
+    titleTr: 'Bozkırın Kalbi: Kazak Yurdu (Kiyiz Üy) ve Şanırak',
+    titleKz: 'Даланың жүрегі: Қазақтың киіз үйі және Шаңырақ',
+    subtitle: 'Binlerce yıllık mühendislik harikası göçebe evi ve birlik simgesi',
+    category: 'Bozkır Yaşamı & Kültür',
+    wordCount: 195,
+    readingMinutes: 3,
+    contentKz: `Қазақтың киіз үйі – көшпелі өркениеттің ең ғажайып туындысы. Ол жазда салқын, қыста жылы, әрі небары бір-екі сағатта жиналып, түйеге артылатын өте ыңғайлы баспана.
+    
+Киіз үйдің негізгі бөліктері: кереге (қабырғасы), уық (күмбез тіреулері) және ең төбесіндегі дөңгелек шаңырақ. Шаңырақ – киіз үйдің төбесіндегі күн көзі, түтін шығатын әрі жарық түсетін қасиетті орын.
+
+Қазақ халқы үшін шаңырақ – жай ғана ағаш бөлшек емес, ол – отбасының, ел бірлігінің және ұрпақ жалғастығының қасиетті белгісі. Қазақта «Шаңырағың биік болсын!» деген бата бар. Бұл «Әулетің берекелі, бірлігің мықты болсын» деген ізгі тілек. Бүгінде шаңырақ бейнесі Қазақстанның мемлекеттік Елтаңбасында да асқақтап тұр.`,
+    contentTr: `Kazakların keçe çadırı (Kiyiz Üy); göçebe medeniyetinin en muazzam şaheseridir. O yazın serin, kışın sıcacıktır; üstelik sadece bir iki saat içinde sökülüp toplanarak deveye yüklenebilen son derece pratik bir konuttur.
+
+Keçe çadırın ana kısımları: kerege (kafes biçimli duvarlar), uvuq (kubbe çıtaları) ve en tepedeki yuvarlak şanıraktır. Şanırak; çadırın kubbesindeki güneş gözü, hem dumanın çıktığı hem de içeriye güneş ışığının süzüldüğü mukaddes açıklıktır.
+
+Kazak halkı için şanırak alelade bir ahşap parça değildir; o ailenin, millet birliğinin ve nesil sürekliliğinin kutsal timsalidir. Kazaklarda «Şanırağın yüksek olsun!» diye köklü bir dua vardır. Bu, «Ocağın bereketli, yuvan sağlam olsun» demektir. Günümüzde şanırak tasviri Kazakistan Cumhuriyeti Devlet Arması\'nın da merkezinde yer almaktadır.`,
+    vocabulary: [
+      { kz: 'Киіз үй', tr: 'Keçe ev / Göçebe çadırı / Yurt', note: 'Kiyiz = Keçe, Üy = Ev' },
+      { kz: 'Шаңырақ', tr: 'Şanırak', note: 'Çadırın tepesindeki çember; bayrak ve armada birlik sembolüdür' },
+      { kz: 'Кереге', tr: 'Kerege (Kafes duvar)', note: 'Katlanabilir ahşap iskelet' },
+      { kz: 'Бата', tr: 'Hayır duası / Nasihat', note: '«Şanırağıñ biyik bolsın» en meşhur Kazak duasıdır' }
+    ],
+    questions: [
+      {
+        question: 'Kazak kültüründe «Şanırağıñ biyik bolsın!» duası ne anlama gelir?',
+        options: ['Ocağın bereketli, hanen huzurlu ve birliğin kavi olsun', 'Evin çok katlı olsun', 'Dağlara çadır kur', 'Hızlı at sür'],
+        correctAnswer: 'Ocağın bereketli, hanen huzurlu ve birliğin kavi olsun',
+        explanation: 'Metinde: «Әулетің берекелі, бірлігің мықты болсын» anlamına geldiği belirtilmektedir.'
+      },
+      {
+        question: 'Keçe evin (Kiyiz Üy) kubbe çıtalarına ne ad verilir?',
+        options: ['Уық (Uvuq)', 'Кереге', 'Шаңырақ', 'Есік'],
+        correctAnswer: 'Уық (Uvuq)',
+        explanation: 'Metinde kubbe çıtaları için «уық (күмбез тіреулері)» ifadesi geçer.'
+      }
+    ]
+  },
+  // ==========================================
   // LEVEL A1 - BAŞLANGIÇ HİKAYELERİ
   // ==========================================
   {
@@ -117,6 +246,12 @@ Ondan sonra biz geleneksel yiyecekler sırasına geçtik. Orada kurut, irmşik v
         options: ['700 tenge', '500 tenge', '1000 tenge', '300 tenge'],
         correctAnswer: '700 tenge',
         explanation: 'Satıcı teyze: «Бір килограмы – жеті жүз теңге» (700 tenge) demiştir.'
+      },
+      {
+        question: 'Kazak pazarında satılan yuvarlak ve tuzlu süt ürünü hangisidir?',
+        options: ['Құрт (Kurut)', 'Шұбат', 'Қымыз', 'Бауырсақ'],
+        correctAnswer: 'Құрт (Kurut)',
+        explanation: 'Metinde: «Құрт – дөңгелек, тұзды және пайдалы сүт өнімі» denmektedir.'
       }
     ]
   },

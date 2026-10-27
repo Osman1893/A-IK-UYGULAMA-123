@@ -50,26 +50,26 @@ export const Navbar: React.FC<NavbarProps> = ({
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         
-        {/* Brand Logo & Name */}
+        {/* Brand Logo & Name with Alageyik Mascot */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-violet-700 to-purple-600 flex items-center justify-center text-white shadow-md shadow-violet-600/30">
-            <Globe className="w-6 h-6 stroke-[2.2]" />
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 via-amber-600 to-violet-700 flex items-center justify-center text-white shadow-md shadow-amber-500/30 text-xl cursor-pointer" title="Uzaktan Türkolog Maskotu: Alageyik">
+            🦌
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-extrabold text-xl tracking-tight text-slate-900">
+              <span className="font-extrabold text-lg sm:text-xl tracking-tight text-slate-900">
                 UZAKTAN TÜRKOLOG
               </span>
               <span 
                 onClick={handleSecretOwnerTap}
-                className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-violet-100 text-violet-800 border border-violet-200 uppercase tracking-wider cursor-pointer select-none"
-                title="Uzaktan Türkolog v1.0 Pro"
+                className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 uppercase tracking-wider cursor-pointer select-none flex items-center gap-1"
+                title="Kutsal Alageyik Kılavuzluğunda"
               >
-                v1.0 Pro
+                <span>🦌 Alageyik</span>
               </span>
             </div>
             <p className="text-[11px] font-medium text-slate-500 hidden sm:block">
-              {isTrToKz ? 'Çift Yönlü Türkçe - Kazakça Dil Öğrenme Platformu' : 'Түрікше - Қазақша екіжақты тіл үйрену платформасы'}
+              {isTrToKz ? 'Çift Yönlü Türkçe - Kazakça Dil ve Kültür Platformu' : 'Түрікше - Қазақша екіжақты тіл үйрену платформасы'}
             </p>
           </div>
         </div>

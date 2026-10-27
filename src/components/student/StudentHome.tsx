@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { UserProfile, Unit, Lesson, CefrLevel } from '../../types';
 import { MainStudentTab } from './BottomNavBar';
+import { AlageyikMascot } from '../common/AlageyikMascot';
 
 interface StudentHomeProps {
   user: UserProfile;
@@ -177,6 +178,58 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
       {/* Main Body Content */}
       <div className="px-4 py-4 space-y-4">
         
+        {/* Alageyik Mascot Official Welcome Banner */}
+        <div className="p-3.5 bg-gradient-to-r from-amber-50 via-white to-violet-50 border border-amber-200/80 rounded-3xl shadow-sm">
+          <AlageyikMascot
+            pose="guide"
+            size="sm"
+            message="Türk mitolojisinin yol göstericisi Alageyik ile öğren!"
+            subMessage="Kelimelere dokunarak okuma yapabileceğin interaktif kitaplığımız açıldı. Her etaptan sonra değerlendirme testini geçmeyi unutma."
+            actionButton={{
+              label: 'Kitaplığı Aç',
+              onClick: () => onNavigateTab('prompter')
+            }}
+          />
+        </div>
+
+        {/* HERO PROMOTED CARD: KİTAPLIK & İNTERAKTİF OKUMA (Kelimelere Dokunarak Oku) */}
+        <div 
+          onClick={() => onNavigateTab('prompter')}
+          className="bg-gradient-to-r from-teal-700 via-cyan-800 to-indigo-900 text-white p-4 rounded-3xl border border-teal-400/30 shadow-lg hover:shadow-xl cursor-pointer transition active:scale-[0.99] group relative overflow-hidden"
+        >
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 bg-white/20 text-white rounded-md">
+                  📚 YENİ ÖZELLİK • KİTAPLIK
+                </span>
+                <span className="text-[10px] text-amber-300 font-bold flex items-center gap-1">
+                  <span>Kelimelere Dokun & Çevir</span>
+                </span>
+              </div>
+              <h4 className="text-base font-black text-white group-hover:text-amber-200 transition">
+                {isTr ? 'İnteraktif Hikaye Okuma Odası' : 'Интеррактивті оқу бөлмесі'}
+              </h4>
+              <p className="text-[11px] text-teal-100 leading-relaxed max-w-xs">
+                {isTr 
+                  ? 'Metindeki kelimelerin üstüne basarak tercümesini görün, LuvVoice Daulet & Aigul sesleriyle dinleyin.' 
+                  : 'Мәтіндегі сөздерді басып аудармасын көріңіз және табиғи дауыспен тыңдаңыз.'}
+              </p>
+            </div>
+            <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center text-2xl group-hover:scale-105 transition shrink-0 ml-2 shadow-inner">
+              📖
+            </div>
+          </div>
+
+          <div className="mt-3 pt-2 border-t border-white/20 flex items-center justify-between text-[11px]">
+            <span className="text-teal-200 font-medium">Alageyik Efsanesi • Korkut Ata • Bozkır Yurdu</span>
+            <span className="text-white font-black flex items-center gap-1">
+              <span>Hemen Oku</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition" />
+            </span>
+          </div>
+        </div>
+
         {/* HERO PROMOTED CARD 1: ETAP ETAP OYUNLAR & YOL HARİTASI (Matches Screen 3 in image) */}
         <div 
           onClick={() => onNavigateTab('stages')}
@@ -263,9 +316,9 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
             className="flex flex-col items-center justify-center p-2 bg-white border border-slate-200/80 rounded-2xl shadow-xs hover:border-violet-400 hover:shadow-sm transition group"
           >
             <div className="w-7 h-7 rounded-xl bg-violet-50 text-violet-700 flex items-center justify-center mb-1 group-hover:scale-105 transition">
-              <Tv className="w-3.5 h-3.5" />
+              <BookOpen className="w-3.5 h-3.5" />
             </div>
-            <span className="text-[9px] font-bold text-slate-800 text-center leading-tight">Okuma</span>
+            <span className="text-[9px] font-bold text-slate-800 text-center leading-tight">Hikaye</span>
           </button>
 
           <button

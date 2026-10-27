@@ -11,6 +11,7 @@ import {
   Activity
 } from 'lucide-react';
 import { audioService } from '../../services/audioService';
+import { AlageyikMascot } from '../common/AlageyikMascot';
 
 interface GrammarTopic {
   id: string;
@@ -322,23 +323,120 @@ export const GrammarHubView: React.FC<GrammarHubViewProps> = ({ onOpenAlphabetGu
     {
       id: 'g-ses-denklikleri',
       category: 'Karşılaştırmalı Türkoloji',
-      titleTr: 'Kıpçak - Oğuz Düzenli Ses Denklikleri',
+      titleTr: 'Kıpçak - Oğuz Düzenli Ses Denklikleri (Y ~ J, Ş ~ S)',
       titleKz: 'Қыпшақ және Оғыз тілдерінің дыбыстық заңдылықтары',
       summaryTr: 'Türkiye Türkçesi ile Kazakça arasındaki düzenli etimolojik ses geçiş kuralları.',
-      summaryKz: 'Түркітанудағы дыбыс сәйкестіктері (й ~ ж, тау ~ дағ).',
-      explanationTr: '1. Söz başı Y- ➔ J- (ж): Yıl ➔ Жыл, Yol ➔ Жол, Yer ➔ Жер, Yeni ➔ Жаңа, Yılan ➔ Жылан.\n2. Söz sonu -Ğ/-G ➔ -W (у): Dağ ➔ Тау, Bağ ➔ Бау, Sağ ➔ Сау, Yağ ➔ Май.\n3. Kalın D- ➔ T-: Dil ➔ Тіл, Taş ➔ Тас, Dört ➔ Төрт, Deve ➔ Түйе.',
+      summaryKz: 'Түркітанудағы дыбыс сәйкестіктері (й ~ ж, тау ~ дағ, тас ~ таш).',
+      explanationTr: '1. Söz başı Y- ➔ J- (ж): Yıl ➔ Жыл, Yol ➔ Жол, Yer ➔ Жер, Yeni ➔ Жаңа, Yılan ➔ Жылан.\n2. Söz sonu ve içi -Ğ/-G ➔ -W (у): Dağ ➔ Тау, Bağ ➔ Бау, Sağ ➔ Сау, Yağ ➔ Май.\n3. Kalın D- ➔ T-: Dil ➔ Тіл, Taş ➔ Тас, Dört ➔ Төрт, Deve ➔ Түйе.\n4. Ş ➔ S ses değişimi: Taş ➔ Тас, Kış ➔ Қыс, Baş ➔ Бас, Yaş ➔ Жас.\n5. Ç ➔ Ş ses değişimi: Üç ➔ Үш, Ağaç ➔ Ағаш, Kaç ➔ Қаш (kaçmak) / Қанша (miktar).',
       explanationKz: 'Бұл сәйкестіктер екі тілдің тарихи туыстығын көрсетеді.',
+      tableData: [
+        { caseName: 'Y- ➔ J- (Ж)', suffixesTr: 'Yol, Yıl, Yer', suffixesKz: 'Жол, Жыл, Жер', exampleTr: 'Yeni yol', exampleKz: 'Жаңа жол' },
+        { caseName: '-G/-Ğ ➔ -W (У)', suffixesTr: 'Dağ, Bağ, Av', suffixesKz: 'Тау, Бау, Ау', exampleTr: 'Yüksek dağ', exampleKz: 'Биік тау' },
+        { caseName: 'Ş ➔ S', suffixesTr: 'Taş, Kış, Baş', suffixesKz: 'Тас, Қыс, Бас', exampleTr: 'Sert taş', exampleKz: 'Қатты тас' },
+        { caseName: 'Ç ➔ Ş', suffixesTr: 'Üç, Ağaç, Çay', suffixesKz: 'Үш, Ағаш, Шәй', exampleTr: 'Üç ağaç', exampleKz: 'Үш ағаш' }
+      ],
       examples: [
         {
           kz: 'Жаңа жол – жаңа жыл.',
           tr: 'Yeni yol – yeni yıl.',
           breakdown: 'y- ➔ ж- düzenli ses geçişi'
+        },
+        {
+          kz: 'Биік таудың басында ақ қар жатыр.',
+          tr: 'Yüksek dağın başında ak kar yatmaktadır.',
+          breakdown: 'taw (dağ), bas (baş), jatır (yatmak)'
         }
+      ]
+    },
+    {
+      id: 'g-tasvir-fiilleri',
+      category: 'Fiil Çekimleri',
+      titleTr: 'Kazakçada Tasvir Fiilleri: Жүр, Отыр, Тұр, Жатыр',
+      titleKz: 'Қалып етістіктері және көмекші етістіктер (Жүр, Отыр, Тұр, Жатыр)',
+      summaryTr: 'Eylemin anlık bedensel duruşunu ve sürekliliğini gösteren Kıpçak fiil sistemi.',
+      summaryKz: 'Нақ осы шақтың 4 негізгі қалып етістігімен жасалуы.',
+      explanationTr: 'Kazakçada şimdiki zaman doğrudan «-yor» ekiyle değil, insanın fiziksel pozisyonuna göre 4 yardımcı eylemle kurulur:\n1. Отыр (Oturmak): Masada, sandalyede veya oturarak yapılan eylemler (Кітап оқып отырмын = Kitap okumaktayım/okuyorum).\n2. Тұр (Ayakta durmak): Ayakta veya dik yapılan eylemler (Сөйлеп тұр = Ayakta konuşuyor).\n3. Жүр (Gezinmek/Yürümek): Hareket halinde, dönemsel yapılan eylemler (Жұмыс істеп жүрмін = Çalışmaktayım / çalışıyorum).\n4. Жатыр (Uzanmak/Yatmak): Yatarak yapılan veya geniş zamana yayılan eylemler (Ұйықтап жатыр = Uyumakta / yatıyor; Қар жауып жатыр = Kar yağıyor).',
+      explanationKz: 'Қалып етістіктері қимылдың қалай өтіп жатқанын дәл білдіреді.',
+      tableData: [
+        { caseName: 'Отыр (Oturur pozisyonda)', suffixesTr: '-ıp/-ip/-(y)p otır', suffixesKz: 'оқып отыр, жазып отыр', exampleTr: 'Mektup yazıyorum', exampleKz: 'Хат жазып отырмын' },
+        { caseName: 'Тұр (Ayakta pozisyonda)', suffixesTr: '-ıp/-ip/-(y)p tur', suffixesKz: 'қарап тұр, күтіп тұр', exampleTr: 'Otobüs bekliyorum', exampleKz: 'Автобус күтіп тұрмын' },
+        { caseName: 'Жүр (Hareket halinde)', suffixesTr: '-ıp/-ip/-(y)p jür', suffixesKz: 'іздеп жүр, оқып жүр', exampleTr: 'Üniversitede okuyorum', exampleKz: 'Университетте оқып жүрмін' },
+        { caseName: 'Жатыр (Yatarak / Doğa olayı)', suffixesTr: '-ıp/-ip/-(y)p jatır', suffixesKz: 'ұйықтап жатыр, жауып жатыр', exampleTr: 'Yağmur yağıyor', exampleKz: 'Жаңбыр жауып жатыр' }
+      ],
+      examples: [
+        { kz: 'Мен қазақ тілін үйреніп жүрмін.', tr: 'Ben Kazak dilini öğrenmekteyim / öğreniyorum.', breakdown: 'үйрен-іп жүр-мін' },
+        { kz: 'Ол кітапханада оқып отыр.', tr: 'O kütüphanede (oturmuş) kitap okuyor.', breakdown: 'оқы-п отыр' }
+      ]
+    },
+    {
+      id: 'g-soru-ekleri',
+      category: 'Cümle Bilgisi',
+      titleTr: 'Kazak Soru Ekleri: Ба/Бе, Па/Пе, Ма/Ме Kuralları',
+      titleKz: 'Сұраулық шылаулар (Ба/Бе, Па/Пе, Ма/Ме)',
+      summaryTr: 'Son harfin sert, yumuşak veya ünlü olmasına göre soru ekinin 6 biçimi.',
+      summaryKz: 'Сөздің соңғы дыбысына байланысты сұраулық шылаулардың қолданылуы.',
+      explanationTr: 'Kazakçada soru eki kelimeden ayrı yazılır ve son sese göre 3 çifte ayrılır:\n1. МА / МЕ: Ünlü harflerden ve М, Н, Ң sonrasından gelir (Бұл алма ма? Сен келесің бе?)\n2. БА / БЕ: Ötümlü ünsüzlerden (Ж, З, Л, Р, У, Й) sonra gelir (Қыз ба? Үй ме? Бар ма?)\n3. ПА / ПЕ: Sert ünsüzlerden (К, Қ, П, С, Т, Ш, Ф, Х, Ц, Ч) sonra gelir (Кітап па? Сүт пе? Қазақ па?)\n\nÖnemli: Cümlede soru zamiri (Кім, Не, Қайда, Қалай, Қашан, Қанша) varsa soru eki KULLANILMAZ!',
+      explanationKz: 'Сұрау есімдіктері бар сөйлемде сұраулық шылаулар қойылмайды.',
+      tableData: [
+        { caseName: 'Ма / Ме (Ünlü ve Nazal)', suffixesTr: '-mı / -mi', suffixesKz: 'дауысты, м, н, ң соңы', exampleTr: 'Bu elma mı?', exampleKz: 'Бұл алма ма?' },
+        { caseName: 'Ба / Бе (Ötümlü Ünsüzler)', suffixesTr: '-mı / -mi', suffixesKz: 'ж, з, л, р, у, й соңы', exampleTr: 'Var mı? Evde mi?', exampleKz: 'Бар ма? Үйде ме?' },
+        { caseName: 'Па / Пе (Sert Ünsüzler)', suffixesTr: '-mı / -mi', suffixesKz: 'қатаң дыбыстар соңы', exampleTr: 'Kitap mı? Kazak mı?', exampleKz: 'Кітап па? Қазақ па?' }
+      ],
+      examples: [
+        { kz: 'Сіз қазақша сөйлейсіз бе?', tr: 'Siz Kazakça konuşur musunuz?', breakdown: 'сөйле-й-сіз бе (soru)' },
+        { kz: 'Бұл кім? (Soru zamirli cümle)', tr: 'Bu kimdir? (Soru eki gelmez)', breakdown: 'Кім soru zamiridir' }
+      ]
+    },
+    {
+      id: 'g-yalanci-esdegerler',
+      category: 'Karşılaştırmalı Türkoloji',
+      titleTr: 'Kazakça - Türkçe Yalancı Eşdeğerler (Tuzak Kelimeler)',
+      titleKz: 'Жалған эктестер және мағыналық айырмашылықтар',
+      summaryTr: 'Yazılışı veya söylenişi aynı olup anlamı tamamen farklı olan kelimeler rehberi.',
+      summaryKz: 'Оғыз және қыпшақ тілдеріндегі мағыналық сәйкессіздіктер.',
+      explanationTr: 'İki dil çok yakın olduğu için bazı kelimeler aynı sesletime sahip olsa da anlamları farklılaşmıştır:\n• Ертең (Erteñ): Türkçe «erken» değil, «YARIN» demektir! (Erken = Ерте)\n• Шалбар (Şalbar): Türkçe «şalvar» değil, standart «PANTOLON» demektir.\n• Аяқ (Ayaq): Sadece bilekten aşağısı değil, kalçadan parmak ucuna kadar bütün «BACAK VE AYAK» demektir.\n• Түс (Tüs): Sadece «renk» değil, aynı zamanda «RÜYA» ve «ÖĞLE VAKTİ» demektir.\n• Сақ бол (Saq bol): «Sağ ol / Teşekkürler» değil, «DİKKATLİ OL / TETİKTE OL» demektir!\n• Кір (Kir): Türkçe «kir / pislik» kökteşidir ancak fiil olarak «GİRMEK» demektir (Үйге кір = Eve gir).',
+      explanationKz: 'Бұл сөздерді шатастырмау аударма сапасы үшін өте маңызды.',
+      tableData: [
+        { caseName: 'Ертең (Erteñ)', suffixesTr: 'Yarın (Erken değil!)', suffixesKz: 'Ертеңгі күн', exampleTr: 'Yarın geleceğim', exampleKz: 'Ертең келемін' },
+        { caseName: 'Шалбар (Şalbar)', suffixesTr: 'Pantolon (Şalvar değil)', suffixesKz: 'Киім түрі', exampleTr: 'Yeni pantolon', exampleKz: 'Жаңа шалбар' },
+        { caseName: 'Түс (Tüs)', suffixesTr: '1. Rüya, 2. Renk, 3. Öğle', suffixesKz: 'Түс көру', exampleTr: 'Güzel rüya gördüm', exampleKz: 'Жақсы түс көрдім' },
+        { caseName: 'Сақ бол (Saq bol)', suffixesTr: 'Dikkatli ol! (Sağ ol değil!)', suffixesKz: 'Абай бол', exampleTr: 'Yolda dikkatli ol', exampleKz: 'Жолда сақ бол!' }
+      ],
+      examples: [
+        { kz: 'Ертең ерте тұрамын.', tr: 'Yarın erken kalkacağım.', breakdown: 'ертең (yarın) + ерте (erken)' },
+        { kz: 'Үйге кіріңіз, төрге шығыңыз!', tr: 'Eve giriniz, başköşeye buyurunuz!', breakdown: 'кір-іңіз (giriniz)' }
+      ]
+    },
+    {
+      id: 'g-bata-ve-nezaket',
+      category: 'Kültür & Pragmatik',
+      titleTr: 'Kazakçada Nezaket Dereceleri ve Kutsal «Bata» Geleneği',
+      titleKz: 'Сыпайылық түрлері (Сен / Сіз / Сіздер) және Бата беру дәстүрі',
+      summaryTr: 'Sen, Siz ve Çoğul Siz arasındaki saygı kademeleri ve geleneksel hayır duaları.',
+      summaryKz: 'Қазақ тіліндегі сыпайылық нормалары мен ақ баталар.',
+      explanationTr: 'Kazakçada hitap üç kademelidir:\n1. Сен (Sen): Akranlara, küçüklere ve çok samimi dostlara söylenir.\n2. Сіз (Siz): Yaşça büyüklere, tanımadık kimselere, anne-babaya ve hürmet edilen kişilere tekil olarak hitaptır (Fiil: -сыз/-сіз).\n3. Сіздер (Sizler): Birden fazla kişiye saygılı toplu hitaptır.\n\nBata Geleneği: Kazak sofrasından kalkarken veya yolculuğa çıkarken aksakallar (büyükler) iki elini açarak hayır duası («Ақ бата») verir. Bata verilmeden sofradan kalkılmaz. En yaygın dua:\n«Ниетің қабыл болсын, шаңырағың биік болсын, абыройың асқақ болсын!» (Niyetin kabul, yuvan yüksek, itibarın yüce olsun!)',
+      explanationKz: 'Бата – ұлттық руханияттың қайнар көзі.',
+      tableData: [
+        { caseName: 'Сен (Samimi Sen)', suffixesTr: 'Sen gelirsin', suffixesKz: 'Сен келесің', exampleTr: 'Sen nasılsın?', exampleKz: 'Сен қалайсың?' },
+        { caseName: 'Сіз (Hürmetkâr Tekil Siz)', suffixesTr: 'Siz gelirsiniz', suffixesKz: 'Сіз келесіз', exampleTr: 'Siz nasılsınız?', exampleKz: 'Сіз қалайсыз?' },
+        { caseName: 'Сіздер (Saygılı Çoğul Sizler)', suffixesTr: 'Sizler gelirsiniz', suffixesKz: 'Сіздер келесіздер', exampleTr: 'Sizler hoş geldiniz', exampleKz: 'Сіздер қош келдіңіздер' }
+      ],
+      examples: [
+        { kz: 'Ас тәтті, өмір ұзақ болсын! Аумин!', tr: 'Aşınız tatlı, ömrünüz uzun olsun! Amin!', breakdown: 'Sofradan sonra verilen kısa bata' }
       ]
     }
   ];
 
-  const categories = ['all', 'Alfabe & Fonetik', 'Ses Bilgisi', 'İsim Çekimi', 'Fiil Zamanları', 'Karşılaştırmalı Türkoloji'];
+  const categories = [
+    'all', 
+    'Alfabe & Fonetik', 
+    'Ses Bilgisi', 
+    'İsim Çekimi', 
+    'Fiil Çekimleri', 
+    'Cümle Bilgisi', 
+    'Karşılaştırmalı Türkoloji',
+    'Kültür & Pragmatik'
+  ];
 
   const filteredTopics = grammarTopics.filter(t => {
     const matchCat = selectedCategory === 'all' || t.category === selectedCategory;
@@ -393,6 +491,18 @@ export const GrammarHubView: React.FC<GrammarHubViewProps> = ({ onOpenAlphabetGu
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Kural, hâl eki veya zaman ara (Örn: Septik, Şimdiki Zaman)..."
             className="w-full pl-10 pr-4 py-2 bg-white text-slate-900 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-400 shadow-sm"
+          />
+        </div>
+      </div>
+
+      {/* Alageyik Mascot Grammar Tip */}
+      <div className="px-4 pt-3 shrink-0">
+        <div className="p-3 bg-gradient-to-r from-amber-50 to-teal-50 border border-amber-200/80 rounded-2xl shadow-2xs">
+          <AlageyikMascot
+            pose="thinking"
+            size="sm"
+            message="Kıpçak Türkçesinde ekler kökün ses uyumuna göre şekil alır!"
+            subMessage="Singarmonizm mantığını kavradığınızda eklerin -ba/-be, -pa/-pe veya -tar/-ter dönüşümlerini anında tahmin edebilirsiniz."
           />
         </div>
       </div>

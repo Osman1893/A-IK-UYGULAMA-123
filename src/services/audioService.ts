@@ -4,6 +4,62 @@
  * Ә [æ], І [ɪ], Ң [ŋ], Ғ [ʁ], Ү [ʏ], Ұ [ʊ], Қ [q], Ө [œ], Һ [h]
  */
 
+export type LuvVoicePersona = 'kk-Daulet' | 'kk-Aigul' | 'tr-Ahmet' | 'tr-Emel';
+
+export interface VoicePersonaInfo {
+  id: LuvVoicePersona;
+  name: string;
+  lang: 'kk' | 'tr';
+  gender: 'male' | 'female';
+  description: string;
+  sourceStyle: string;
+  pitch: number;
+  defaultRate: number;
+}
+
+export const LUVVOICE_PERSONAS: VoicePersonaInfo[] = [
+  {
+    id: 'kk-Daulet',
+    name: 'Daulet (Дәулет)',
+    lang: 'kk',
+    gender: 'male',
+    description: 'Doğal Bozkır Aksanı (Erkek) - Akıcı, tok ve otantik Kazakça telaffuz (LuvVoice stili)',
+    sourceStyle: 'LuvVoice Neural Daulet',
+    pitch: 0.92,
+    defaultRate: 0.88
+  },
+  {
+    id: 'kk-Aigul',
+    name: 'Aigul (Айгүл)',
+    lang: 'kk',
+    gender: 'female',
+    description: 'Zarif Bozkır Aksanı (Kadın) - Yumuşak, berrak ve öğretici Kazakça telaffuz (LuvVoice stili)',
+    sourceStyle: 'LuvVoice Neural Aigul',
+    pitch: 1.14,
+    defaultRate: 0.88
+  },
+  {
+    id: 'tr-Ahmet',
+    name: 'Ahmet',
+    lang: 'tr',
+    gender: 'male',
+    description: 'Standart İstanbul Türkçesi (Erkek) - Net, tok ve anlaşılır ses (LuvVoice stili)',
+    sourceStyle: 'LuvVoice Neural Ahmet',
+    pitch: 0.95,
+    defaultRate: 0.92
+  },
+  {
+    id: 'tr-Emel',
+    name: 'Emel',
+    lang: 'tr',
+    gender: 'female',
+    description: 'Standart İstanbul Türkçesi (Kadın) - Berrak ve akıcı anlatıcı sesi (LuvVoice stili)',
+    sourceStyle: 'LuvVoice Neural Emel',
+    pitch: 1.12,
+    defaultRate: 0.92
+  }
+];
+
 export interface KazakhPhoneticData {
   letter: string;
   lower: string;
@@ -481,6 +537,31 @@ class AudioService {
     await this.speakKazakhLetterComplete(letter);
   }
 
+  private currentKazakhPersona: LuvVoicePersona = 'kk-Daulet';
+  private currentTurkishPersona: LuvVoicePersona = 'tr-Ahmet';
+
+  getKazakhPersona(): LuvVoicePersona {
+    return this.currentKazakhPersona;
+  }
+
+  setKazakhPersona(persona: LuvVoicePersona) {
+    this.currentKazakhPersona = persona;
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('uzaktan_turkolog_kz_voice', persona);
+    }
+  }
+
+  getTurkishPersona(): LuvVoicePersona {
+    return this.currentTurkishPersona;
+  }
+
+  setTurkishPersona(persona: LuvVoicePersona) {
+    this.currentTurkishPersona = persona;
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('uzaktan_turkolog_tr_voice', persona);
+    }
+  }
+
   /**
    * Speak a vocabulary word
    */
@@ -489,9 +570,18 @@ class AudioService {
   }
 
   /**
-   * Speak full text in Kazakh or Turkish
+   * Speak with a specific LuvVoice persona
    */
-  speak(text: string, lang: 'kk' | 'tr' = 'kk', rate: number = 0.86): Promise<void> {
+  speakWithPersona(text: string, persona?: LuvVoicePersona, rateOverride?: number): Promise<void> {
+    const selected = persona || this.currentKazakhPersona;
+    const personaMeta = LUVVOICE_PERSONAS.find(p => p.id === selected) || LUVVOICE_PERSONAS[0];
+    return this.speak(text, personaMeta.lang, rateOverride || personaMeta.defaultRate, personaMeta.pitch);
+  }
+
+  /**
+   * Speak full text in Kazakh or Turkish with LuvVoice-calibrated pitch and accent
+   */
+  speak(text: string, lang: 'kk' | 'tr' = 'kk', rate: number = 0.86, customPitch?: number): Promise<void> {
     return new Promise((resolve) => {
       if (!this.synth) {
         resolve();
@@ -505,8 +595,22 @@ class AudioService {
       let targetLang = 'tr-TR';
       let selectedVoice: SpeechSynthesisVoice | undefined;
 
+      const activePersonaId = lang === 'kk' ? this.currentKazakhPersona : this.currentTurkishPersona;
+      const personaInfo = LUVVOICE_PERSONAS.find(p => p.id === activePersonaId);
+      const isFemale = personaInfo?.gender === 'female';
+      const pitch = customPitch ?? (personaInfo?.pitch || (isFemale ? 1.15 : 0.95));
+
       if (lang === 'kk') {
-        const kazakhVoice = voices.find(v => v.lang.toLowerCase().includes('kk') || v.lang.toLowerCase().includes('kz'));
+        const kazakhVoice = voices.find(v => {
+          const l = v.lang.toLowerCase();
+          const matchLang = l.includes('kk') || l.includes('kz');
+          if (!matchLang) return false;
+          // Match gender if voice name provides hints
+          if (isFemale && (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('aigul') || v.name.toLowerCase().includes('kadın'))) return true;
+          if (!isFemale && (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('daulet') || v.name.toLowerCase().includes('erkek'))) return true;
+          return true;
+        }) || voices.find(v => v.lang.toLowerCase().includes('kk') || v.lang.toLowerCase().includes('kz'));
+
         if (kazakhVoice) {
           selectedVoice = kazakhVoice;
           targetLang = kazakhVoice.lang;
@@ -530,7 +634,14 @@ class AudioService {
           }
         }
       } else {
-        const trVoice = voices.find(v => v.lang.toLowerCase().includes('tr'));
+        const trVoice = voices.find(v => {
+          const l = v.lang.toLowerCase();
+          if (!l.includes('tr')) return false;
+          if (isFemale && (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('emel') || v.name.toLowerCase().includes('kadın'))) return true;
+          if (!isFemale && (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('ahmet') || v.name.toLowerCase().includes('erkek'))) return true;
+          return true;
+        }) || voices.find(v => v.lang.toLowerCase().includes('tr'));
+
         if (trVoice) selectedVoice = trVoice;
         targetLang = 'tr-TR';
         textToSpeak = text;
@@ -538,7 +649,7 @@ class AudioService {
 
       const utterance = new SpeechSynthesisUtterance(textToSpeak);
       utterance.rate = rate;
-      utterance.pitch = 1.0;
+      utterance.pitch = pitch;
       utterance.lang = targetLang;
       if (selectedVoice) utterance.voice = selectedVoice;
 

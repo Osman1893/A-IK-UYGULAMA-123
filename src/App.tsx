@@ -12,6 +12,7 @@ import { LessonsListView } from './components/student/LessonsListView';
 import { LessonView } from './components/student/LessonView';
 import { GrammarHubView } from './components/student/GrammarHubView';
 import { PrompterReadingView } from './components/student/PrompterReadingView';
+import { StoryReaderView } from './components/student/StoryReaderView';
 import { SohbetView } from './components/student/SohbetView';
 import { DictionaryView } from './components/student/DictionaryView';
 import { SpacedRepetitionView } from './components/student/SpacedRepetitionView';
@@ -260,6 +261,17 @@ export default function App() {
           />
         );
       case 'prompter':
+        return (
+          <StoryReaderView
+            user={user}
+            onEarnXp={(xp) => {
+              const updated = storageService.addXp(xp);
+              setUser({ ...updated });
+            }}
+            onNavigatePrompter={() => setStudentTab('prompter_flow' as any)}
+          />
+        );
+      case 'prompter_flow' as any:
         return (
           <PrompterReadingView />
         );
