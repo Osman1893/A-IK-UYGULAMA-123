@@ -12,13 +12,14 @@ import {
 } from 'lucide-react';
 import { UserProfile, LanguageDirection } from '../../types';
 import duoDeerMascotImg from '../../assets/images/duo_style_deer_mascot_1793124498058.jpg';
+import { audioService } from '../../services/audioService';
 
 interface NavbarProps {
   user: UserProfile;
   viewMode: 'mobile' | 'web' | 'admin';
   setViewMode: (mode: 'mobile' | 'web' | 'admin') => void;
   onDirectionChange: (direction: LanguageDirection) => void;
-  onOpenAuth: (tab?: 'login' | 'register' | 'admin') => void;
+  onOpenAuth: (tab?: 'login' | 'register') => void;
   onLogout: () => void;
 }
 
@@ -32,18 +33,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const isTrToKz = user.currentDirection === 'TR_TO_KZ';
   const isGuest = user.isGuest || user.email === 'misafir@uzaktanturkolog.com';
-  const [adminTapCount, setAdminTapCount] = React.useState(0);
-
-  const handleSecretOwnerTap = () => {
-    setAdminTapCount(prev => {
-      const next = prev + 1;
-      if (next >= 3) {
-        onOpenAuth('admin');
-        return 0;
-      }
-      return next;
-    });
-  };
+  const [audioSpeed, setAudioSpeed] = React.useState<0.75 | 1.0>(audioService.getAudioSpeed());
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
@@ -52,9 +42,8 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Brand Logo & Name with Alageyik Mascot */}
         <div className="flex items-center gap-3">
           <div 
-            onClick={handleSecretOwnerTap}
-            className="w-11 h-11 rounded-2xl p-0.5 bg-gradient-to-tr from-amber-400 via-teal-500 to-emerald-600 shadow-md shadow-teal-500/25 flex items-center justify-center cursor-pointer overflow-hidden transition-transform hover:scale-105 active:scale-95 group" 
-            title="Uzaktan Türkolog Resmi Maskotu: Alageyik (Duolingo Tarzı Bilgelik Amblemi)"
+            className="w-11 h-11 rounded-2xl p-0.5 bg-gradient-to-tr from-amber-400 via-teal-500 to-emerald-600 shadow-md shadow-teal-500/25 flex items-center justify-center overflow-hidden transition-transform hover:scale-105 active:scale-95 group" 
+            title="Uzaktan Türkolog Resmi Maskotu: Alageyik"
           >
             <img 
               src={duoDeerMascotImg} 
@@ -68,8 +57,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 UZAKTAN TÜRKOLOG
               </span>
               <span 
-                onClick={handleSecretOwnerTap}
-                className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 uppercase tracking-wider cursor-pointer select-none flex items-center gap-1"
+                className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 uppercase tracking-wider select-none flex items-center gap-1"
                 title="Kutsal Alageyik Kılavuzluğunda"
               >
                 <span>🦌 Alageyik</span>
@@ -83,23 +71,44 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Center: Language Direction & Mode Switches */}
         <div className="flex items-center gap-2">
+          {/* Audio Speed Global Switch (0.75x slow vs 1.0x normal) */}
+          <button
+            onClick={() => {
+              const next = audioSpeed === 1.0 ? 0.75 : 1.0;
+              audioService.setAudioSpeed(next);
+              setAudioSpeed(next);
+              audioService.playFeedbackSound('click');
+            }}
+            className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs font-black transition-all shadow-2xs cursor-pointer ${
+              audioSpeed === 0.75
+                ? 'bg-amber-100 text-amber-950 border-amber-300 ring-1 ring-amber-300'
+                : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
+            }`}
+            title="Kazakça Telaffuz Hızı: 0.75x Tane Tane (Zor Harfler için) / 1.0x Doğal Hız"
+          >
+            <span>{audioSpeed === 0.75 ? '🐢 0.75x' : '⚡ 1.0x'}</span>
+            <span className="text-[10px] text-slate-500 font-bold hidden lg:inline">
+              {audioSpeed === 0.75 ? 'Yavaş' : 'Doğal'}
+            </span>
+          </button>
+
           {/* Language Direction Toggle */}
           <button
             onClick={() => onDirectionChange(isTrToKz ? 'KZ_TO_TR' : 'TR_TO_KZ')}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-xs font-semibold text-slate-700 transition-all shadow-2xs"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-xs font-semibold text-slate-700 transition-all shadow-2xs cursor-pointer"
             title="Öğrenme Yönünü Değiştir / Оқу бағытын өзгерту"
           >
             {isTrToKz ? (
               <>
-                <span className="flex items-center gap-1 font-bold text-violet-700">🇹🇷 Türkçe</span>
+                <span className="flex items-center gap-1 font-bold text-teal-700">🇹🇷 Türkçe</span>
                 <ArrowLeftRight className="w-3.5 h-3.5 text-slate-400" />
-                <span className="flex items-center gap-1 font-bold text-indigo-700">🇰🇿 Kazakça</span>
+                <span className="flex items-center gap-1 font-bold text-cyan-700">🇰🇿 Kazakça</span>
               </>
             ) : (
               <>
-                <span className="flex items-center gap-1 font-bold text-indigo-700">🇰🇿 Қазақша</span>
+                <span className="flex items-center gap-1 font-bold text-cyan-700">🇰🇿 Қазақша</span>
                 <ArrowLeftRight className="w-3.5 h-3.5 text-slate-400" />
-                <span className="flex items-center gap-1 font-bold text-violet-700">🇹🇷 Түрікше</span>
+                <span className="flex items-center gap-1 font-bold text-teal-700">🇹🇷 Түрікше</span>
               </>
             )}
           </button>
@@ -110,7 +119,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => setViewMode('mobile')}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 viewMode === 'mobile'
-                  ? 'bg-white text-violet-700 shadow-xs'
+                  ? 'bg-white text-teal-700 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -121,7 +130,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => setViewMode('web')}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 viewMode === 'web'
-                  ? 'bg-white text-violet-700 shadow-xs'
+                  ? 'bg-white text-teal-700 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -196,7 +205,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div className="flex items-center gap-2">
               <button
                 onClick={() => onOpenAuth('login')}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-extrabold shadow-sm transition"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-extrabold shadow-sm transition cursor-pointer"
               >
                 <LogIn className="w-3.5 h-3.5" />
                 <span>Giriş Yap / Üye Ol</span>
@@ -207,20 +216,20 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div className="flex items-center gap-2">
               <button
                 onClick={() => onOpenAuth('login')}
-                className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 rounded-xl border border-slate-200 hover:border-slate-300 bg-white transition text-xs font-semibold text-slate-800 shadow-2xs"
+                className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 rounded-xl border border-slate-200 hover:border-slate-300 bg-white transition text-xs font-semibold text-slate-800 shadow-2xs cursor-pointer"
                 title="Hesap Ayarları"
               >
                 <img
                   src={user.avatarUrl || 'https://api.dicebear.com/7.x/adventurer/svg?seed=user'}
                   alt={user.name}
-                  className="w-7 h-7 rounded-full object-cover border border-violet-500"
+                  className="w-7 h-7 rounded-full object-cover border border-teal-500"
                 />
                 <div className="hidden sm:flex flex-col text-left leading-none">
                   <span className="font-bold text-slate-900 max-w-[110px] truncate">
                     {user.name}
                   </span>
                   {user.nickname && (
-                    <span className="text-[10px] text-violet-700 font-extrabold truncate">
+                    <span className="text-[10px] text-teal-700 font-extrabold truncate">
                       @{user.nickname}
                     </span>
                   )}

@@ -34,13 +34,13 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({ user }) => {
   const currentUserEntry = leaderboardEntries.find(e => e.isCurrentUser);
 
   return (
-    <div className="flex-1 flex flex-col p-4 space-y-4 pb-14 bg-violet-50/20">
+    <div className="flex-1 flex flex-col p-4 space-y-4 pb-14 bg-slate-50">
       
       {/* Top Segmented Header */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-base font-black text-slate-900 tracking-tight flex items-center gap-2">
-            <Trophy className="w-5 h-5 text-violet-600" />
+            <Trophy className="w-5 h-5 text-teal-600" />
             <span>LİDERLİK TABLOSU</span>
           </h2>
           <p className="text-[11px] text-slate-500 font-medium">
@@ -49,11 +49,11 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({ user }) => {
         </div>
 
         {/* View Toggle */}
-        <div className="flex items-center bg-violet-100/70 p-0.5 rounded-2xl border border-violet-200 text-xs font-bold">
+        <div className="flex items-center bg-teal-100/70 p-0.5 rounded-2xl border border-teal-200 text-xs font-bold">
           <button
             onClick={() => setSubTab('leaderboard')}
             className={`px-3 py-1 rounded-xl transition ${
-              subTab === 'leaderboard' ? 'bg-violet-600 text-white font-black shadow-xs' : 'text-violet-800'
+              subTab === 'leaderboard' ? 'bg-teal-600 text-white font-black shadow-xs' : 'text-teal-800'
             }`}
           >
             Liderlik
@@ -61,7 +61,7 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({ user }) => {
           <button
             onClick={() => setSubTab('achievements')}
             className={`px-3 py-1 rounded-xl transition ${
-              subTab === 'achievements' ? 'bg-violet-600 text-white font-black shadow-xs' : 'text-violet-800'
+              subTab === 'achievements' ? 'bg-teal-600 text-white font-black shadow-xs' : 'text-teal-800'
             }`}
           >
             Rozetler
@@ -76,20 +76,20 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({ user }) => {
         <div className="space-y-4">
           
           {/* League Hero Banner (Lingua Emerald / Diamond League) */}
-          <div className="bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-700 text-white p-4 rounded-3xl shadow-md relative overflow-hidden">
+          <div className="bg-gradient-to-r from-teal-700 via-cyan-700 to-teal-900 text-white p-4 rounded-3xl shadow-md relative overflow-hidden">
             <div className="flex items-center justify-between relative z-10">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-xs flex items-center justify-center text-2xl shadow-inner border border-white/20">
                   💎
                 </div>
                 <div>
-                  <span className="text-[10px] font-extrabold uppercase tracking-widest text-violet-200">
+                  <span className="text-[10px] font-extrabold uppercase tracking-widest text-teal-200">
                     HAFTALIK LİG
                   </span>
                   <h3 className="text-sm font-black leading-tight text-white">
                     Elmas Lig (Алмаз Лигасы)
                   </h3>
-                  <p className="text-[10px] text-violet-200 mt-0.5 flex items-center gap-1">
+                  <p className="text-[10px] text-teal-200 mt-0.5 flex items-center gap-1">
                     <Clock className="w-3 h-3" />
                     <span>Sıfırlanmaya 3 gün 14 saat kaldı</span>
                   </p>
@@ -109,11 +109,11 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({ user }) => {
               onClick={() => setPeriod('daily')}
               className={`flex-1 py-1.5 text-xs font-bold rounded-xl transition flex items-center justify-center gap-1 ${
                 period === 'daily'
-                  ? 'bg-white text-violet-900 font-black shadow-xs'
+                  ? 'bg-white text-teal-900 font-black shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <Clock className="w-3.5 h-3.5 text-violet-500" />
+              <Clock className="w-3.5 h-3.5 text-teal-500" />
               <span>Günlük</span>
             </button>
 
@@ -121,11 +121,11 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({ user }) => {
               onClick={() => setPeriod('weekly')}
               className={`flex-1 py-1.5 text-xs font-bold rounded-xl transition flex items-center justify-center gap-1 ${
                 period === 'weekly'
-                  ? 'bg-white text-violet-900 font-black shadow-xs'
+                  ? 'bg-white text-teal-900 font-black shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <Calendar className="w-3.5 h-3.5 text-violet-600" />
+              <Calendar className="w-3.5 h-3.5 text-teal-600" />
               <span>Haftalık</span>
             </button>
 
@@ -133,7 +133,7 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({ user }) => {
               onClick={() => setPeriod('monthly')}
               className={`flex-1 py-1.5 text-xs font-bold rounded-xl transition flex items-center justify-center gap-1 ${
                 period === 'monthly'
-                  ? 'bg-white text-violet-900 font-black shadow-xs'
+                  ? 'bg-white text-teal-900 font-black shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -159,7 +159,7 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({ user }) => {
                   <h4 className="text-xs font-black text-slate-900 truncate w-full">
                     {topThree[1].name.split(' ')[0]}
                   </h4>
-                  <span className="text-[10px] font-extrabold text-violet-700">
+                  <span className="text-[10px] font-extrabold text-teal-700">
                     {topThree[1].xp} XP
                   </span>
                   <span className="text-[9px] text-slate-400 font-bold">
@@ -185,7 +185,7 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({ user }) => {
                   <span className="text-xs font-black text-amber-600">
                     {topThree[0].xp} XP
                   </span>
-                  <span className="text-[10px] text-violet-700 font-bold">
+                  <span className="text-[10px] text-teal-700 font-bold">
                     {topThree[0].level}
                   </span>
                 </div>
@@ -205,7 +205,7 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({ user }) => {
                   <h4 className="text-xs font-black text-slate-900 truncate w-full">
                     {topThree[2].name.split(' ')[0]}
                   </h4>
-                  <span className="text-[10px] font-extrabold text-violet-700">
+                  <span className="text-[10px] font-extrabold text-teal-700">
                     {topThree[2].xp} XP
                   </span>
                   <span className="text-[9px] text-slate-400 font-bold">
@@ -231,7 +231,7 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({ user }) => {
                 <span className="text-xs font-black text-amber-600">
                   {topThree[0].xp} XP
                 </span>
-                <span className="text-[10px] text-violet-700 font-bold">
+                <span className="text-[10px] text-teal-700 font-bold">
                   {topThree[0].level} Seviye
                 </span>
                 <p className="text-[11px] text-slate-500 mt-2 font-medium">
@@ -241,7 +241,7 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({ user }) => {
             </div>
           ) : (
             <div className="bg-white p-6 rounded-3xl border border-slate-200 text-center space-y-2">
-              <Trophy className="w-8 h-8 text-violet-400 mx-auto" />
+              <Trophy className="w-8 h-8 text-teal-400 mx-auto" />
               <h4 className="text-xs font-black text-slate-800">Yeni Lig Sezonu Başladı</h4>
               <p className="text-[11px] text-slate-500">Dersleri tamamlayıp XP kazandıkça sıralamada ilk sıraya yerleşeceksiniz.</p>
             </div>
@@ -249,7 +249,7 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({ user }) => {
 
           {/* Current User Live Standing Banner (Always shows user's actual photo!) */}
           {currentUserEntry && (
-            <div className="p-3.5 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-2xl shadow-md flex items-center justify-between">
+            <div className="p-3.5 bg-gradient-to-r from-teal-600 to-cyan-600 text-white rounded-2xl shadow-md flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="relative">
                   <img
@@ -266,7 +266,7 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({ user }) => {
                     <span>{user.name}</span>
                     <span className="px-1.5 py-0.2 bg-white/20 text-[9px] font-bold rounded">SEN</span>
                   </div>
-                  <div className="text-[10px] text-violet-100 flex items-center gap-1.5 mt-0.5">
+                  <div className="text-[10px] text-teal-100 flex items-center gap-1.5 mt-0.5">
                     <span>{currentUserEntry.xp} XP</span>
                     <span>•</span>
                     <span className="flex items-center gap-0.5">
@@ -283,12 +283,12 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({ user }) => {
           )}
 
           {/* Rankings List */}
-          <div className="bg-white rounded-3xl border border-violet-100 shadow-sm divide-y divide-slate-100 overflow-hidden">
+          <div className="bg-white rounded-3xl border border-teal-100 shadow-sm divide-y divide-slate-100 overflow-hidden">
             {leaderboardEntries.map((entry) => (
               <div
                 key={entry.userId}
                 className={`px-4 py-3 flex items-center justify-between transition ${
-                  entry.isCurrentUser ? 'bg-violet-50/80 font-bold ring-1 ring-violet-300' : 'hover:bg-slate-50'
+                  entry.isCurrentUser ? 'bg-teal-50/80 font-bold ring-1 ring-teal-300' : 'hover:bg-slate-50'
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -308,7 +308,7 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({ user }) => {
                     <div className="text-xs font-bold text-slate-900 flex items-center gap-1">
                       <span>{entry.name}</span>
                       {entry.isCurrentUser && (
-                        <span className="px-1.5 py-0.2 bg-violet-600 text-white text-[9px] rounded font-black">
+                        <span className="px-1.5 py-0.2 bg-teal-600 text-white text-[9px] rounded font-black">
                           SEN
                         </span>
                       )}
@@ -320,7 +320,7 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({ user }) => {
                 </div>
 
                 <div className="text-right">
-                  <div className="text-xs font-black text-violet-700">
+                  <div className="text-xs font-black text-teal-700">
                     {entry.xp} XP
                   </div>
                   <div className="text-[10px] text-slate-400 font-semibold flex items-center justify-end gap-0.5">
@@ -341,8 +341,8 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({ user }) => {
       {subTab === 'achievements' && (
         <div className="space-y-3">
           
-          <div className="p-3 bg-violet-50 border border-violet-200 rounded-2xl text-xs text-violet-900 font-medium flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-violet-600 shrink-0" />
+          <div className="p-3 bg-teal-50 border border-teal-200 rounded-2xl text-xs text-teal-900 font-medium flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-teal-600 shrink-0" />
             <span>
               {isTr 
                 ? 'Dersleri tamamlayarak, kelime ezberleyerek ve seri yaparak yeni rozetlerin kilidini açın!' 
@@ -356,7 +356,7 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({ user }) => {
                 key={item.badge.id}
                 className={`p-4 rounded-3xl border transition ${
                   item.isUnlocked
-                    ? 'bg-white border-violet-300 shadow-2xs'
+                    ? 'bg-white border-teal-300 shadow-2xs'
                     : 'bg-slate-50/70 border-slate-200 opacity-80'
                 }`}
               >
@@ -403,7 +403,7 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({ user }) => {
                   <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
                     <div
                       className={`h-1.5 rounded-full transition-all duration-500 ${
-                        item.isUnlocked ? 'bg-violet-600' : 'bg-amber-500'
+                        item.isUnlocked ? 'bg-teal-600' : 'bg-amber-500'
                       }`}
                       style={{ width: `${Math.min(100, (item.progress / item.max) * 100)}%` }}
                     />

@@ -3,7 +3,7 @@
  * Bi-directional Turkish-Kazakh Learning Platform
  */
 
-export type LanguageDirection = 'TR_TO_KZ' | 'KZ_TO_TR';
+export type LanguageDirection = 'TR_TO_KZ' | 'KZ_TO_TR' | 'BOTH';
 export type CefrLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1';
 
 export type UserRole = 
@@ -31,11 +31,26 @@ export interface UserProfile {
   currentLevel: CefrLevel;
   dailyGoalMinutes: number;
   todayCompletedMinutes: number;
+  dailyGoalType?: 'xp' | 'minutes'; // 'xp' (XP bazlı) veya 'minutes' (dakika bazlı) hedef
+  dailyXpTarget?: number; // Günlük hedeflenen XP puanı (varsayılan: 50 XP)
+  todayEarnedXp?: number; // Bugün kazanılan XP puanı
+  weeklyGoalDays?: number; // Haftalık hedeflenen aktif öğrenme gün sayısı (varsayılan: 5 gün)
+  weeklyCompletedDays?: number; // Bu hafta tamamlanan gün sayısı
+  weeklyGoalType?: 'days' | 'xp' | 'lessons'; // Haftalık hedef türü
+  weeklyXpTarget?: number; // Haftalık hedeflenen toplam XP puanı (varsayılan: 250 XP)
+  weeklyLessonsTarget?: number; // Haftalık hedeflenen tamamlanacak ders sayısı (varsayılan: 5 ders)
+  notificationsEnabled?: boolean; // Günlük hedef & hatırlatıcı bildirimleri açık mı?
+  reminderTime?: string; // Hatırlatıcı saati (örn: "20:00")
   streakDays: number;
   xpPoints: number;
   completedLessonIds: string[];
   masteredWordIds: string[];
   reviewWordIds: string[];
+  favoriteWordIds?: string[]; // Kullanıcının zorlandığı ve yıldızladığı 'Favori Kelimelerim' listesi
+  streakShields?: number; // Seri Kalkanı / Dondurucu sayısı (Örn: 1 veya 2 kalkan)
+  audioSpeed?: 0.75 | 1.0; // Telaffuz ses hızı (0.75 yavaş / 1.0 normal)
+  dailyQuests?: DailyQuestItem[]; // Günlük 3 Görev listesi ve ilerleme durumları
+  lastDailyQuestDate?: string; // Günlük görevlerin oluşturulduğu tarih
   badges: UserBadge[];
   isPremium: boolean;
   energy: number; // Günlük enerji (0-100)
@@ -45,51 +60,41 @@ export interface UserProfile {
   lastActiveAt: string;
 }
 
-export type ForumCategory = 
-  | 'all'
-  | 'qa'            // Soru & Cevap (Сұрақ-Жауап)
-  | 'grammar_tips'  // Dil Bilgisi & İpuçları (Грамматика және Кеңестер)
-  | 'literature'    // Hikaye, Şiir & Edebiyat (Әңгіме, Өлең және Әдебиет)
-  | 'culture'       // Tanışma, Kültür & Pratik (Мәдениет және Тілдесу)
-  | 'resources'     // Kaynak, Kitap & Dizi (Кітап, Ресурс және Фильм)
-  | 'linguistics';  // Karşılaştırmalı Türkoloji (Салыстырмалы Түркітану)
-
-export interface ForumComment {
+export interface DailyQuestItem {
   id: string;
-  postId: string;
-  authorId: string;
-  authorName: string;
-  authorNickname?: string;
-  authorAvatarUrl: string;
-  authorTitle?: string;
-  authorLevel: CefrLevel;
-  isSuperAdmin: boolean;
-  content: string;
-  createdAt: string;
-  likesCount: number;
-  likedByCurrentUser?: boolean;
+  type: 'lesson' | 'vocab' | 'game' | 'speak';
+  titleTr: string;
+  titleKz: string;
+  descriptionTr: string;
+  descriptionKz: string;
+  icon: string;
+  progress: number;
+  target: number;
+  unit: string;
+  xpReward: number;
+  isCompleted: boolean;
+  isClaimed: boolean;
 }
 
-export interface ForumPost {
-  id: string;
-  authorId: string;
-  authorName: string;
-  authorNickname?: string;
-  authorAvatarUrl: string;
-  authorTitle?: string;
-  authorLevel: CefrLevel;
-  isSuperAdmin: boolean;
-  category: ForumCategory;
-  title: string;
-  content: string;
-  tags: string[];
-  createdAt: string;
-  likesCount: number;
-  likedByCurrentUser?: boolean;
-  isBookmarked?: boolean;
-  comments: ForumComment[];
-  viewsCount: number;
-  pinned?: boolean;
+export interface SuffixSegment {
+  text: string;
+  type: 'root' | 'plural' | 'possessive' | 'case' | 'tense' | 'person' | 'derivational';
+  nameTr: string;
+  nameKz: string;
+  turkishEquivalent: string;
+  explanationTr: string;
+  explanationKz: string;
+}
+
+export interface SuffixAnalysisResult {
+  originalWord: string;
+  rootWord: string;
+  rootMeaningTr: string;
+  rootMeaningKz: string;
+  segments: SuffixSegment[];
+  comparativeTurkish: string;
+  grammaticalSummaryTr: string;
+  grammaticalSummaryKz: string;
 }
 
 export interface UserBadge {
@@ -100,6 +105,9 @@ export interface UserBadge {
   descriptionKz: string;
   icon: string;
   unlockedAt: string;
+  category?: 'streak' | 'xp' | 'lesson' | 'vocab' | 'academic';
+  tier?: 'bronze' | 'silver' | 'gold' | 'diamond';
+  xpReward?: number;
 }
 
 export interface Unit {

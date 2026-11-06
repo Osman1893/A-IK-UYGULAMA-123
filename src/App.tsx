@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
-import { ShieldCheck } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ShieldCheck, Bell, X } from 'lucide-react';
 import { Navbar } from './components/layout/Navbar';
 import { MobileFrame } from './components/mobile/MobileFrame';
 import { StudentHome } from './components/student/StudentHome';
@@ -17,7 +17,6 @@ import { SohbetView } from './components/student/SohbetView';
 import { DictionaryView } from './components/student/DictionaryView';
 import { SpacedRepetitionView } from './components/student/SpacedRepetitionView';
 import { ProfileSettingsView } from './components/student/ProfileSettingsView';
-import { ForumCommunityView } from './components/student/ForumCommunityView';
 import { LeaderboardView } from './components/student/LeaderboardView';
 import { StageQuestMapView } from './components/student/StageQuestMapView';
 import { SpeakPracticeView } from './components/student/SpeakPracticeView';
@@ -28,6 +27,7 @@ import { BottomNavBar, MainStudentTab } from './components/student/BottomNavBar'
 import { AdminDashboard } from './components/admin/AdminDashboard';
 import { AuthModal } from './components/auth/AuthModal';
 import { ReportErrorModal } from './components/student/ReportErrorModal';
+import { OfflineIndicator } from './components/common/OfflineIndicator';
 
 import { 
   UserProfile, 
@@ -39,30 +39,49 @@ import {
 } from './types';
 import { storageService } from './services/storageService';
 import { audioService } from './services/audioService';
+import { notificationService, DailyReminderEvent } from './services/notificationService';
 
 export default function App() {
   // Application Data States
   const [user, setUser] = useState<UserProfile>(() => storageService.getCurrentUser());
   const [units, setUnits] = useState<Unit[]>(() => storageService.getUnits());
 
-  // Enforcement: Misafir kullanımı kapalıdır, üyelik zorunludur (Requirement 1)
-  const isGuestUser = Boolean(!user || user.isGuest);
-
-  // View States: Mobile Simulator, Wide Web View, or Executive Super Admin Panel
-  const [viewMode, setViewMode] = useState<'mobile' | 'web' | 'admin'>('mobile');
+  // View States: Responsive Modern Web View (default), Mobile Simulator, or Super Admin Panel
+  const [viewMode, setViewMode] = useState<'mobile' | 'web' | 'admin'>('web');
   const [studentTab, setStudentTab] = useState<MainStudentTab>('home');
   const [activeLessonPair, setActiveLessonPair] = useState<{ unit: Unit; lesson: Lesson } | null>(null);
 
   // Modals
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authModalTab, setAuthModalTab] = useState<'login' | 'register' | 'admin'>('login');
+  const [authModalTab, setAuthModalTab] = useState<'login' | 'register'>('login');
   const [isAlphabetGuideOpen, setIsAlphabetGuideOpen] = useState(false);
   const [isMatchGameOpen, setIsMatchGameOpen] = useState(false);
   const [isPlacementTestOpen, setIsPlacementTestOpen] = useState(false);
   const [placementCallback, setPlacementCallback] = useState<((lvl: CefrLevel) => void) | null>(null);
   const [reportWord, setReportWord] = useState<VocabItem | null>(null);
+  const [activeReminderAlert, setActiveReminderAlert] = useState<DailyReminderEvent | null>(null);
 
-  const handleOpenAuth = (tab: 'login' | 'register' | 'admin' = 'login') => {
+  // Daily Study Reminder Scheduler
+  useEffect(() => {
+    notificationService.startDailyReminderScheduler(() => ({
+      enabled: user.notificationsEnabled !== false,
+      reminderTime: user.reminderTime || '20:00',
+      streakDays: user.streakDays,
+      targetXp: user.dailyXpTarget || 50
+    }));
+
+    const unsubscribe = notificationService.onDailyReminder((event) => {
+      setActiveReminderAlert(event);
+      audioService.playFeedbackSound('complete');
+    });
+
+    return () => {
+      notificationService.stopDailyReminderScheduler();
+      unsubscribe();
+    };
+  }, [user.notificationsEnabled, user.reminderTime, user.streakDays, user.dailyXpTarget]);
+
+  const handleOpenAuth = (tab: 'login' | 'register' = 'login') => {
     setAuthModalTab(tab);
     setIsAuthModalOpen(true);
   };
@@ -96,6 +115,12 @@ export default function App() {
   // Toggle Word Mastery
   const handleToggleMastery = (wordId: string, mastered: boolean) => {
     const updated = storageService.toggleWordMastery(wordId, mastered);
+    setUser({ ...updated });
+  };
+
+  // Toggle Favorite Word (Zorlandığım Kelimeler)
+  const handleToggleFavorite = (wordId: string) => {
+    const updated = storageService.toggleFavoriteWord(wordId);
     setUser({ ...updated });
   };
 
@@ -203,6 +228,7 @@ export default function App() {
           onBack={() => setActiveLessonPair(null)}
           onCompleteLesson={handleCompleteLesson}
           onToggleMastery={handleToggleMastery}
+          onToggleFavorite={handleToggleFavorite}
         />
       );
     }
@@ -218,6 +244,7 @@ export default function App() {
             onSelectLevel={handleSelectLevel}
             onOpenMatchGame={() => setIsMatchGameOpen(true)}
             onOpenPlacementTest={() => setIsPlacementTestOpen(true)}
+            onUpdateUser={(updated) => setUser({ ...updated })}
           />
         );
       case 'stages':
@@ -252,6 +279,8 @@ export default function App() {
             user={user}
             onSelectLesson={handleSelectLesson}
             onSelectLevel={handleSelectLevel}
+            onUpdateUser={(updated) => setUser({ ...updated })}
+            onNavigateTab={(tab) => setStudentTab(tab)}
           />
         );
       case 'grammar':
@@ -275,14 +304,6 @@ export default function App() {
         return (
           <PrompterReadingView />
         );
-      case 'forum':
-        return (
-          <ForumCommunityView
-            user={user}
-            onOpenAuth={() => setIsAuthModalOpen(true)}
-            onNavigateTab={(tab) => setStudentTab(tab)}
-          />
-        );
       case 'sohbet':
         return (
           <SohbetView
@@ -301,6 +322,7 @@ export default function App() {
             vocabulary={allVocabulary}
             user={user}
             onToggleMastery={handleToggleMastery}
+            onToggleFavorite={handleToggleFavorite}
             onReportError={(w) => setReportWord(w)}
           />
         );
@@ -350,12 +372,13 @@ export default function App() {
           user={user}
           units={units}
           onUnitsChange={(newUnits) => setUnits(newUnits)}
-          onExitAdmin={() => setViewMode('mobile')}
+          onExitAdmin={() => setViewMode('web')}
         />
       ) : viewMode === 'mobile' ? (
         /* REALISTIC SMARTPHONE PREVIEW (MATCHING USER'S MOCKUP) */
         <div className="flex-1 flex flex-col justify-center">
           <MobileFrame>
+            <OfflineIndicator />
             <div className="flex-1 flex flex-col">
               {renderStudentContent()}
             </div>
@@ -372,6 +395,7 @@ export default function App() {
         /* WIDE RESPONSIVE WEB APP VIEW */
         <div className="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 md:p-8 flex flex-col">
           <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden flex-1 flex flex-col">
+            <OfflineIndicator />
             {renderStudentContent()}
             {!activeLessonPair && (
               <BottomNavBar
@@ -384,19 +408,14 @@ export default function App() {
         </div>
       )}
 
-      {/* Auth Modal (Giriş Yap / E-posta ile Kayıt Ol / Yönetici Girişi) */}
+      {/* Auth Modal (Giriş Yap / E-posta ile Kayıt Ol) */}
       <AuthModal
-        isOpen={isAuthModalOpen || isGuestUser}
-        isMandatory={isGuestUser}
+        isOpen={isAuthModalOpen}
+        isMandatory={false}
         initialTab={authModalTab}
-        onClose={() => {
-          if (!isGuestUser) {
-            setIsAuthModalOpen(false);
-          }
-        }}
+        onClose={() => setIsAuthModalOpen(false)}
         onLogin={handleLogin}
         onRegister={handleRegister}
-        onAdminLogin={handleAdminLogin}
         onOpenPlacementModal={handleTriggerPlacementFromAuth}
       />
 
@@ -427,6 +446,53 @@ export default function App() {
         onClose={() => setReportWord(null)}
         onSubmit={handleSubmitErrorTicket}
       />
+
+      {/* Daily Study Reminder In-App Floating Alert */}
+      {activeReminderAlert && (
+        <div className="fixed top-4 left-4 right-4 max-w-md mx-auto bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white p-4 rounded-3xl shadow-2xl border-2 border-amber-300 z-50 animate-in slide-in-from-top-4 duration-300">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
+                <Bell className="w-5 h-5 text-white animate-bounce" />
+              </div>
+              <div>
+                <h4 className="text-xs font-black uppercase tracking-wider text-amber-100">
+                  {activeReminderAlert.title}
+                </h4>
+                <p className="text-xs font-bold text-white mt-0.5 leading-snug">
+                  {activeReminderAlert.message}
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setActiveReminderAlert(null)}
+              className="text-white/80 hover:text-white p-1 rounded-lg cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="mt-3 flex items-center justify-end gap-2 pt-2 border-t border-white/20">
+            <button
+              onClick={() => setActiveReminderAlert(null)}
+              className="px-3 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-bold transition cursor-pointer"
+            >
+              Sonra
+            </button>
+            <button
+              onClick={() => {
+                setActiveReminderAlert(null);
+                setActiveLessonPair(null);
+                setStudentTab('lessons');
+              }}
+              className="px-4 py-1.5 rounded-xl bg-white text-amber-900 hover:bg-amber-50 text-xs font-black shadow-md transition cursor-pointer"
+            >
+              Şimdi Derse Başla →
+            </button>
+          </div>
+        </div>
+      )}
 
     </div>
   );

@@ -1018,5 +1018,190 @@ Türkoloji ilminde bu atasözlerinin pek çoğu, Kaşgarlı Mahmud'un 11. yüzy�
         explanation: 'Atasözünde vatanından ayrı düşen insan ormansız ötemeyen bülbüle benzetilmiştir.'
       }
     ]
+  },
+  {
+    id: 'story-a1-5',
+    level: 'A1',
+    levelLabel: 'A1 - Başlangıç',
+    titleTr: 'Kazak Çocuk Oyunları ve Aşık Oyunu (Asıq)',
+    titleKz: 'Қазақтың ұлттық ойындары: Асық ату',
+    subtitle: 'Bozkırın neşeli çocukları ve koyun kemiğinden yapılan asıklar',
+    category: 'Geleneksel Oyunlar & Çocukluk',
+    wordCount: 160,
+    readingMinutes: 2,
+    contentKz: `Ауылда жаз мезгілі өте көңілді өтеді. Күн жылынғанда балалар далаға шығып, асық ойнайды. Асық – қой мен ешкінің толарсақ сүйегінен жасалатын көне ұлттық ойын.
+
+Балалар асықтарын қызыл, жасыл, көк түстерге бояйды. Ең үлкен әрі ауыр асықты «сақа» деп атайды. Сақамен қатар тізілген асықтарды дәлдеп атады.
+
+Асық ойыны баланы ептілікке, мергендікке және достыққа баулиды. Ойын соңында балалар бір-біріне риза болып, үйлеріне қайтады.`,
+    contentTr: `Köyde yaz mevsimi son derece neşeli geçer. Havalar ısındığında çocuklar kırlara çıkıp aşık oynarlar. Aşık (Asıq); koyun ve keçinin diz mafsalı kemiğinden yapılan kadim bir milli Türk oyunudur.
+
+Çocuklar aşıklarını kırmızı, yeşil ve mavi renklere boyarlar. En büyük ve ağır aşığa «saka» denir. Saka ile sıraya dizilmiş aşıklar dikkatle nişan alınarak vurulur.
+
+Aşık oyunu çocuğu çevikliğe, keskin nişancılığa ve dostluğa alıştırır. Oyun sonunda çocuklar birbirlerine teşekkür eder ve sevinçle evlerine dönerler.`,
+    vocabulary: [
+      { kz: 'Асық', tr: 'Aşık kemiği / Aşık oyunu', note: 'Geleneksel Türk çocuk oyunu' },
+      { kz: 'Сақа', tr: 'Saka (Baş aşık kemiği)', note: 'Nişan almakta kullanılan büyük kemik' },
+      { kz: 'Ептілік', tr: 'Çeviklik / Beceri', note: 'Bedensel kıvraklık' }
+    ],
+    questions: [
+      {
+        question: 'Kazakçada en büyük ve nişan alınan aşık kemiğine ne denir?',
+        options: ['Сақа (Saka)', 'Толарсақ', 'Шүкейт', 'Тәйке'],
+        correctAnswer: 'Сақа (Saka)',
+        explanation: 'En ağır ve ana nişan aşığına «Сақа» adı verilir.'
+      }
+    ]
+  },
+  {
+    id: 'story-a2-5',
+    level: 'A2',
+    levelLabel: 'A2 - Temel Düzey',
+    titleTr: 'Kazak Atları ve Tulpar Kültürü',
+    titleKz: 'Қазақтың тұлпарлары мен сәйгүлік мәдениеті',
+    subtitle: '«At — yiğidin kanadıdır» diyen bozkır göçebelerinin can yoldaşı',
+    category: 'Bozkır Yaşamı & Atçılık',
+    wordCount: 190,
+    readingMinutes: 3,
+    contentKz: `Қазақ халқы үшін жылқы – жай ғана түлік емес, ол – еркіндіктің, тектіліктің және серіліктің символы. Бабаларымыз: «Ат – ердің қанаты» деп босқа айтпаған.
+
+Қазақ даласында жүйрік аттарды «сәйгүлік», «тұлпар», ал бабы келіскен асыл тұқымды тұлпарларды «арғымақ» дейді. Жылқының сүтінен шипалы әрі дәруменге бай қымыз сусыны дайындалады.
+
+Жас бала бес жасқа толғанда, оны алғаш рет атқа мінгізіп, «ашамайға мінгізу» тойын жасайды. Осылайша көшпелі баланың жүрегіне ержүректік пен туған жерге деген сүйіспеншілік сіңеді.`,
+    contentTr: `Kazak halkı için at; yalnızca bir binek hayvanı değil, özgürlüğün, asalet ve yiğitliğin kutsal timsalidir. Atalarımız «At, yiğidin kanadıdır» sözünü boşuna söylememiştir.
+
+Kazak bozkırında hızlı koşan atlara «seygilik», efsanevi kanatlı atlara «tulpar», asil ırk atlara ise «argımak» denir. Kısrak sütünden şifalı ve vitamin deposu kımız içeceği hazırlanır.
+
+Küçük bir çocuk beş yaşına bastığında, ilk defa ata bindirilerek «Aşamaya bindirme» töreni düzenlenir. Böylece göçebe çocuğunun yüreğine cesaret ve vatan sevgisi aşılanır.`,
+    vocabulary: [
+      { kz: 'Тұлпар', tr: 'Tulpar (Efsanevi kanatlı at)', note: 'Türk mitolojisinde kutlu at' },
+      { kz: 'Арғымақ', tr: 'Asil at / Soylu küheylan', note: 'Yüksek ırk bozkır atı' },
+      { kz: 'Ашамай', tr: 'Çocuk eyeri', note: 'Çocukların ata alışması için yapılan özel eyer' }
+    ],
+    questions: [
+      {
+        question: '«Ат – ердің қанаты» atasözünün anlamı nedir?',
+        options: [
+          'At yiğidin kanadıdır',
+          'At arabasız gitmez',
+          'Yiğit ata tek başına biner',
+          'Hızlı at erken yorulur'
+        ],
+        correctAnswer: 'At yiğidin kanadıdır',
+        explanation: 'Bozkırda at yiğide kanat gibi hız ve özgürlük sağlar.'
+      }
+    ]
+  },
+  {
+    id: 'story-b1-5',
+    level: 'B1',
+    levelLabel: 'B1 - Orta Düzey',
+    titleTr: 'Dombra ve Küyün Felsefesi: Aksak Kulan Efsanesi',
+    titleKz: 'Ақсақ құлан аңызы және Кетбұға жыраудың күйі',
+    subtitle: 'Sözün yetmediği yerde dombranın telleriyle acı haberi söyleyen bilge',
+    category: 'Müzik Felsefesi & Efsaneler',
+    wordCount: 220,
+    readingMinutes: 4,
+    contentKz: `Ежелгі аңыздардың бірі – «Ақсақ құлан» күйінің шығу тарихы. Шыңғыс ханның үлкен ұлы Жошы хан аңға шығып, жабайы құландардың арасында қаза табады. Бірақ қаһарлы ханға қаралы хабарды естіртуге ешкімнің батылы бармайды, өйткені жаман хабар әкелгеннің көмейіне қорғасын құйылатын қатал жарлық бар еді.
+
+Сонда ұлы жырау, күй атасы Кетбұға хан сарайына келіп, қолына қос ішекті домбырасын алады. Ол бірде-бір ауыз сөз айтпастан, күй ойнай бастайды. Домбыраның қоңыр үні борандай соғып, жаралы құланның шабысын, баласынан айырылған ханның қайғысын зарлап жеткізеді.
+
+Күй біткенде хан көзіне жас алып: «Баламның қазасын сөзбен емес, домбырамен естірттің» дейді. Жаза домбыраға беріліп, оның шанағына қорғасын құйылады. Содан бері домбыраның үстіндегі кішкене тесік осы оқиғаның белгісі ретінде қалыпты.`,
+    contentTr: `Kadim Türk efsanelerinden biri de «Aksak Kulan» küyünün doğuşudur. Cengiz Han'ın büyük oğlu Cuci Han ava çıktığında yaban kulanları sürüsünün arasında hayatını kaybeder. Ancak gazaplı Hana bu kara haberi iletmeye hiç kimse cesaret edemez; zira ölüm haberi getirenin boğazına kızgın kurşun akıtılacağına dair bir ferman vardır.
+
+O vakit ulu bilge ve ozan Ketbuğa Jırav han sarayına gelir, eline iki telli dombrasını alır. Tek bir kelime dahi konuşmadan dombrayı çalmaya başlar. Dombranın yanık sesi fırtına gibi eser; yaralı kulanın koşuşunu, evladını kaybeden bir babanın feryadını sazın iniltisiyle anlatır.
+
+Küy bittiğinde Han gözyaşlarını tutamayarak: «Evladımın vefatını sözle değil, dombranın diliyle söyledin» der. Ceza dombraya kesilir ve gövdesine kurşun dökülür. O günden bu yana dombranın göğsündeki küçük delik bu hadisenin hatırası olarak kalmıştır.`,
+    vocabulary: [
+      { kz: 'Құлан', tr: 'Yaban eşeği / Kulan', note: 'Bozkırın hızlı yabani hayvanı' },
+      { kz: 'Қаралы хабар', tr: 'Kara haber / Vefat haberi', note: 'Taziye ve matem bildirisi' },
+      { kz: 'Шанақ', tr: 'Sazın gövdesi / Teknesi', note: 'Müzik aletinin ses kutusu' }
+    ],
+    questions: [
+      {
+        question: 'Aksak Kulan efsanesinde kötü haberi konuşmadan sazıyla anlatan bilge kimdir?',
+        options: ['Кетбұға жырау (Ketbuğa)', 'Асан Қайғы', 'Қорқыт Ата', 'Сүйінбай'],
+        correctAnswer: 'Кетбұға жырау (Ketbuğa)',
+        explanation: 'Ketbuğa Jırav, söz söylemeden dombra küyü ile Cuci Han\'ın vefatını anlatmıştır.'
+      }
+    ]
+  },
+  {
+    id: 'story-b2-5',
+    level: 'B2',
+    levelLabel: 'B2 - İleri Düzey',
+    titleTr: 'Kazakistan\'ın Tabiat Mucizeleri: Şarın Kanyonu ve Kayındı Gölü',
+    titleKz: 'Қазақстанның табиғи ғажайыптары: Шарын шатқалы мен Қайыңды көлі',
+    subtitle: 'Milyon yıllık kanyonlar ve su altında yükselen huş ağacı ormanı',
+    category: 'Doğa & Eko-Turizm',
+    wordCount: 230,
+    readingMinutes: 4,
+    contentKz: `Қазақстанның жері кең байтақ әрі табиғаты сан алуан. Оңтүстік-шығысындағы Жетісу өлкесінде адам көзін таңғалдыратын бірегей геологиялық ескерткіштер орналасқан.
+
+Олардың бірі – атақты Шарын шатқалы. Оны көбінесе Америкадағы Үлкен Каньонға ұқсатады. Шарын каньонындағы «Қамалдар аңғары» жел мен судың миллиондаған жылдар бойғы әсерінен ежелгі бекіністер секілді ғажайып мүсіндерге айналған. Сондай-ақ шатқал бойында мұз дәуірінен сақталған соғды шаған ағаштары өседі.
+
+Ал Күнгей Алатауының қойнауында орналасқан Қайыңды көлі – 1911 жылғы күшті жер сілкінісінен кейін пайда болған табиғат ғажайыбы. Тау құлап, өзен арнасын бөгегенде суға батқан қайың ағаштары су астында шірімей, мөлдір көгілдір судың түбінен найзадай тік бой көтеріп тұр. Бұл сұлулықты көруге әлемнің түкпір-түкпірінен саяхатшылар ағылып келеді.`,
+    contentTr: `Kazakistan toprakları uçsuz bucaksız, tabiatı ise hayranlık uyandırıcı bir çeşitliliğe sahiptir. Güneydoğudaki Jetisu (Yedisu) bölgesinde eşsiz jeolojik anıtlar yer almaktadır.
+
+Bunlardan biri meşhur Şarın Kanyonu'dur. Çoğunlukla Amerika'daki Büyük Kanyon'a benzetilir. Şarın Kanyonu içerisindeki «Kaleler Vadisi», rüzgâr ve suyun milyonlarca yıllık aşındırmasıyla masalsı hisarları andıran heykellere dönüşmüştür. Kanyon tabanında Buzul Çağı'ndan kalma relikt dişbudak ormanı mevcuttur.
+
+Küngey Aladağları'nın bağrındaki Kayındı Gölü ise 1911 yılındaki büyük depremden sonra meydana gelmiş bir tabiat mucizesidir. Heyelan nehir yatağını kapatınca su altında kalan huş ağaçları çürümemiş, gölün turkuaz sularından mızrak gibi göğe yükselmektedir. Bu büyülü manzarayı görmek için dünyanın dört bir yanından gezginler akın etmektedir.`,
+    vocabulary: [
+      { kz: 'Шатқал', tr: 'Kanyon / Boğaz / Yarıntı', note: 'Derin vadi oluşumu' },
+      { kz: 'Қайың', tr: 'Huş ağacı / Kayın ağacı', note: 'Beyaz gövdeli dayanıklı ağaç' },
+      { kz: 'Жер сілкінісі', tr: 'Deprem / Yer sarsıntısı', note: 'Doğal tektonik olay' }
+    ],
+    questions: [
+      {
+        question: 'Kayındı Gölü\'nün su altındaki huş ağaçlarıyla ünlü olmasını sağlayan tarihi olay nedir?',
+        options: [
+          '1911 yılındaki büyük deprem ve nehir yatağının kapanması',
+          'İnsanların bilinçli olarak ağaç dikmesi',
+          'Baraj inşaatı yapılması',
+          'Buzulların aniden erimesi'
+        ],
+        correctAnswer: '1911 yılındaki büyük deprem ve nehir yatağının kapanması',
+        explanation: '1911 Kemir depremi sonucu dağ çöküntüsü gölü oluşturmuş ve huş ağaçları su altında korunmuştur.'
+      }
+    ]
+  },
+  {
+    id: 'story-c1-5',
+    level: 'C1',
+    levelLabel: 'C1 - Yetkin Düzey',
+    titleTr: 'Türk Dünyasında Ortak Miras: İsmail Gaspıralı\'dan Alaş Aydınlarına',
+    titleKz: 'Түркі бірлігі мұраты: Ысмайыл Ғаспыралыдан Алаш зиялыларына дейін',
+    subtitle: '«Dilde, fikirde, işte birlik» şiarının Kazak bozkırındaki yankısı',
+    category: 'Fikir Tarihi & Entegrasyon',
+    wordCount: 245,
+    readingMinutes: 5,
+    contentKz: `XIX ғасырдың аяғы мен XX ғасырдың басында түркі халықтарының рухани жаңғыру дәуірі басталды. Бұл ұлы қозғалыстың көшбасшысы, қырымтатар ойшылы Ысмайыл Ғаспыралы өзінің атақты: «Тілде, пікірде, істе бірлік» ұранын көтерді. Оның Бақшасарайда шығарған «Тәржіман» газеті Қырымнан Алтайға дейінгі бүкіл түркі жұртына ортақ әдеби тіл мен заманауи білімнің шуағын шашты.
+
+Бұл идеялар Қазақ даласындағы «Алаш» қозғалысының көсемдері – Әлихан Бөкейхан, Ахмет Байтұрсынұлы және Міржақып Дулатұлына зор шабыт берді. Ахмет Байтұрсынұлы қазақ әліпбиін реформалап, «Оқу құралын» жазса, Міржақып Дулатұлы өзінің «Оян, қазақ!» атты кітабымен ұлттық сананы оятты.
+
+Олар түркі халықтарының тәуелсіздігі, ғылым мен білімге ұмтылуы, сондай-ақ өз тілі мен ділін сақтауы үшін бастарын бәйгеге тікті. Бүгінгі таңда осы тарихи сабақтастық – Қазақстан мен Түркия арасындағы мәдени, ғылыми және рухани ынтымақтастықтың мызғымас іргетасы болып табылады. Түркі әлемінің интеграциясы – бабалар аманатының салтанат құруы.`,
+    contentTr: `19. yüzyılın sonu ve 20. yüzyılın başlarında Türk dünyasında topyekûn bir aydınlanma ve manevi uyanış devri başladı. Bu kutlu hareketin meşalesini yakan Kırım Tatarı mütefekkir İsmail Gaspıralı, ölümsüz şiarını ilan etti: «Dilde, fikirde, işte birlik!» Onun Bahçesaray'da neşrettiği «Tercüman» gazetesi, Kırım'dan Altaylar'a kadar uzanan coğrafyada ortak edebi dil ve modern maarifin nurunu yaydı.
+
+Bu fikirler, Kazak bozkırındaki «Alaş» aydınlanma hareketinin önderleri Ali Han Bökeyhan, Ahmet Baytursınulı ve Mirjakıp Dulatulı gibi münevverlere büyük bir ilham kaynağı oldu. Ahmet Baytursınulı Kazak milli alfabesini tanzim edip ilk gramer kitaplarını yazarken, Mirjakıp Dulatulı «Uyan, Kazak!» şiir kitabıyla milletin istiklal şuurunu alevlendirdi.
+
+Onlar Türk milletlerinin hürriyeti, bilime yönelişi, milli kimlik ve lisanlarını muhafaza etmesi uğruna canlarını feda ettiler. Bugün Türkiye ile Kazakistan arasındaki stratejik, ilmi ve kültürel kardeşlik; işte bu köklü fikri mirasın omuzlarında yükselmektedir. Türk dünyasının entegrasyonu, asırlık atalar mefkûresinin tecellisidir.`,
+    vocabulary: [
+      { kz: 'Тілде, пікірде, істе бірлік', tr: 'Dilde, fikirde, işte birlik', note: 'İsmail Gaspıralı\'nın Türk dünyası entegrasyon formülü' },
+      { kz: 'Алаш қозғалысы', tr: 'Alaş Hareketi', note: '1917 Kazak modernleşme ve bağımsızlık hareketi' },
+      { kz: 'Рухани жаңғыру', tr: 'Manevi uyanış / Rönesans', note: 'Milli kültürel diriliş' }
+    ],
+    questions: [
+      {
+        question: 'İsmail Gaspıralı\'nın Türk dünyası birliği için ortaya koyduğu ünlü şiar nedir?',
+        options: [
+          'Тілде, пікірде, істе бірлік (Dilde, fikirde, işte birlik)',
+          'Yurtta sulh, cihanda sulh',
+          'Birlikten kuvvet doğar',
+          'Vatan sağ olsun'
+        ],
+        correctAnswer: 'Тілде, пікірде, істе бірлік (Dilde, fikirde, işte birlik)',
+        explanation: 'İsmail Gaspıralı Tercüman gazetesinde «Dilde, fikirde, işte birlik» ilkesini savunmuştur.'
+      }
+    ]
   }
 ];

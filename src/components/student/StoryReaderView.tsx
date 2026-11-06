@@ -381,7 +381,7 @@ export const StoryReaderView: React.FC<StoryReaderViewProps> = ({
           
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-              <BookOpen className="w-4 h-4 text-violet-600" />
+              <BookOpen className="w-4 h-4 text-teal-600" />
               <span>Hikaye Koleksiyonu ({filteredStories.length} Eser)</span>
             </h2>
 
@@ -393,7 +393,7 @@ export const StoryReaderView: React.FC<StoryReaderViewProps> = ({
                   onClick={() => setLevelFilter(lvl)}
                   className={`px-2 py-0.5 rounded-lg transition ${
                     levelFilter === lvl
-                      ? 'bg-violet-600 text-white font-black'
+                      ? 'bg-teal-600 text-white font-black'
                       : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                   }`}
                 >
@@ -411,7 +411,7 @@ export const StoryReaderView: React.FC<StoryReaderViewProps> = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Hikaye, yazar, efsane veya kelime ara..."
-              className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-2xl text-xs focus:outline-none focus:border-violet-500"
+              className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-2xl text-xs focus:outline-none focus:border-teal-500"
             />
           </div>
 
@@ -423,13 +423,13 @@ export const StoryReaderView: React.FC<StoryReaderViewProps> = ({
                 onClick={() => setSelectedStoryId(story.id)}
                 className={`p-3 rounded-2xl border text-left transition shrink-0 w-60 sm:w-64 flex flex-col justify-between shadow-2xs ${
                   selectedStoryId === story.id
-                    ? 'border-violet-600 bg-violet-50/80 ring-2 ring-violet-500/20'
+                    ? 'border-teal-600 bg-teal-50/80 ring-2 ring-teal-500/20'
                     : 'border-slate-200 bg-white hover:border-slate-300'
                 }`}
               >
                 <div>
                   <div className="flex items-center justify-between gap-1 mb-1.5">
-                    <span className="px-2 py-0.2 rounded-md bg-violet-100 text-violet-800 text-[10px] font-black">
+                    <span className="px-2 py-0.2 rounded-md bg-teal-100 text-teal-800 text-[10px] font-black">
                       {story.level}
                     </span>
                     <span className="text-[10px] text-slate-400 font-medium">
@@ -447,7 +447,7 @@ export const StoryReaderView: React.FC<StoryReaderViewProps> = ({
                 <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-500">
                   <span>{story.category}</span>
                   {selectedStoryId === story.id && (
-                    <span className="text-violet-700 font-black flex items-center gap-0.5">
+                    <span className="text-teal-700 font-black flex items-center gap-0.5">
                       <span>Açık</span>
                       <Check className="w-3 h-3 stroke-[3]" />
                     </span>
@@ -469,7 +469,7 @@ export const StoryReaderView: React.FC<StoryReaderViewProps> = ({
               onClick={() => setTranslationDisplay('parallel')}
               className={`px-2.5 py-1 rounded-xl text-[11px] transition ${
                 translationDisplay === 'parallel'
-                  ? 'bg-violet-600 text-white font-black'
+                  ? 'bg-teal-600 text-white font-black'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
@@ -479,7 +479,7 @@ export const StoryReaderView: React.FC<StoryReaderViewProps> = ({
               onClick={() => setTranslationDisplay('hidden')}
               className={`px-2.5 py-1 rounded-xl text-[11px] transition ${
                 translationDisplay === 'hidden'
-                  ? 'bg-violet-600 text-white font-black'
+                  ? 'bg-teal-600 text-white font-black'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
@@ -537,7 +537,7 @@ export const StoryReaderView: React.FC<StoryReaderViewProps> = ({
           {/* Story Title & Meta */}
           <div className="border-b border-black/10 pb-4 mb-6">
             <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-              <span className="px-2.5 py-0.5 rounded-full bg-violet-600 text-white text-[10px] font-extrabold uppercase tracking-wide">
+              <span className="px-2.5 py-0.5 rounded-full bg-teal-600 text-white text-[10px] font-extrabold uppercase tracking-wide">
                 {currentStory.levelLabel}
               </span>
               <span className="text-xs font-semibold opacity-70">
@@ -569,7 +569,7 @@ export const StoryReaderView: React.FC<StoryReaderViewProps> = ({
                   <div className="flex items-start gap-2">
                     <button
                       onClick={() => handlePlayParagraph(paragraph, pIdx)}
-                      className="p-1.5 rounded-xl bg-violet-500/15 hover:bg-violet-500/25 text-violet-700 transition shrink-0 mt-1"
+                      className="p-1.5 rounded-xl bg-teal-500/15 hover:bg-teal-500/25 text-teal-700 transition shrink-0 mt-1"
                       title="Bu paragrafı sesli dinle"
                     >
                       <Volume2 className="w-4 h-4" />
@@ -584,7 +584,7 @@ export const StoryReaderView: React.FC<StoryReaderViewProps> = ({
                           <span
                             key={wIdx}
                             onClick={(e) => handleWordClick(word, e)}
-                            className={`cursor-pointer px-1 py-0.5 rounded-lg transition border border-transparent hover:border-violet-400 hover:bg-violet-100/60 active:scale-95 ${
+                            className={`cursor-pointer px-1 py-0.5 rounded-lg transition border border-transparent hover:border-teal-400 hover:bg-teal-100/60 active:scale-95 ${
                               isSaved ? 'underline decoration-amber-500 decoration-2 font-bold' : ''
                             }`}
                             title="Tercümesini ve sesletimini görmek için tıkla"
@@ -643,7 +643,7 @@ export const StoryReaderView: React.FC<StoryReaderViewProps> = ({
             <div className="mt-10 pt-6 border-t-2 border-dashed border-black/15">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-violet-600 text-white font-black flex items-center justify-center text-sm">
+                  <div className="w-8 h-8 rounded-xl bg-teal-600 text-white font-black flex items-center justify-center text-sm">
                     ?
                   </div>
                   <div>
@@ -679,7 +679,7 @@ export const StoryReaderView: React.FC<StoryReaderViewProps> = ({
 
                         let btnStyle = 'bg-white/80 border-slate-200 text-slate-800';
                         if (isChosen && !quizSubmitted) {
-                          btnStyle = 'bg-violet-600 text-white font-bold';
+                          btnStyle = 'bg-teal-600 text-white font-bold';
                         } else if (quizSubmitted) {
                           if (isCorrect) {
                             btnStyle = 'bg-emerald-600 text-white font-bold';
@@ -713,7 +713,7 @@ export const StoryReaderView: React.FC<StoryReaderViewProps> = ({
                   <button
                     disabled={Object.keys(quizAnswers).length < currentStory.questions.length}
                     onClick={handleCheckQuiz}
-                    className="w-full py-3 bg-violet-600 hover:bg-violet-700 disabled:opacity-40 text-white font-black text-xs rounded-xl shadow-md transition"
+                    className="w-full py-3 bg-teal-600 hover:bg-teal-700 disabled:opacity-40 text-white font-black text-xs rounded-xl shadow-md transition"
                   >
                     Testi Tamamla ve Puanı Al
                   </button>
@@ -744,12 +744,12 @@ export const StoryReaderView: React.FC<StoryReaderViewProps> = ({
           <div className="w-full max-w-sm bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col animate-in slide-in-from-bottom-4">
             
             {/* Header */}
-            <div className="p-4 bg-gradient-to-r from-violet-700 to-indigo-800 text-white flex items-center justify-between">
+            <div className="p-4 bg-gradient-to-r from-teal-700 to-cyan-800 text-white flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="px-2 py-0.5 rounded-full bg-white/20 text-[10px] font-black uppercase">
                   {activeWordPopup.pos}
                 </span>
-                <span className="text-[10px] text-violet-200 font-semibold">
+                <span className="text-[10px] text-teal-200 font-semibold">
                   Latin: {activeWordPopup.latin}
                 </span>
               </div>
@@ -768,14 +768,14 @@ export const StoryReaderView: React.FC<StoryReaderViewProps> = ({
                   <h3 className="text-2xl font-black text-slate-900">
                     {activeWordPopup.cleanWord}
                   </h3>
-                  <p className="text-base font-bold text-violet-700 mt-0.5">
+                  <p className="text-base font-bold text-teal-700 mt-0.5">
                     {activeWordPopup.translation}
                   </p>
                 </div>
 
                 <button
                   onClick={() => audioService.speak(activeWordPopup.cleanWord, 'kk', 0.85)}
-                  className="p-3 rounded-2xl bg-violet-100 hover:bg-violet-200 text-violet-700 transition shadow-xs"
+                  className="p-3 rounded-2xl bg-teal-50 hover:bg-teal-100 text-teal-700 transition shadow-xs"
                   title="Doğal Aksanla Dinle"
                 >
                   <Volume2 className="w-5 h-5" />
@@ -791,7 +791,7 @@ export const StoryReaderView: React.FC<StoryReaderViewProps> = ({
               <div className="pt-2 flex gap-2">
                 <button
                   onClick={handleSaveWord}
-                  className="flex-1 py-2.5 px-3 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-black text-xs transition shadow-sm flex items-center justify-center gap-1.5"
+                  className="flex-1 py-2.5 px-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-black text-xs transition shadow-sm flex items-center justify-center gap-1.5"
                 >
                   <Bookmark className="w-4 h-4" />
                   <span>Kelime Defterime Ekle</span>

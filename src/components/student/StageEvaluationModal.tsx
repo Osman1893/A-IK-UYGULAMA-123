@@ -55,12 +55,27 @@ export const StageEvaluationModal: React.FC<StageEvaluationModalProps> = ({
   const [isAnswerSubmitted, setIsAnswerSubmitted] = useState(false);
   const [userAnswers, setUserAnswers] = useState<Record<number, { selected: string; isCorrect: boolean }>>({});
   const [isExamCompleted, setIsExamCompleted] = useState(false);
-
-  if (!isOpen) return null;
+  const [shuffledOptions, setShuffledOptions] = useState<string[]>([]);
 
   const currentQ = questions[currentQuestionIndex] || questions[0];
   const totalQuestions = questions.length;
   const passingScorePercentage = 75; // 75% required to pass to next stage
+
+  // Scramble options so correct answer is NOT predictable
+  React.useEffect(() => {
+    if (currentQ?.options) {
+      const opts = [...currentQ.options];
+      for (let i = opts.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [opts[i], opts[j]] = [opts[j], opts[i]];
+      }
+      setShuffledOptions(opts);
+    } else {
+      setShuffledOptions([]);
+    }
+  }, [currentQuestionIndex, currentQ]);
+
+  if (!isOpen) return null;
 
   // Handle option select
   const handleSelect = (option: string) => {
@@ -129,9 +144,9 @@ export const StageEvaluationModal: React.FC<StageEvaluationModalProps> = ({
       <div className="w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
         
         {/* Modal Top Header */}
-        <div className="p-4 bg-gradient-to-r from-violet-700 via-indigo-700 to-purple-800 text-white flex items-center justify-between shrink-0">
+        <div className="p-4 bg-gradient-to-r from-teal-700 via-cyan-700 to-teal-900 text-white flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-2xl bg-white/15 text-violet-200">
+            <div className="p-2 rounded-2xl bg-white/15 text-teal-200">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
@@ -139,7 +154,7 @@ export const StageEvaluationModal: React.FC<StageEvaluationModalProps> = ({
                 <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-400 text-slate-950">
                   Etap {stageNumber} Değerlendirmesi
                 </span>
-                <span className="text-xs text-violet-200 font-bold">
+                <span className="text-xs text-teal-200 font-bold">
                   Geçme Eşiği: %{passingScorePercentage}
                 </span>
               </div>
@@ -150,7 +165,7 @@ export const StageEvaluationModal: React.FC<StageEvaluationModalProps> = ({
           </div>
           <button 
             onClick={onClose}
-            className="p-1.5 rounded-full hover:bg-white/20 transition text-violet-200 hover:text-white"
+            className="p-1.5 rounded-full hover:bg-white/20 transition text-teal-200 hover:text-white"
           >
             <X className="w-5 h-5" />
           </button>
@@ -160,7 +175,7 @@ export const StageEvaluationModal: React.FC<StageEvaluationModalProps> = ({
         {!isExamCompleted && (
           <div className="w-full bg-slate-100 h-1.5 shrink-0">
             <div 
-              className="bg-gradient-to-r from-amber-500 to-violet-600 h-1.5 transition-all duration-300"
+              className="bg-gradient-to-r from-amber-500 to-teal-600 h-1.5 transition-all duration-300"
               style={{ width: `${((currentQuestionIndex + 1) / totalQuestions) * 100}%` }}
             />
           </div>
@@ -176,7 +191,7 @@ export const StageEvaluationModal: React.FC<StageEvaluationModalProps> = ({
               {/* Question Header & Mascot Guidance */}
               <div className="flex items-center justify-between text-xs text-slate-500 font-bold">
                 <span>Soru {currentQuestionIndex + 1} / {totalQuestions}</span>
-                <span className="text-violet-600 font-black">
+                <span className="text-teal-600 font-black">
                   {Math.round(((currentQuestionIndex + 1) / totalQuestions) * 100)}%
                 </span>
               </div>
@@ -194,7 +209,7 @@ export const StageEvaluationModal: React.FC<StageEvaluationModalProps> = ({
                   </div>
                   <button
                     onClick={() => handleSpeak(currentQ.questionKz)}
-                    className="p-2 rounded-xl bg-violet-100 hover:bg-violet-200 text-violet-700 transition shrink-0"
+                    className="p-2 rounded-xl bg-teal-100 hover:bg-teal-200 text-teal-700 transition shrink-0"
                     title="Sesli Dinle"
                   >
                     <Volume2 className="w-4 h-4" />
@@ -202,15 +217,15 @@ export const StageEvaluationModal: React.FC<StageEvaluationModalProps> = ({
                 </div>
               </div>
 
-              {/* Multiple Choice Options */}
+              {/* Multiple Choice Options (Randomly Shuffled) */}
               <div className="space-y-2.5">
-                {currentQ.options.map((option, idx) => {
+                {(shuffledOptions.length > 0 ? shuffledOptions : currentQ.options).map((option, idx) => {
                   const isSelected = selectedOption === option;
                   const isCorrectAnswer = option.trim() === currentQ.correctAnswer.trim();
 
-                  let style = 'bg-white border-slate-200 hover:border-violet-400 text-slate-800';
+                  let style = 'bg-white border-slate-200 hover:border-teal-400 text-slate-800';
                   if (isSelected && !isAnswerSubmitted) {
-                    style = 'bg-violet-50 border-violet-500 ring-2 ring-violet-500/20 text-violet-900 font-bold';
+                    style = 'bg-teal-50 border-teal-500 ring-2 ring-teal-500/20 text-teal-950 font-bold';
                   } else if (isAnswerSubmitted) {
                     if (isCorrectAnswer) {
                       style = 'bg-emerald-50 border-emerald-500 text-emerald-950 font-bold ring-2 ring-emerald-500/20';
@@ -258,7 +273,7 @@ export const StageEvaluationModal: React.FC<StageEvaluationModalProps> = ({
                   <button
                     disabled={!selectedOption}
                     onClick={handleSubmitAnswer}
-                    className="w-full py-3.5 px-4 bg-violet-600 hover:bg-violet-700 disabled:opacity-40 text-white font-black text-xs rounded-2xl shadow-md transition"
+                    className="w-full py-3.5 px-4 bg-teal-600 hover:bg-teal-700 disabled:opacity-40 text-white font-black text-xs rounded-2xl shadow-md transition"
                   >
                     Cevabı Onayla
                   </button>
@@ -354,7 +369,7 @@ export const StageEvaluationModal: React.FC<StageEvaluationModalProps> = ({
                         onClose();
                         onReviewLesson();
                       }}
-                      className="py-3 px-3 rounded-2xl bg-violet-600 hover:bg-violet-700 text-white font-black text-xs transition flex items-center justify-center gap-1.5 shadow-md"
+                      className="py-3 px-3 rounded-2xl bg-teal-600 hover:bg-teal-700 text-white font-black text-xs transition flex items-center justify-center gap-1.5 shadow-md"
                     >
                       <BookOpen className="w-3.5 h-3.5" />
                       <span>Konuyu Tekrar Et ➔</span>

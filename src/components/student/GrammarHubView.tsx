@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { audioService } from '../../services/audioService';
 import { AlageyikMascot } from '../common/AlageyikMascot';
+import { KazakhVowelHarmonySimulator } from './KazakhVowelHarmonySimulator';
 
 interface GrammarTopic {
   id: string;
@@ -424,6 +425,141 @@ export const GrammarHubView: React.FC<GrammarHubViewProps> = ({ onOpenAlphabetGu
       examples: [
         { kz: 'Ас тәтті, өмір ұзақ болсын! Аумин!', tr: 'Aşınız tatlı, ömrünüz uzun olsun! Amin!', breakdown: 'Sofradan sonra verilen kısa bata' }
       ]
+    },
+    {
+      id: 'g-isim-tamlamalari',
+      category: 'İsim Çekimi',
+      titleTr: 'Kazakçada İsim Tamlamaları ve İzafet Yapısı',
+      titleKz: 'Қазақ тіліндегі сөз тіркестері және анықтауыштық қатынас',
+      summaryTr: 'Belirtili, belirtisiz ve takısız isim tamlamalarında iyelik ve tamlayan eki dengesi.',
+      summaryKz: 'Ілік септігі мен тәуелдік жалғауының үйлесімді байланысы.',
+      explanationTr: 'Kazakçada isim tamlamaları üç ana grupta incelenir:\n1. Belirtili İsim Tamlaması: Tamlayan ilgi eki (-ның/-нің, -дың/-дің, -тың/-тің), tamlanan 3. şahıs iyelik eki (-ы/-і, -сы/-сі) alır.\n   Örnek: Мектептің директоры (Okulun müdürü), Қазақстанның астанасы (Kazakistan\'ın başkenti).\n2. Belirtisiz İsim Tamlaması: Tamlayan eksiz kalır, tamlanan iyelik eki alır.\n   Örnek: Қазақ тілі (Kazak dili), Жұмыс орны (İş yeri), Темір жол (Demiryolu).\n3. Sıfat Tamlamaları: Sıfat herhangi bir ek almadan ismin önüne gelir.\n   Örnek: Жақсы адам (İyi insan), Көк аспан (Mavi gökyüzü).',
+      explanationKz: 'Сөздердің мағыналық және грамматикалық тұрғыдан ұйысуы.',
+      tableData: [
+        { caseName: 'Belirtili (Ілік + Тәуелдік)', suffixesTr: '-ın ... -ı / -i', suffixesKz: '-ның/-нің + -ы/-і', exampleTr: 'Öğrencinin kitabı', exampleKz: 'Оқушының кітабы' },
+        { caseName: 'Belirtisiz (Тәуелдік)', suffixesTr: 'Eksiz ... -ı / -i', suffixesKz: 'Нөлдік + -ы/-і', exampleTr: 'Kazakistan tarihi', exampleKz: 'Қазақстан тарихы' },
+        { caseName: 'Sıfat Tamlaması', suffixesTr: 'Eksiz sıfat + isim', suffixesKz: 'Сын есім + зат есім', exampleTr: 'Büyük dağ', exampleKz: 'Биік тау' }
+      ],
+      examples: [
+        { kz: 'Абайдың қара сөздері — қазақ пәлсапасының шыңы.', tr: 'Abay\'ın kara sözleri Kazak felsefesinin zirvesidir.', breakdown: 'Абай-дың (ilgi) + сөз-дер-і (iyelik) ... пәлсапа-сы-ның + шың-ы' },
+        { kz: 'Тіл саясаты — мемлекет бірлігінің кепілі.', tr: 'Dil politikası devlet birliğinin teminatıdır.', breakdown: 'Тіл (eksiz) + саясат-ы (belirtisiz tamlama)' }
+      ]
+    },
+    {
+      id: 'g-gelecek-zaman',
+      category: 'Fiil Zamanları',
+      titleTr: 'Kazakçada Üç Farklı Gelecek Zaman: Kesin, Olasılık ve Geniş',
+      titleKz: 'Келер шақтың үш түрі: Мақсатты, Болжалды және Ауыспалы келер шақ',
+      summaryTr: '-мақ/-мек (kesin niyet), -ар/-ер (olasılık/tahmin) ve -а/-е/-й (geniş-gelecek) biçimleri.',
+      summaryKz: 'Іс-әрекеттің алдағы уақытта орындалу сенімділік деңгейіне қарай жіктелуі.',
+      explanationTr: 'Türkiye Türkçesindeki tek «-ecek/-acak» ekine karşılık Kazakçada kesinlik derecesine göre 3 gelecek zaman vardır:\n1. Мақсатты келер шақ (Maksatlı / Kesin Gelecek Zaman):\n   Fiil kökü + -мақ/-мек, -бақ/-бек, -пақ/-пек + Kişi eki.\n   Kesinleşmiş, planlanmış eylemleri bildirir: Мен Астанаға бармақпын (Astana\'ya kesin olarak gideceğim).\n2. Болжалды келер шақ (Olasılık / Tahmin Gelecek Zaman):\n   Fiil kökü + -ар/-ер/-р + Kişi eki.\n   Şüphe, tahmin veya kesin olmayan ihtimalleri bildirir: Ол ертең келер (O yarın belki gelir / gelecektir).\n3. Ауыспалы келер шақ (Geniş / Alışılmış Gelecek Zaman):\n   Fiil kökü + -а/-е/-й + Kişi eki.\n   Günlük konuşmada en çok kullanılan gelecek zamandır: Мен саған көмектесемін (Sana yardım ederim / edeceğim).',
+      explanationKz: 'Келер шақ мағыналық реңкіне қарай үш түрлі құрылым арқылы көрінеді.',
+      tableData: [
+        { caseName: 'Kesin Niyet (-мақ/-мек)', suffixesTr: 'Yapmak niyetindeyim / -ecek', suffixesKz: '-мақ/-мек + жіктік', exampleTr: 'Okuyacağım (Kesin kararlıyım)', exampleKz: 'Мен оқымақпын' },
+        { caseName: 'Tahmin / Olasılık (-ар/-ер)', suffixesTr: 'Yapar herhalde / Gelecektir', suffixesKz: '-ар/-ер/-р + жіктік', exampleTr: 'O yarın gelir / gelecektir', exampleKz: 'Ол ертең келер' },
+        { caseName: 'Geniş Gelecek (-а/-е/-й)', suffixesTr: 'Yaparım / Yapacağım', suffixesKz: '-а/-е/-й + жіктік', exampleTr: 'Biz yarın görüşürüz', exampleKz: 'Біз ертең кездесеміз' }
+      ],
+      examples: [
+        { kz: 'Біз осы мақсатқа жету үшін бар күшімізді салмақпыз.', tr: 'Biz bu hedefe ulaşmak için var gücümüzü koyacağız (kesin niyet).', breakdown: 'сал-мақ-пыз (1. Çoğul Kesin Gelecek Zaman)' },
+        { kz: 'Күн батқан соң салқын болар.', tr: 'Güneş battıktan sonra hava serinler herhalde (tahmin).', breakdown: 'бол-ар (Olasılık Gelecek Zaman)' }
+      ]
+    },
+    {
+      id: 'g-istek-emir',
+      category: 'Fiil Çekimleri',
+      titleTr: 'Kazakçada Emir ve İstek Kipleri (Бұйрық және тілек рай)',
+      titleKz: 'Бұйрық райдың барлық жақтары мен сыпайылық дәрежелері',
+      summaryTr: '1. şahıs istek (-айын/-ейін, -айық/-ейік), 2. şahıs saygı kademeleri (-ңыз/-ңіз) ve 3. şahıs emir (-сын/-сін).',
+      summaryKz: 'Бұйрық рай қосымшаларының қызметі мен сөйлеу әдебіндегі орны.',
+      explanationTr: 'Kazakçada emir kipi sadece 2. şahıslara değil, tüm şahıslara uygulanır ve Türkçedeki «istek kipi» ile iç içedir:\n• 1. Tekil (Ben): -айын / -ейін / -йын / -йін ➔ Мен айтайын (Ben söyleyeyim), Мен көрейін (Ben göreyim).\n• 1. Çoğul (Biz): -айық / -ейік / -йық / -йік ➔ Барайық (Gidelim), Оқиық (Okuyalım).\n• 2. Tekil Samimi (Sen): Fiil kökü yalındır ➔ Бар! (Git!), Оқы! (Oku!).\n• 2. Tekil Saygılı (Siz): -ыңыз / -іңіз / -ңыз / -ңіз ➔ Барыңыз! (Gidiniz!), Оқыңыз! (Okuyunuz!).\n• 2. Çoğul Samimi (Senler): -ыңдар / -іңдер ➔ Барыңдар! (Gidin!).\n• 2. Çoğul Saygılı (Sizler): -ыңыздар / -іңіздер ➔ Барыңыздар! (Gidiniz / Buyurunuz!).\n• 3. Şahıs (O / Onlar): -сын / -сін ➔ Келсін! (Gelsin!), Айтсын! (Söylesin!).',
+      explanationKz: 'Бұйрық рай іс-әрекетті бұйыру, талап ету, өтіну және ұсыну мәнін білдіреді.',
+      tableData: [
+        { caseName: '1. Tekil (İstek)', suffixesTr: '-ayım / -eyim', suffixesKz: '-айын / -ейін', exampleTr: 'Ben yazayım', exampleKz: 'Мен жазайын' },
+        { caseName: '1. Çoğul (Hadi Yapalım)', suffixesTr: '-alım / -elim', suffixesKz: '-айық / -ейік', exampleTr: 'Birlikte gidelim', exampleKz: 'Бірге барайық' },
+        { caseName: '2. Tekil Saygılı', suffixesTr: '-ınız / -iniz', suffixesKz: '-ыңыз / -іңіз', exampleTr: 'Lütfen çay içiniz', exampleKz: 'Шай ішіңіз' },
+        { caseName: '3. Şahıs', suffixesTr: '-sın / -sin', suffixesKz: '-сын / -сін', exampleTr: 'O içeri girsin', exampleKz: 'Ол ішке кірсін' }
+      ],
+      examples: [
+        { kz: 'Жақсылықты бірге жасайық!', tr: 'İyiliği birlikte yapalım!', breakdown: 'жаса-йық (1. Çoğul İstek Eki)' },
+        { kz: 'Аман-есен еліңізге жетіңіз!', tr: 'Sağ salim memleketinize ulaşınız!', breakdown: 'жет-іңіз (2. Tekil Saygılı Emir/Dua)' }
+      ]
+    },
+    {
+      id: 'g-sart-kipi',
+      category: 'Fiil Çekimleri',
+      titleTr: 'Kazakçada Şart Kipi ve Sebep-Sonuç Cümleleri (Шартты рай)',
+      titleKz: 'Шартты рай (-са/-се) және сабақтас құрмалас сөйлем құрылымы',
+      summaryTr: '-са/-се ekinin şart, zaman ve rica anlamları; karşılaştırmalı bağlaç yapıları.',
+      summaryKz: 'Іс-әрекеттің орындалу шартын білдіретін тұлғалар.',
+      explanationTr: 'Kazakçada şart kipi fiil köklerine -са (kalın) veya -се (ince) getirilerek yapılır. Ardından şahıs ekleri eklenir:\n• Мен бар-са-м (Ben gidersem)\n• Сен бар-са-ң (Sen gidersen)\n• Сіз бар-са-ңыз (Siz giderseniz)\n• Ол бар-са (O giderse)\n• Біз бар-са-қ (Biz gidersek)\n• Сендер бар-са-ңдар (Siz giderseniz)\n• Олар бар-са (Onlar giderlerse)\n\nÖzel Fonksiyonlar:\n1. Şart: Еңбек етсең — емерсің (Emek verirsen semeresini alırsın).\n2. Nezaket / İstek: Маған су берсеңіз? (Bana su verir misiniz?)\n3. Zaman Bağlayıcı (Gidince / Geldiğinde): Мен үйге келсем, ешкім жоқ (Ben eve gelince baktım ki kimse yok).',
+      explanationKz: 'Шартты рай шарты, мезгілдік және өтініш мәндерін білдіреді.',
+      tableData: [
+        { caseName: '1. Tekil Şahıs', suffixesTr: '-sam / -sem', suffixesKz: '-сам / -сем', exampleTr: 'Eğer çalışırsam', exampleKz: 'Егер оқысам' },
+        { caseName: '2. Saygılı Şahıs', suffixesTr: '-sanız / -seniz', suffixesKz: '-саңыз / -сеңіз', exampleTr: 'Eğer buyurursanız', exampleKz: 'Егер келсеңіз' },
+        { caseName: '3. Şahıs', suffixesTr: '-sa / -se', suffixesKz: '-са / -се', exampleTr: 'Hava güzel olursa', exampleKz: 'Күн ашық болса' }
+      ],
+      examples: [
+        { kz: 'Оқысаң — озарсың, оқымасаң — тозарсың.', tr: 'Okursan öne geçersin, okumazsan yıpranırsın (Kazak Atasözü).', breakdown: 'оқы-са-ң (şart) + оз-ар-сың (gelecek zaman)' },
+        { kz: 'Уақытыңыз болса, сөйлесейік.', tr: 'Vaktiniz olursa konuşalım.', breakdown: 'бол-са (şart) + сөйлес-ейік (istek)' }
+      ]
+    },
+    {
+      id: 'g-zarf-fiiller',
+      category: 'Fiil Çekimleri',
+      titleTr: 'Kazakçada Zarf-Fiiller / Ulaçlar (Көсемше)',
+      titleKz: 'Көсемше тұлғалары (-ып/-іп/-п, -а/-е/-й, -ғалы/-гелі) және қызметі',
+      summaryTr: 'İki eylemi art arda veya eşzamanlı bağlayan ulaçlar ve birleşik fiil kurulumu.',
+      summaryKz: 'Қимылдың амалын, мезгілін білдіретін етістік формалары.',
+      explanationTr: 'Kazakçada zarf-fiiller (ulaçlar) cümleleri bağlamada ve tasvir fiilleriyle birleşik eylem kurmada temel taşıdır:\n1. -ып / -іп / -п Ulaçı (Türkçedeki -ıp/-ip):\n   İki eylemin art arda yapıldığını bildirir: Ол кітапты алып, оқи бастады (O kitabı alıp okumaya başladı).\n2. -а / -е / -й Ulaçı (Türkçedeki -a/-e):\n   Eşzamanlı veya tekrarlanan eylemleri bildirir: Күле-күле шаршады (Güle güle yoruldu).\n3. -ғалы / -гелі, -қалы / -келі Ulaçı (Türkçedeki -alı/-eli):\n   Başlangıç zamanını bildirir: Мен Қазақстанға келгелі 3 ай болды (Ben Kazakistan\'a geleli 3 ay oldu).\n4. -мастан / -местен Ulaçı (Türkçedeki -madan/-meden):\n   Ойланбастан жауап берді (Düşünmeden cevap verdi).',
+      explanationKz: 'Көсемшелер сөйлемде пысықтауыш және күрделі етістіктің құрамында қызмет атқарады.',
+      tableData: [
+        { caseName: '-ып / -іп / -п (Art Arda)', suffixesTr: '-ıp / -ip', suffixesKz: '-ып / -іп / -п', exampleTr: 'Gidip gördü', exampleKz: 'Барып көрді' },
+        { caseName: '-а / -е / -й (Eşzamanlı)', suffixesTr: '-a / -e', suffixesKz: '-а / -е / -й', exampleTr: 'Konuşa konuşa', exampleKz: 'Сөйлей-сөйлей' },
+        { caseName: '-ғалы / -гелі (Zaman Sınırı)', suffixesTr: '-alı / -eli', suffixesKz: '-ғалы / -гелі', exampleTr: 'Göreceli beri', exampleKz: 'Көргелі бері' }
+      ],
+      examples: [
+        { kz: 'Қонақтар дастарқан басына отырып, әңгіме айтты.', tr: 'Misafirler sofra başına oturup sohbet etti.', breakdown: 'отыр-ып (ulaç) + айт-ты (geçmiş zaman)' },
+        { kz: 'Тоқтамастан алға қарай ұмтылды.', tr: 'Durmaksızın ileriye doğru atıldı.', breakdown: 'тоқта-мастан (zarf-fiil olumsuz)' }
+      ]
+    },
+    {
+      id: 'g-sifat-fiiller',
+      category: 'Fiil Çekimleri',
+      titleTr: 'Kazakçada Sıfat-Fiiller / Ortaçlar (Есімше)',
+      titleKz: 'Есімше тұлғалары (-ған/-ген, -атын/-етін, -ар/-ер) және заттануы',
+      summaryTr: 'Eylemi sıfatlaştıran ortaçlar: Geçmiş zaman (-ған), şimdiki/geniş zaman (-атын) ve gelecek zaman (-ар).',
+      summaryKz: 'Есімшенің синтаксистік қызметі мен сөйлемдегі анықтауыштық рөлі.',
+      explanationTr: 'Kazakçada sıfat-fiiller (ortaçlar) hem sıfat olarak ismin önüne gelir hem de isim çekim eklerini alarak adlaşır:\n1. Geçmiş Zaman Sıfat-Fiili (-ған / -ген, -қан / -кен):\n   Türkçedeki -dık/-dik veya -an/-en ekinin karşılığıdır:\n   Келген қонақ (Gelen misafir), Оқыған кітап (Okunan / Okuduğum kitap).\n2. Geniş / Şimdiki Zaman Sıfat-Fiili (-атын / -етін, -йтын / -йтін):\n   Sürekli yapılan eylemleri sıfatlaştırır:\n   Күнде келетін пойыз (Her gün gelen tren), Сөйлейтін адам (Konuşan insan).\n3. Gelecek Zaman Sıfat-Fiili (-ар / -ер, -с / -с):\n   Aytar söz (Söylenecek söz), Körer kün (Görülecek gün).\n\nAdlaşma Özelliği: Kazakçada ortaçlar adlaşarak çekim eki alır:\nОқығандар түсінеді (Okumuş olanlar anlar), Келгендерге сәлем бер (Gelenlere selam ver).',
+      explanationKz: 'Есімшелер зат есімдерге тән жалғауларды қабылдап заттана алады.',
+      tableData: [
+        { caseName: 'Geçmiş (-ған/-ген)', suffixesTr: '-an / -dığı', suffixesKz: '-ған / -ген', exampleTr: 'Gelen misafir', exampleKz: 'Келген қонақ' },
+        { caseName: 'Alışılmış (-атын/-етін)', suffixesTr: '-an (Her zaman)', suffixesKz: '-атын / -етін', exampleTr: 'Uçan kuş', exampleKz: 'Ұшатын құс' },
+        { caseName: 'Gelecek (-ар/-ер)', suffixesTr: '-ecek / -acak', suffixesKz: '-ар / -ер', exampleTr: 'Yapılacak iş', exampleKz: 'Істелер іс' }
+      ],
+      examples: [
+        { kz: 'Көп жасаған білмейді, көпті көрген біледі.', tr: 'Çok yaşayan bilmez, çok gören bilir (Kazak Atasözü).', breakdown: 'жаса-ған (yaşayan) + көр-ген (gören)' },
+        { kz: 'Мен іздеген кітап осы еді.', tr: 'Benim aradığım kitap buydu.', breakdown: 'ізде-ген (aradığım / aranan)' }
+      ]
+    },
+    {
+      id: 'g-cati-ekleri',
+      category: 'Fiil Çekimleri',
+      titleTr: 'Kazakçada Fiil Çatıları (Етіс санаттары)',
+      titleKz: 'Етістің бес түрі: Негізгі, Өздік, Өзгелік, Ырықсыз және Ортақ етіс',
+      summaryTr: 'Etken, edilgen (-ыл/-іл), dönüşlü (-ын/-ін), işteş (-ыс/-іс) ve ettirgen (-дыр/-дір, -қыз/-кіз) çatıları.',
+      summaryKz: 'Қимыл мен субъект арасындағы қатынасты білдіретін грамматикалық тұлғалар.',
+      explanationTr: 'Kazakçada fiiller özne ile nesne arasındaki ilişkiye göre 5 çatıya ayrılır:\n1. Негізгі етіс (Etken): İşi özne kendisi yapar: Ол хат жазды (O mektup yazdı).\n2. Ырықсыз етіс (Edilgen): İşi yapan belirsizdir, nesne özne konumuna geçer (-ыл/-іл, -л):\n   Жазылды (Yazıldı), Салынды (Yapıldı/İnşa edildi).\n3. Өздік етіс (Dönüşlü): Eylem doğrudan öznenin kendisine döner (-ын/-ін, -н):\n   Жуынды (Yıkandı), Киінді (Giyindi).\n4. Өзгелік етіс (Ettirgen / Oldurgan): Eylemi başkasına yaptırma (-дыр/-дір, -тыр/-тір, -т, -ғыз/-гіз):\n   Жаздырды (Yazdırdı), Оқытты (Okuttu), Көрсетті (Gösterdi).\n5. Ортақ етіс (İşteş): Eylemi birden çok özne birlikte veya karşılıklı yapar (-ыс/-іс, -с):\n   Көмектесті (Yardımlaştı), Амандасты (Selamlaştı), Күлісті (Gülüştüler).',
+      explanationKz: 'Етіс жұрнақтары етістіктің түбіріне жалғанып жаңа мағына береді.',
+      tableData: [
+        { caseName: 'Edilgen (-ыл/-іл)', suffixesTr: '-ıl / -il', suffixesKz: '-ыл / -іл / -л', exampleTr: 'Kapı açıldı', exampleKz: 'Есік ашылды' },
+        { caseName: 'Dönüşlü (-ын/-ін)', suffixesTr: '-ın / -in', suffixesKz: '-ын / -ін / -н', exampleTr: 'Çocuk giyindi', exampleKz: 'Бала киінді' },
+        { caseName: 'Ettirgen (-тыр/-тір)', suffixesTr: '-dır / -dir / -t', suffixesKz: '-дыр/-дір, -т', exampleTr: 'Kitabı okuttu', exampleKz: 'Кітапты оқытты' },
+        { caseName: 'İşteş (-ыс/-іс)', suffixesTr: '-ış / -iş', suffixesKz: '-ыс / -іс / -с', exampleTr: 'Dostlar görüştü', exampleKz: 'Достар көрісті' }
+      ],
+      examples: [
+        { kz: 'Жаңа мектеп былтыр салынды.', tr: 'Yeni okul geçen yıl inşa edildi (Edilgen).', breakdown: 'сал-ын-ды (inşa edildi)' },
+        { kz: 'Екі дос ұзақ уақыттан кейін қайта табысты.', tr: 'İki dost uzun zamandan sonra yeniden buluştu / kavuştu (İşteş).', breakdown: 'таб-ыс-ты (kavuştu)' }
+      ]
     }
   ];
 
@@ -432,6 +568,7 @@ export const GrammarHubView: React.FC<GrammarHubViewProps> = ({ onOpenAlphabetGu
     'Alfabe & Fonetik', 
     'Ses Bilgisi', 
     'İsim Çekimi', 
+    'Fiil Zamanları',
     'Fiil Çekimleri', 
     'Cümle Bilgisi', 
     'Karşılaştırmalı Türkoloji',
@@ -505,6 +642,11 @@ export const GrammarHubView: React.FC<GrammarHubViewProps> = ({ onOpenAlphabetGu
             subMessage="Singarmonizm mantığını kavradığınızda eklerin -ba/-be, -pa/-pe veya -tar/-ter dönüşümlerini anında tahmin edebilirsiniz."
           />
         </div>
+      </div>
+
+      {/* Interactive Kazakh Vowel Harmony & Suffix Simulator */}
+      <div className="px-4 pt-3 shrink-0">
+        <KazakhVowelHarmonySimulator />
       </div>
 
       {/* Category Pills */}

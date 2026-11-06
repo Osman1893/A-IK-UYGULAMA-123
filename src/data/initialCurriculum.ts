@@ -15,14 +15,14 @@ export const initialUnits: Unit[] = [
     id: 'unit-a1-1',
     unitNumber: 1,
     level: 'A1',
-    direction: 'TR_TO_KZ',
+    direction: 'BOTH',
     titleTr: 'Ünite 1: Kazak Alfabesi ve Özel Sesler',
     titleKz: '1-бөлім: Қазақ әліпбиі және төл дыбыстар',
     descriptionTr: 'Kazakçaya özgü 9 özel harf (Ә, І, Ң, Ғ, Ү, Ұ, Қ, Ө, Һ), sesletim ve alfabe temelleri.',
     descriptionKz: 'Қазақ тілінің 9 төл дыбысы (Ә, І, Ң, Ғ, Ү, Ұ, Қ, Ө, Һ) және әліпби ерекшеліктері.',
     icon: 'Sparkles',
     isPublished: true,
-    version: 6,
+    version: 7,
     lessons: [
       {
         id: 'lesson-a1-1-1',
@@ -101,17 +101,35 @@ export const initialUnits: Unit[] = [
         grammar: {
           titleTr: 'Kazakça ve Türkiye Türkçesi Ses Uyumu Karşılaştırması',
           titleKz: 'Қазақ және түрік тілдеріндегі дыбыс үндестігі',
-          explanationTr: 'Kazakçada kalınlık-incelik uyumu Türkçeye göre çok daha katıdır. Kelime kalın ünlüyle (А, О, Ұ, Ы) başlarsa bütün ekler kalın; ince ünlüyle (Ә, Ө, Ү, І, Е) başlarsa ekler ince gelir.',
+          explanationTr: 'Kazakçada kalınlık-incelik uyumu Türkçeye göre çok daha katıdır. Kelime kalın ünlüyle (А, О, Ұ, Ы) başlarsa bütün ekler kalın; ince ünlüyle (Ә, Ө, Ү, І, Е) başlarsa ekler ince gelir. Ayrıca Türkiye Türkçesindeki "y" sesi Kazakçada düzenli olarak "j" sesine (Yıl ➔ Жыл, Yol ➔ Жол) dönüşür.',
           explanationKz: 'Жуан және жіңішке дауыстылардың үндестік заңы сөздер мен қосымшаларда қатаң сақталады.',
           rules: [
             {
               id: 'r-a1-1',
-              titleTr: 'Kalın Ünlüler Kuralı',
+              titleTr: 'Kalın Ünlüler Kuralı (Жуан дауыстылар)',
               titleKz: 'Жуан дауыстылар',
               trPattern: 'a, ı, o, u ➔ Kalın ekler (-lar, -da, -dan)',
               kzPattern: 'а, о, ұ, ы ➔ Жуан жалғаулар (-лар, -да, -дан)',
-              explanationTr: 'Kalın kökler sadece kalın ek alır: Бала + лар = Балалар (Çocuklar).',
+              explanationTr: 'Kalın kökler sadece kalın ek alır: Бала + лар = Балалар (Çocuklar), Тау + да = Тауда (Dağda).',
               explanationKz: 'Бала сөзіне жуан -лар жалғанады.'
+            },
+            {
+              id: 'r-a1-2',
+              titleTr: 'İnce Ünlüler Kuralı (Жіңішке дауыстылар)',
+              titleKz: 'Жіңішке дауыстылар',
+              trPattern: 'e, i, ö, ü ➔ İnce ekler (-ler, -de, -den)',
+              kzPattern: 'ә, ө, ү, і, е ➔ Жіңішке жалғаулар (-лер, -де, -ден)',
+              explanationTr: 'İnce kökler sadece ince ek alır: Үй + лер = Үйлер (Evler), Мектеп + те = Мектепте (Okulda).',
+              explanationKz: 'Үй сөзіне жіңішке -лер жалғанады.'
+            },
+            {
+              id: 'r-a1-3',
+              titleTr: 'Boğaz Kaf (Қ) ve Ön Damak K (К) Ayrımı',
+              titleKz: 'Қ мен К дыбыстарының үндестігі',
+              trPattern: 'Kalın sözcükte Қ / İnce sözcükte К',
+              kzPattern: 'Жуан сөзде Қ / Жіңішке сөзде К',
+              explanationTr: 'Қ harfi sadece kalın ünlülerle (Қазақ, Қол, Құс), К harfi ise sadece ince ünlülerle (Көл, Кісі, Күн) hecelenir.',
+              explanationKz: 'Қ – жуан, К – жіңішке дауыссыздар.'
             }
           ],
           examples: [
@@ -119,9 +137,32 @@ export const initialUnits: Unit[] = [
               kazakh: 'Балалар мектепке барды.',
               turkish: 'Çocuklar okula gitti.',
               breakdown: 'Бала-лар (kalın uyum) + мектеп-ке (ince uyum) + бар-ды'
+            },
+            {
+              kazakh: 'Қазақ халқы ұлттық дәстүрін қадірлейді.',
+              turkish: 'Kazak halkı milli geleneğini takdir eder / değer verir.',
+              breakdown: 'Қазақ (kalın kök) + дәстүр-ін (ince uyum)'
+            },
+            {
+              kazakh: 'Жаңа жыл құтты болсын!',
+              turkish: 'Yeni yıl kutlu olsun!',
+              breakdown: 'Жаңа (yeni) + жыл (yıl / y ➔ j dönüşümü)'
             }
           ],
-          commonMistakes: []
+          commonMistakes: [
+            {
+              incorrect: 'Қітап',
+              correct: 'Кітап',
+              reasonTr: '«Қ» sesi yalnızca kalın ünlülerle kullanılır; ince ünlülü «і» harfiyle daima «К» gelir.',
+              reasonKz: '«Қ» тек жуан дауыстылармен, ал «К» жіңішке дауыстылармен жазылады.'
+            },
+            {
+              incorrect: 'Әке (kapalı e gibi okumak)',
+              correct: 'Әке [æke] (ağzı açarak telaffuz etmek)',
+              reasonTr: '«Ә» sesi Türkçedeki «ben» veya açık «e» sesindeki gibi ağız iyice açılarak çıkarılır.',
+              reasonKz: '«Ә» төл дыбысы езуді керіп, ауызды кең ашу арқылы айтылады.'
+            }
+          ]
         },
         dialogue: {
           id: 'dlg-a1-1',
@@ -201,13 +242,65 @@ export const initialUnits: Unit[] = [
           }
         ],
         grammar: {
-          titleTr: 'Kazakçada Çoğul Ekinin 6 Varyantı',
-          titleKz: 'Көптік жалғауының 6 түрі',
-          explanationTr: 'Son ses ünlü veya r, l, y, w ise: -лар/-лер; z, j ise: -дар/-дер; sert ünsüz (p, f, k, q, t, s, ş) ise: -тар/-тер.',
-          explanationKz: 'Көптік жалғаулары дыбыс үндестігіне бағынады.',
-          rules: [],
-          examples: [],
-          commonMistakes: []
+          titleTr: 'Kazakçada Çoğul Ekinin 6 Varyantı (-лар/-лер, -дар/-дер, -тар/-тер)',
+          titleKz: 'Көптік жалғауының 6 түрі және үндестік ережесі',
+          explanationTr: 'Türkçedeki iki çoğul ekine (-lar/-ler) karşılık Kazakçada son sese göre 6 farklı varyant kullanılır:\n1. Son ses ünlü veya r, l, y, u/w ise: -лар / -лер (Бала-лар, Үй-лер).\n2. Son ses j, z, m, n, ŋ ise: -дар / -дер (Қыз-дар, Күн-дер).\n3. Son ses sert ünsüz (p, f, k, q, t, s, ş, ç, h) ise: -тар / -тер (Кітап-тар, Дәптер-лер değil Дәптер-лер r ile bittiğinden -лер, Мектеп-тер p ile bittiğinden -тер).',
+          explanationKz: 'Көптік жалғаулары сөздің соңғы дыбысына байланысты үш топқа жіктеледі.',
+          rules: [
+            {
+              id: 'r-a1-2a',
+              titleTr: 'Ünlü ve Akıcı Ünsüzler Kuralı (-лар/-лер)',
+              titleKz: 'Дауыстылардан кейін -лар/-лер',
+              trPattern: 'Ünlü, r, l, y, w ➔ -lar / -ler',
+              kzPattern: 'Дауысты, р, л, й, у ➔ -лар / -лер',
+              explanationTr: 'Ана + лар = Аналар (Anneler), Терезе + лер = Терезелер (Pencereler).',
+              explanationKz: 'Аналар, терезелер.'
+            },
+            {
+              id: 'r-a1-2b',
+              titleTr: 'Yumuşak Ünsüzler Kuralı (-дар/-дер)',
+              titleKz: 'Ұяң дауыссыздардан кейін -дар/-дер',
+              trPattern: 'z, j, m, n, ŋ ➔ -dar / -der',
+              kzPattern: 'з, ж, м, н, ң ➔ -дар / -дер',
+              explanationTr: 'Қыз + дар = Қыздар (Kızlar), Адам + дар = Адамдар (İnsanlar).',
+              explanationKz: 'Қыздар, адамдар.'
+            },
+            {
+              id: 'r-a1-2c',
+              titleTr: 'Sert Ünsüzler Kuralı (-тар/-тер)',
+              titleKz: 'Қатаң дауыссыздардан кейін -тар/-тер',
+              trPattern: 'p, f, k, q, t, s, ş ➔ -tar / -ter',
+              kzPattern: 'п, ф, к, қ, т, с, ш ➔ -тар / -тер',
+              explanationTr: 'Кітап + тар = Кітаптар (Kitaplar), Мектеп + тер = Мектептер (Okullar).',
+              explanationKz: 'Кітаптар, мектептер.'
+            }
+          ],
+          examples: [
+            {
+              kazakh: 'Оқушылар жаңа кітаптар алды.',
+              turkish: 'Öğrenciler yeni kitaplar aldı.',
+              breakdown: 'Оқушы-лар (ünlüden sonra -лар) + кітап-тар (sert p\'den sonra -тар)'
+            },
+            {
+              kazakh: 'Адамдар саябақта серуендеп жүр.',
+              turkish: 'İnsanlar parkta geziniyor.',
+              breakdown: 'Адам-дар (m\'den sonra -дар)'
+            }
+          ],
+          commonMistakes: [
+            {
+              incorrect: 'Кітап-лар',
+              correct: 'Кітап-тар',
+              reasonTr: '«П» sert ünsüz olduğundan ardından sert varyant olan «-тар» gelmelidir.',
+              reasonKz: '«П» қатаң дауыссызынан кейін қатаң «-тар» жалғауы келеді.'
+            },
+            {
+              incorrect: 'Қыз-лар',
+              correct: 'Қыз-дар',
+              reasonTr: '«З» yumuşak ses olduğundan çoğul eki «-дар» olmalıdır.',
+              reasonKz: '«З» ұяң дауыссызынан кейін «-дар» жалғанады.'
+            }
+          ]
         },
         dialogue: {
           id: 'dlg-a1-2',
@@ -250,14 +343,14 @@ export const initialUnits: Unit[] = [
     id: 'unit-a1-2',
     unitNumber: 2,
     level: 'A1',
-    direction: 'TR_TO_KZ',
+    direction: 'BOTH',
     titleTr: 'Ünite 2: Tanışma ve Nerelisin?',
     titleKz: '2-бөлім: Танысу және қай елденсіз?',
     descriptionTr: 'Kendini tanıtma, meslekler, ülke ve millet isimleri, ayrılma hali (-дан/-ден).',
     descriptionKz: 'Өзін таныстыру, мамандықтар, ел атаулары және шығыс септігі.',
     icon: 'User',
     isPublished: true,
-    version: 6,
+    version: 7,
     lessons: [
       {
         id: 'lesson-a1-2-1',
@@ -294,13 +387,61 @@ export const initialUnits: Unit[] = [
           }
         ],
         grammar: {
-          titleTr: 'İyelik Ekli İsim Sorma Kalıbı',
-          titleKz: 'Тәуелдік жалғауымен сұрау',
-          explanationTr: 'Ат (ad) + ыңыз (sizin) = Атыңыз кім? (Adınız kim/nedir?)',
-          explanationKz: 'Сыпайы түрде есім сұрау формасы.',
-          rules: [],
-          examples: [],
-          commonMistakes: []
+          titleTr: 'Kazakçada İyelik Ekli İsim Sorma ve Kendini Tanıtma Kalıpları',
+          titleKz: 'Тәуелдік жалғауымен есім сұрау және танысу үлгілері',
+          explanationTr: 'Kazakçada birinin adını sorarken Türkçe gibi «Adın ne?» denmez; insan saygı gördüğü için «Атың кім?» (Adın kim?) veya saygılı olarak «Атыңыз кім?» (Adınız kimdir?) denir.',
+          explanationKz: 'Сыпайы түрде есім сұрау формасы және тәуелдік жалғауларының қолданылуы.',
+          rules: [
+            {
+              id: 'r-a1-2-1a',
+              titleTr: 'İsim ve İyelik Çekimi (Менің атым / Сіздің атыңыз)',
+              titleKz: 'Тәуелдік жалғаулары',
+              trPattern: 'Benim adım ... / Sizin adınız ...',
+              kzPattern: 'Менің атым ... / Сіздің атыңыз ...',
+              explanationTr: 'Менің ат-ым (Benim adım), Сенің ат-ың (Senin adın), Сіздің ат-ыңыз (Sizin adınız), Оның ат-ы (Onun adı).',
+              explanationKz: 'Ат сөзіне тәуелдік жалғаулары жалғанады.'
+            },
+            {
+              id: 'r-a1-2-1b',
+              titleTr: 'İnsan İsimlerinde «Кім» (Kim) Soru Zamiri Kuralı',
+              titleKz: 'Адамға қатысты «Кім?» сұрағы',
+              trPattern: 'Adınız nedir? (Kazakça mantığı: Adınız kimdir?)',
+              kzPattern: 'Атыңыз кім?',
+              explanationTr: 'Kazakçada insanlara «Не?» (Ne?) değil, hürmeten daima «Кім?» (Kim?) sorulur: «Сіздің атыңыз кім?»',
+              explanationKz: 'Қазақ тілінде адамның есімін сұрағанда «кім?» сұрау есімдігі қолданылады.'
+            }
+          ],
+          examples: [
+            {
+              kazakh: 'Сәлеметсіз бе! Менің атым — Серік.',
+              turkish: 'Merhaba! Benim adım Serik.',
+              breakdown: 'Менің ат-ым (iyelik eki) + Серік'
+            },
+            {
+              kazakh: 'Сіздің атыңыз кім болады?',
+              turkish: 'Adınız nedir acaba? (Çok nazik form)',
+              breakdown: 'Сіздің ат-ыңыз + кім + болады (nezaket sorusu)'
+            },
+            {
+              kazakh: 'Сізбен танысқаныма қуаныштымын!',
+              turkish: 'Sizinle tanıştığıma çok memnun oldum!',
+              breakdown: 'Сіз-бен (ile) + таныс-қан-ым-а (tanıştığıma) + қуанышты-мын (memnunum)'
+            }
+          ],
+          commonMistakes: [
+            {
+              incorrect: 'Сіздің атыңыз не?',
+              correct: 'Сіздің атыңыз кім?',
+              reasonTr: 'Kazakçada insanlara «Не?» (Ne?) değil, hürmeten daima «Кім?» (Kim?) sorulur.',
+              reasonKz: 'Адамның есімін сұрағанда «кім?» сұрау есімдігі қолданылады.'
+            },
+            {
+              incorrect: 'Сенің атың кім? (Büyüklere veya tanımadık kişilere)',
+              correct: 'Сіздің атыңыз кім?',
+              reasonTr: 'Yaşça büyüklere ve tanımadığımız kişilere saygılı «Сіз» hitabı kullanılır.',
+              reasonKz: 'Үлкендерге және бейтаныс жандарға сыпайы «Сіз» формасы тән.'
+            }
+          ]
         },
         dialogue: {
           id: 'dlg-a1-2-1',
@@ -346,11 +487,11 @@ export const initialUnits: Unit[] = [
         lessonNumber: 2,
         titleTr: 'Ders 2: Ülkeler, Milletler ve Nerelisin? (Қай елденсіз?)',
         titleKz: '2-сабақ: Елдер, ұлттар және қайдансыз?',
-        summaryTr: '«Қайдансыз?», «Қай елден келдіңіз?», ayrılma hali (-дан/-ден, -тан/-тен) ve millet isimleri.',
+        summaryTr: '«Қайдансыз?», «Қай елден келдіңіз?», ayrılma hali (-дан/-ден, -тан/-тен, -нан/-нен) ve millet isimleri.',
         summaryKz: 'Шығыс септігі арқылы туған жерін, елін айту үлгілері.',
         learningObjectivesTr: [
           'Memleketini, yaşadığı ülkeyi ve milletini Kazakça ifade edebilme',
-          'Ayrılma hali eklerini (-дан/-ден/-тан/-тен) ses uyumuna göre doğru ekleyebilme'
+          'Ayrılma hali eklerini (-дан/-ден/-тан/-тен/-нан/-нен) ses uyumuna göre doğru ekleyebilme'
         ],
         learningObjectivesKz: [
           'Қай елден екенін дұрыс айту',
@@ -370,7 +511,7 @@ export const initialUnits: Unit[] = [
           },
           {
             id: 'v-a1-11',
-            kazakhCyrillic: 'Түркиya',
+            kazakhCyrillic: 'Түркия',
             kazakhLatin: 'Türkiya',
             turkish: 'Türkiye',
             phoneticGuide: 'tür-ki-ya',
@@ -404,18 +545,64 @@ export const initialUnits: Unit[] = [
         ],
         grammar: {
           titleTr: 'Kazakçada Ayrılma Hali (Шығыс септік: -дан/-ден, -тан/-тен, -нан/-нен)',
-          titleKz: 'Шығыс септігінің жалғаулары',
-          explanationTr: 'Nereden gelindiğini bildirir. Ünlülerden ve r, l, y, w seslerinden sonra -дан/-ден; sert ünsüzlerden sonra -тан/-тен; geniz seslerinden (m, n, ŋ) sonra -нан/-нен gelir.',
-          explanationKz: 'Қайдан? сұрағына жауап береді.',
-          rules: [],
-          examples: [
+          titleKz: 'Шығыс септігінің 6 түрі және үндестігі',
+          explanationTr: 'Kazakçada nereden gelindiğini veya bir şeyin çıkış noktasını bildiren ayrılma hali (-den/-dan) 6 varyanta sahiptir:\n1. Ünlü veya r, l, y, u/w ile biten kelimelerden sonra: -дан / -ден (Түркия-дан, Астана-дан, Көл-ден).\n2. Sert ünsüzle (p, f, k, q, t, s, ş) biten kelimelerden sonra: -тан / -тен (Алматы-дан değil, Ташкент-тен, Сабақ-тан).\n3. Burun / geniz sesleriyle (m, n, ң) biten kelimelerden sonra: -нан / -нен (Қазақстан-нан, Оралман-нан, Дүкен-нен).',
+          explanationKz: 'Шығыс септігі «Қайдан?», «Кімнен?», «Неден?» сұрақтарына жауап береді.',
+          rules: [
             {
-              kazakh: 'Мен Стамбұлдан келдім.',
-              turkish: 'Ben İstanbul\'dan geldim.',
-              breakdown: 'Стамбұл + -дан (ayrılma hali) + келдім'
+              id: 'r-a1-2-2a',
+              titleTr: 'Ünlü ve Yumuşak Sesler (-дан/-ден)',
+              titleKz: 'Дауыстылардан кейін -дан/-ден',
+              trPattern: 'Ünlü, r, l, y, w ➔ -дан / -ден',
+              kzPattern: 'Дауысты, р, л, й, у ➔ -дан / -ден',
+              explanationTr: 'Түркия + дан = Түркиядан (Türkiye\'den), Мәскеу + ден = Мәскеуден (Moskova\'dan).',
+              explanationKz: 'Түркиядан, Мәскеуден.'
+            },
+            {
+              id: 'r-a1-2-2b',
+              titleTr: 'Sert Ünsüzler (-тан/-тен)',
+              titleKz: 'Қатаң дауыссыздардан кейін -тан/-тен',
+              trPattern: 'p, f, k, q, t, s, ş ➔ -тан / -тен',
+              kzPattern: 'п, ф, к, қ, т, с, ш ➔ -тан / -тен',
+              explanationTr: 'Шымкент + тен = Шымкенттен, Мектеп + тен = Мектептен (Okuldan).',
+              explanationKz: 'Шымкенттен, мектептен.'
+            },
+            {
+              id: 'r-a1-2-2c',
+              titleTr: 'Geniz Sesleri (-нан/-нен)',
+              titleKz: 'Мұрын жолды м, н, ң дыбыстарынан кейін -нан/-нен',
+              trPattern: 'm, n, ŋ ➔ -нан / -нен',
+              kzPattern: 'м, н, ң ➔ -нан / -нен',
+              explanationTr: 'Қазақстан + нан = Қазақстаннан (Kazakistan\'dan), Дүкен + нен = Дүкеннен (Dükkandan).',
+              explanationKz: 'Қазақстаннан, дүкеннен.'
             }
           ],
-          commonMistakes: []
+          examples: [
+            {
+              kazakh: 'Мен Стамбұлдан келдім, ал досым Анкарадан келді.',
+              turkish: 'Ben İstanbul\'dan geldim, arkadaşım ise Ankara\'dan geldi.',
+              breakdown: 'Стамбұл-дан (l sonrası -дан) + кел-ді-м'
+            },
+            {
+              kazakh: 'Сіз қай елден келдіңіз? — Мен Қазақстаннан келдім.',
+              turkish: 'Siz hangi ülkeden geldiniz? — Ben Kazakistan\'dan geldim.',
+              breakdown: 'ел-ден (ince -ден) ... Қазақстан-нан (n sonrası -нан)'
+            }
+          ],
+          commonMistakes: [
+            {
+              incorrect: 'Қазақстан-дан',
+              correct: 'Қазақстан-нан',
+              reasonTr: 'Son ses «н» (burun/geniz sesi) olduğundan ayrılma hali «-нан» şeklinde bağlanır.',
+              reasonKz: '«Н» мұрын жолды дауыссызынан кейін шығыс септігі «-нан» болып жалғанады.'
+            },
+            {
+              incorrect: 'Мектеп-ден',
+              correct: 'Мектеп-тен',
+              reasonTr: '«П» sert ünsüzdür, sert ünsüzden sonra ayrılma hali sert «-тен» olmalıdır.',
+              reasonKz: '«П» қатаң дауыссызынан кейін қатаң «-тен» қосымшасы келеді.'
+            }
+          ]
         },
         dialogue: {
           id: 'dlg-a1-2-2',
@@ -465,14 +652,14 @@ export const initialUnits: Unit[] = [
     id: 'unit-a1-3',
     unitNumber: 3,
     level: 'A1',
-    direction: 'TR_TO_KZ',
+    direction: 'BOTH',
     titleTr: 'Ünite 3: Sayılar, Saatler ve Alışveriş',
     titleKz: '3-бөлім: Сандар, уақыт және сауда',
     descriptionTr: '1-100 arası sayılar, saat sorma, fiyat sorma ve markette alışveriş kalıpları.',
     descriptionKz: 'Сан есімдер, сағатты білу және дүкенде сауда жасау.',
     icon: 'Sparkles',
     isPublished: true,
-    version: 6,
+    version: 7,
     lessons: [
       {
         id: 'lesson-a1-3-1',
@@ -699,14 +886,14 @@ export const initialUnits: Unit[] = [
     id: 'unit-a1-4',
     unitNumber: 4,
     level: 'A1',
-    direction: 'TR_TO_KZ',
+    direction: 'BOTH',
     titleTr: 'Ünite 4: Aile ve Kazak Soy Ağacı',
     titleKz: '4-бөлім: Отбасы және жеті ата',
     descriptionTr: 'Aile fertleri, akrabalık terimleri, Kazak kültüründe 7 ata bilinci ve iyelik zamirleri.',
     descriptionKz: 'Отбасы мүшелері, туыстық атаулар және қазақтың жеті ата ұғымы.',
     icon: 'Heart',
     isPublished: true,
-    version: 6,
+    version: 7,
     lessons: [
       {
         id: 'lesson-a1-4-1',
@@ -899,14 +1086,14 @@ export const initialUnits: Unit[] = [
     id: 'unit-a1-5',
     unitNumber: 5,
     level: 'A1',
-    direction: 'TR_TO_KZ',
+    direction: 'BOTH',
     titleTr: 'Ünite 5: Günlük Hayat ve Rutinler',
     titleKz: '5-бөлім: Күнделікті өмір және дағдылар',
     descriptionTr: 'Günün bölümleri, haftanın günleri, günlük fiiller ve şimdiki zaman temelleri.',
     descriptionKz: 'Апта күндері, күнделікті іс-әрекеттер және етістіктер.',
     icon: 'Activity',
     isPublished: true,
-    version: 6,
+    version: 7,
     lessons: [
       {
         id: 'lesson-a1-5-1',
@@ -1095,14 +1282,14 @@ export const initialUnits: Unit[] = [
     id: 'unit-a2-1',
     unitNumber: 1,
     level: 'A2',
-    direction: 'TR_TO_KZ',
+    direction: 'BOTH',
     titleTr: 'Ünite 1: Temeller ve Selamlaşma',
     titleKz: '1-бөлім: Негіздер және сәлемдесу',
     descriptionTr: 'Kendini tanıtma, selamlaşma kalıpları, kişi zamirleri ve hal hatır sorma.',
     descriptionKz: 'Өзін таныстыру, сәлемдесу үлгілері, жіктеу есімдіктері және хал-жағдай сұрау.',
     icon: 'MessageSquare',
     isPublished: true,
-    version: 6,
+    version: 7,
     lessons: [
       {
         id: 'lesson-a2-1-1',
@@ -1352,14 +1539,14 @@ export const initialUnits: Unit[] = [
     id: 'unit-a2-2',
     unitNumber: 2,
     level: 'A2',
-    direction: 'TR_TO_KZ',
+    direction: 'BOTH',
     titleTr: 'Ünite 2: Aile, Ev ve İyelik Ekleri',
     titleKz: '2-бөлім: Отбасы, үй және тәуелдік жалғаулары',
     descriptionTr: 'Aile bireyleri, ev eşyaları, iyelik ekleri (менің, сенің, сіздің, оның) ve mekan bildirme.',
     descriptionKz: 'Отбасы мүшелері, үй заттары және тәуелдік формалары.',
     icon: 'Home',
     isPublished: true,
-    version: 6,
+    version: 7,
     lessons: [
       {
         id: 'lesson-a2-2-1',
@@ -1530,14 +1717,14 @@ export const initialUnits: Unit[] = [
     id: 'unit-a2-3',
     unitNumber: 3,
     level: 'A2',
-    direction: 'TR_TO_KZ',
+    direction: 'BOTH',
     titleTr: 'Ünite 3: Kazak Mutfağı ve Restoranda Sipariş',
     titleKz: '3-бөлім: Қазақ тағамдары және мейрамхана',
     descriptionTr: 'Milli yemekler (Бесбармақ, бауырсақ, қымыз), çay kültürü, restoranda sipariş ve hesap isteme.',
     descriptionKz: 'Ұлттық тағамдар, қонақасы салты және асханада сөйлесу.',
     icon: 'Coffee',
     isPublished: true,
-    version: 6,
+    version: 7,
     lessons: [
       {
         id: 'lesson-a2-3-1',
@@ -1721,14 +1908,14 @@ export const initialUnits: Unit[] = [
     id: 'unit-a2-4',
     unitNumber: 4,
     level: 'A2',
-    direction: 'TR_TO_KZ',
+    direction: 'BOTH',
     titleTr: 'Ünite 4: Şehir, Ulaşım ve Yolculuk',
     titleKz: '4-бөлім: Қала, көлік және саяхат',
     descriptionTr: 'Toplu taşıma (автобус, пойыз, метро), taksi çağırma, yön sorma ve bilet alma.',
     descriptionKz: 'Қоғамдық көліктер, такси шақыру және жол сұрау үлгілері.',
     icon: 'Compass',
     isPublished: true,
-    version: 6,
+    version: 7,
     lessons: [
       {
         id: 'lesson-a2-4-1',
@@ -1917,14 +2104,14 @@ export const initialUnits: Unit[] = [
     id: 'unit-b1-1',
     unitNumber: 1,
     level: 'B1',
-    direction: 'TR_TO_KZ',
+    direction: 'BOTH',
     titleTr: 'Ünite 1: İş ve Meslekler',
     titleKz: '1-бөлім: Кәсіп пен жұмыс',
     descriptionTr: 'İş mülakatı, meslekler, CV hazırlama ve geçmiş zaman sıfat-fiili (-ған/-ген).',
     descriptionKz: 'Жұмыс сұхбаты, мамандықтар және есімше өткен шақ.',
     icon: 'Briefcase',
     isPublished: true,
-    version: 6,
+    version: 7,
     lessons: [
       {
         id: 'lesson-b1-1-1',
@@ -2091,14 +2278,14 @@ export const initialUnits: Unit[] = [
     id: 'unit-b1-2',
     unitNumber: 2,
     level: 'B1',
-    direction: 'TR_TO_KZ',
+    direction: 'BOTH',
     titleTr: 'Ünite 2: Kazakistan Coğrafyası ve Tarihi Şehirler',
     titleKz: '2-бөлім: Қазақстан географиясы және көне қалалар',
     descriptionTr: 'Astana, Almatı, Türkistan ve Hoca Ahmet Yesevi Külliyesi, doğal güzellikler (Burabay, Şarın kanyonu).',
     descriptionKz: 'Елорда, Алматы, Түркістан және табиғи қорықтар.',
     icon: 'Globe',
     isPublished: true,
-    version: 6,
+    version: 7,
     lessons: [
       {
         id: 'lesson-b1-2-1',
@@ -2258,14 +2445,14 @@ export const initialUnits: Unit[] = [
     id: 'unit-b1-3',
     unitNumber: 3,
     level: 'B1',
-    direction: 'TR_TO_KZ',
+    direction: 'BOTH',
     titleTr: 'Ünite 3: Kazak Kültürü, Müzik ve Sanat',
     titleKz: '3-бөлім: Қазақ мәдениеті, саз және өнер',
     descriptionTr: 'Dombra sanatı, küy geleneği, halk çalgıları (қобыз, сыбызғы) ve aytıs atışmaları.',
     descriptionKz: 'Домбыра, күй өнері, қобыз және айтыс салты.',
     icon: 'Music',
     isPublished: true,
-    version: 6,
+    version: 7,
     lessons: [
       {
         id: 'lesson-b1-3-1',
@@ -2425,14 +2612,14 @@ export const initialUnits: Unit[] = [
     id: 'unit-b2-1',
     unitNumber: 1,
     level: 'B2',
-    direction: 'TR_TO_KZ',
+    direction: 'BOTH',
     titleTr: 'Ünite 1: Kazak Edebiyatı, Abay ve Felsefe',
     titleKz: '1-бөлім: Қазақ әдебиеті, Абай және философия',
     descriptionTr: 'Abay Kunanbayev\'in Kara Sözleri, Kazak milli kimliği, deyimler ve karmaşık cümle yapıları.',
     descriptionKz: 'Абай Құнанбайұлының «Қара сөздері», ұлттық болмыс және күрделі сөйлемдер.',
     icon: 'BookOpen',
     isPublished: true,
-    version: 6,
+    version: 7,
     lessons: [
       {
         id: 'lesson-b2-1-1',
@@ -2592,14 +2779,14 @@ export const initialUnits: Unit[] = [
     id: 'unit-b2-2',
     unitNumber: 2,
     level: 'B2',
-    direction: 'TR_TO_KZ',
+    direction: 'BOTH',
     titleTr: 'Ünite 2: Medya, Teknoloji ve Sosyal Hayat',
     titleKz: '2-бөлім: БАҚ, заманауи технология және қоғам',
     descriptionTr: 'Haber dili, dijital dönüşüm, çevre ve Aral Gölü meselesi, bilimsel kavramlar.',
     descriptionKz: 'Ақпарат құралдары, жасанды интеллект және экологиялық мәселелер.',
     icon: 'Monitor',
     isPublished: true,
-    version: 6,
+    version: 7,
     lessons: [
       {
         id: 'lesson-b2-2-1',
@@ -2759,14 +2946,14 @@ export const initialUnits: Unit[] = [
     id: 'unit-b2-3',
     unitNumber: 3,
     level: 'B2',
-    direction: 'TR_TO_KZ',
+    direction: 'BOTH',
     titleTr: 'Ünite 3: Göçebe Medeniyeti ve Bozkır Oyunları',
     titleKz: '3-бөлім: Көшпелілер өркениеті және ұлттық ойындар',
     descriptionTr: 'Kökpar, Kazak küresi, asık atuv, toğızqumalaq ve keçe ev (киіз үй) mimarisi ile felsefesi.',
     descriptionKz: 'Көкпар, қазақ күресі, тоғызқұмалақ және киіз үй философиясы.',
     icon: 'Shield',
     isPublished: true,
-    version: 6,
+    version: 7,
     lessons: [
       {
         id: 'lesson-b2-3-1',
@@ -2926,14 +3113,14 @@ export const initialUnits: Unit[] = [
     id: 'unit-c1-1',
     unitNumber: 1,
     level: 'C1',
-    direction: 'TR_TO_KZ',
+    direction: 'BOTH',
     titleTr: 'Ünite 1: Karşılaştırmalı Türkoloji ve Ses Yasaları',
     titleKz: '1-бөлім: Салыстырмалы түркітану және дыбыс заңдары',
     descriptionTr: 'Ortak Türk tarihi, Orhun Yazıtları, Kıpçak-Oğuz ses denklikleri ve uluslararası resmi yazışmalar.',
     descriptionKz: 'Түркі тілдерінің салыстырмалы грамматикасы, ресми құжаттар және дипломатиялық қатынастар.',
     icon: 'Crown',
     isPublished: true,
-    version: 6,
+    version: 7,
     lessons: [
       {
         id: 'lesson-c1-1-1',
@@ -3093,14 +3280,14 @@ export const initialUnits: Unit[] = [
     id: 'unit-c1-2',
     unitNumber: 2,
     level: 'C1',
-    direction: 'TR_TO_KZ',
+    direction: 'BOTH',
     titleTr: 'Ünite 2: Diplomatik İlişkiler ve Türk Dünyası Entegrasyonu',
     titleKz: '2-бөлім: Дипломатиялық қатынастар және Түркі интеграциясы',
     descriptionTr: 'Türk Devletleri Teşkilatı (TDT), resmi protokol, ortak alfabe çalışmaları ve uluslararası anlaşmalar.',
     descriptionKz: 'Түркі мемлекеттері ұйымы, ортақ әліпби және ресми құжаттар тілі.',
     icon: 'Building2',
     isPublished: true,
-    version: 6,
+    version: 7,
     lessons: [
       {
         id: 'lesson-c1-2-1',
@@ -3262,6 +3449,45 @@ export const initialBadges: UserBadge[] = [
     descriptionTr: 'İlk dersi başarıyla tamamladınız.',
     descriptionKz: 'Алғашқы сабақты сәтті аяқтадыңыз.',
     icon: 'Award',
+    category: 'lesson',
+    tier: 'bronze',
+    xpReward: 50,
+    unlockedAt: '2026-10-10'
+  },
+  {
+    id: 'badge-3',
+    titleTr: '7 Günlük Seri',
+    titleKz: '7 күндік үздіксіз серия',
+    descriptionTr: '7 gün üst üste giriş yaparak öğrenme disiplini kazandınız.',
+    descriptionKz: '7 күн қатарынан сабақ оқып, үздік серия көрсеттіңіз.',
+    icon: 'Flame',
+    category: 'streak',
+    tier: 'silver',
+    xpReward: 150,
+    unlockedAt: '2026-10-10'
+  },
+  {
+    id: 'badge-1000-xp',
+    titleTr: '1000 XP Şampiyonu',
+    titleKz: '1000 XP Чемпионы',
+    descriptionTr: 'Toplamda 1000 XP toplayarak Bozkır Bilgini mertebesine eriştiniz.',
+    descriptionKz: 'Барлығы 1000 XP жинап, жоғары деңгейге жеттіңіз.',
+    icon: 'Trophy',
+    category: 'xp',
+    tier: 'gold',
+    xpReward: 300,
+    unlockedAt: '2026-10-10'
+  },
+  {
+    id: 'badge-500-xp',
+    titleTr: '500 XP Gelişen Türkolog',
+    titleKz: '500 XP Жас Түркітанушы',
+    descriptionTr: '500 XP toplayarak dil yolculuğunda önemli bir eşiği aştınız.',
+    descriptionKz: '500 XP жинап, тіл үйренуде маңызды кезеңнен өттіңіз.',
+    icon: 'Zap',
+    category: 'xp',
+    tier: 'silver',
+    xpReward: 150,
     unlockedAt: '2026-10-10'
   },
   {
@@ -3271,15 +3497,21 @@ export const initialBadges: UserBadge[] = [
     descriptionTr: '25 kelimeyi hafızanıza kaydettiniz.',
     descriptionKz: '25 сөзді жаттап үйрендіңіз.',
     icon: 'BookOpen',
+    category: 'vocab',
+    tier: 'bronze',
+    xpReward: 75,
     unlockedAt: '2026-10-10'
   },
   {
-    id: 'badge-3',
-    titleTr: 'Sürekli Öğrenen',
-    titleKz: 'Тұрақты оқушы',
-    descriptionTr: '7 günlük kesintisiz öğrenme serisi yakaladınız.',
-    descriptionKz: '7 күн қатарынан оқу сериясын жалғастырдыңыз.',
-    icon: 'Flame',
+    id: 'badge-50-words',
+    titleTr: '50 Kelime Hazinesi',
+    titleKz: '50 сөз қоры',
+    descriptionTr: '50 kelimeyi hafızanıza kaydedip pekiştirdiniz.',
+    descriptionKz: '50 сөзді жаттап, сөздік қорыңызды молайттыңыз.',
+    icon: 'Bookmark',
+    category: 'vocab',
+    tier: 'silver',
+    xpReward: 150,
     unlockedAt: '2026-10-10'
   },
   {
@@ -3289,6 +3521,21 @@ export const initialBadges: UserBadge[] = [
     descriptionTr: 'Telaffuz sınavında %90 üzeri başarı aldınız.',
     descriptionKz: 'Дыбыстау емтиханынан 90%-дан жоғары балл алдыңыз.',
     icon: 'Mic',
+    category: 'academic',
+    tier: 'silver',
+    xpReward: 120,
+    unlockedAt: '2026-10-10'
+  },
+  {
+    id: 'badge-10-lessons',
+    titleTr: '10 Ders Tamamlandı',
+    titleKz: '10 сабақ орындалды',
+    descriptionTr: '10 dersi başarıyla tamamlayarak müfredatta ilerlediniz.',
+    descriptionKz: '10 сабақты сәтті аяқтадыңыз.',
+    icon: 'GraduationCap',
+    category: 'lesson',
+    tier: 'gold',
+    xpReward: 250,
     unlockedAt: '2026-10-10'
   },
   {
@@ -3298,6 +3545,21 @@ export const initialBadges: UserBadge[] = [
     descriptionTr: 'Tüm ek ve zaman kurallarını hatasız çözdünüz.',
     descriptionKz: 'Жалғаулар мен шақтарды қатесіз орындадыңыз.',
     icon: 'CheckCircle2',
+    category: 'academic',
+    tier: 'gold',
+    xpReward: 200,
+    unlockedAt: '2026-10-10'
+  },
+  {
+    id: 'badge-30-streak',
+    titleTr: '30 Günlük Bozkır Kartalı',
+    titleKz: '30 күндік Дала Қыраны',
+    descriptionTr: '30 gün kesintisiz seri yakalayarak alışkanlık oluşturdunuz.',
+    descriptionKz: '30 күн қатарынан кіріп, нағыз шебер атандыңыз.',
+    icon: 'Sparkles',
+    category: 'streak',
+    tier: 'diamond',
+    xpReward: 500,
     unlockedAt: '2026-10-10'
   },
   {
@@ -3307,6 +3569,9 @@ export const initialBadges: UserBadge[] = [
     descriptionTr: 'İleri C1 akademik Türkoloji düzeyine ulaştınız.',
     descriptionKz: 'Жоғары C1 академиялық деңгейге жеттіңіз.',
     icon: 'Crown',
+    category: 'academic',
+    tier: 'diamond',
+    xpReward: 1000,
     unlockedAt: '2026-10-10'
   }
 ];

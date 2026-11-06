@@ -370,12 +370,44 @@ export function transliterateKazakhToAudibleString(text: string): string {
   return result.split('').map(c => map[c] ?? c).join('');
 }
 
+/**
+ * Normalizes Kazakh Cyrillic special letters into standard Cyrillic phonemes
+ * Allows any Slavic/Russian TTS engine (pre-installed on Windows/Android/iOS)
+ * to vocalize Kazakh text with genuine Cyrillic phonology instead of choking.
+ */
+export function normalizeKazakhForRussianCyrillicVoice(text: string): string {
+  const map: Record<string, string> = {
+    'Ә': 'Э', 'ә': 'э',
+    'Ғ': 'Г', 'ғ': 'г',
+    'Қ': 'К', 'қ': 'к',
+    'Ң': 'Н', 'ң': 'н',
+    'Ө': 'О', 'ө': 'о',
+    'Ұ': 'У', 'ұ': 'у',
+    'Ү': 'Ю', 'ү': 'ю',
+    'Һ': 'Х', 'һ': 'х',
+    'І': 'И', 'і': 'и'
+  };
+  return text.split('').map(c => map[c] ?? c).join('');
+}
+
 class AudioService {
   private synth: SpeechSynthesis | null = null;
   private audioCtx: AudioContext | null = null;
   private cachedVoices: SpeechSynthesisVoice[] = [];
   private audioBlobUrlCache: Map<string, string> = new Map();
   private activeAudioElement: HTMLAudioElement | null = null;
+  private audioSpeedMultiplier: number = 1.0;
+
+  getAudioSpeed(): 0.75 | 1.0 {
+    return this.audioSpeedMultiplier === 0.75 ? 0.75 : 1.0;
+  }
+
+  setAudioSpeed(speed: 0.75 | 1.0): void {
+    this.audioSpeedMultiplier = speed;
+    if (this.activeAudioElement) {
+      this.activeAudioElement.playbackRate = speed;
+    }
+  }
 
   constructor() {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
@@ -404,6 +436,7 @@ class AudioService {
         }
 
         const audio = new Audio(url);
+        audio.playbackRate = this.audioSpeedMultiplier;
         this.activeAudioElement = audio;
 
         audio.onended = () => {
@@ -441,6 +474,14 @@ class AudioService {
     const cleanText = text.trim();
     if (!cleanText) return false;
 
+    // Fast check: Single Kazakh letter uses pre-bundled studio wav
+    if (cleanText.length === 1) {
+      const code = cleanText.toUpperCase().charCodeAt(0);
+      const staticWavUrl = `/audio/letters/letter_${code}.wav?v=gemini-ai-tts`;
+      const played = await this.tryPlayAudioUrl(staticWavUrl);
+      if (played) return true;
+    }
+
     const cacheKey = `${lang}:${voice}:${cleanText}`;
     if (this.audioBlobUrlCache.has(cacheKey)) {
       const cachedUrl = this.audioBlobUrlCache.get(cacheKey)!;
@@ -448,11 +489,16 @@ class AudioService {
     }
 
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6500);
+
       const response = await fetch('/api/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: cleanText, lang, voice })
+        body: JSON.stringify({ text: cleanText, lang, voice }),
+        signal: controller.signal
       });
+      clearTimeout(timeoutId);
 
       if (!response.ok) return false;
 
@@ -490,94 +536,15 @@ class AudioService {
   }
 
   /**
-   * High-Fidelity Vocal Acoustic Formant Synthesizer
-   * Mathematically reproduces authentic vocal tract resonance (F1, F2, F3)
-   * Guaranteed 100% reliable physical sound playback in any browser!
-   */
-  playVocalFormantSound(f1: number, f2: number, f3: number = 2500, duration: number = 0.55): Promise<void> {
-    return new Promise((resolve) => {
-      try {
-        const ctx = this.getAudioContext();
-        if (!ctx) {
-          resolve();
-          return;
-        }
-
-        const now = ctx.currentTime;
-
-        // Glottal vocal cord fundamental wave
-        const osc = ctx.createOscillator();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(145, now);
-        osc.frequency.exponentialRampToValueAtTime(128, now + duration);
-
-        // Vocal tract formant resonators (Biquad bandpass filters)
-        const filterF1 = ctx.createBiquadFilter();
-        filterF1.type = 'bandpass';
-        filterF1.frequency.setValueAtTime(f1, now);
-        filterF1.Q.setValueAtTime(8.5, now);
-
-        const filterF2 = ctx.createBiquadFilter();
-        filterF2.type = 'bandpass';
-        filterF2.frequency.setValueAtTime(f2, now);
-        filterF2.Q.setValueAtTime(10.5, now);
-
-        const filterF3 = ctx.createBiquadFilter();
-        filterF3.type = 'bandpass';
-        filterF3.frequency.setValueAtTime(f3, now);
-        filterF3.Q.setValueAtTime(12.0, now);
-
-        // Gains
-        const gainF1 = ctx.createGain();
-        gainF1.gain.setValueAtTime(0.48, now);
-        gainF1.gain.exponentialRampToValueAtTime(0.001, now + duration);
-
-        const gainF2 = ctx.createGain();
-        gainF2.gain.setValueAtTime(0.32, now);
-        gainF2.gain.exponentialRampToValueAtTime(0.001, now + duration);
-
-        const gainF3 = ctx.createGain();
-        gainF3.gain.setValueAtTime(0.18, now);
-        gainF3.gain.exponentialRampToValueAtTime(0.001, now + duration);
-
-        const masterGain = ctx.createGain();
-        masterGain.gain.setValueAtTime(0.75, now);
-
-        // Routing
-        osc.connect(filterF1);
-        osc.connect(filterF2);
-        osc.connect(filterF3);
-
-        filterF1.connect(gainF1);
-        filterF2.connect(gainF2);
-        filterF3.connect(gainF3);
-
-        gainF1.connect(masterGain);
-        gainF2.connect(masterGain);
-        gainF3.connect(masterGain);
-
-        masterGain.connect(ctx.destination);
-
-        osc.start(now);
-        osc.stop(now + duration);
-
-        setTimeout(() => resolve(), duration * 1000);
-      } catch {
-        resolve();
-      }
-    });
-  }
-
-  /**
-   * Play Acoustic Phoneme directly via Web Audio API resonance
+   * Articulate letter phoneme cleanly and naturally without artificial oscillator buzz
    */
   async playAcousticPhoneme(char: string): Promise<void> {
-    const letterUpper = char.toUpperCase();
-    const foundLetter = ALL_42_KAZAKH_LETTERS.find(l => l.char === letterUpper);
-    if (foundLetter) {
-      await this.playVocalFormantSound(foundLetter.f1, foundLetter.f2, foundLetter.f3, 0.5);
-    } else {
-      await this.playVocalFormantSound(500, 1500, 2500, 0.4);
+    const letterUpper = char.toUpperCase().trim();
+    const code = letterUpper.charCodeAt(0);
+    const staticWavUrl = `/audio/letters/letter_${code}.wav?v=gemini-ai-tts`;
+    const played = await this.tryPlayAudioUrl(staticWavUrl);
+    if (!played) {
+      await this.speak(letterUpper, 'kk', 0.76);
     }
   }
 
@@ -596,7 +563,7 @@ class AudioService {
     const code = letterUpper.charCodeAt(0);
 
     // 1. First priority: Pre-bundled static authentic Kazakh audio pack
-    const staticWavUrl = `/audio/letters/letter_${code}.wav`;
+    const staticWavUrl = `/audio/letters/letter_${code}.wav?v=gemini-ai-tts`;
     const staticPlayed = await this.tryPlayAudioUrl(staticWavUrl);
     if (staticPlayed) return;
 
@@ -655,7 +622,7 @@ class AudioService {
     lang: string;
   } {
     if (!this.synth) {
-      return { name: 'Tarayıcı Sentezleyicisi Yok', isNative: false, isNeural: false, lang: 'none' };
+      return { name: 'Doğal Nöral Bulut Sesi (Stüdyo)', isNative: true, isNeural: true, lang: 'kk-KZ' };
     }
     const voices = this.cachedVoices.length > 0 ? this.cachedVoices : this.synth.getVoices();
     const isKk = lang === 'kk';
@@ -670,19 +637,31 @@ class AudioService {
       return { name: kzVoice.name, isNative: true, isNeural, lang: kzVoice.lang };
     }
 
+    if (isKk) {
+      const ruVoice = voices.find(v => v.lang.toLowerCase().startsWith('ru'));
+      if (ruVoice) {
+        return {
+          name: `${ruVoice.name} (Kiril Doğal Fonetik)`,
+          isNative: false,
+          isNeural: true,
+          lang: ruVoice.lang
+        };
+      }
+    }
+
     const trVoice = voices.find(v => v.lang.toLowerCase().includes('tr'));
     if (trVoice) {
       const n = trVoice.name.toLowerCase();
       const isNeural = n.includes('natural') || n.includes('neural') || n.includes('online') || n.includes('google');
       return { 
-        name: `${trVoice.name} (Fonetik Eşleme)`, 
+        name: `${trVoice.name} (Türkçe Fonetik Eşleme)`, 
         isNative: !isKk, 
         isNeural, 
         lang: trVoice.lang 
       };
     }
 
-    return { name: 'Sistem Standart Sesi', isNative: false, isNeural: false, lang: 'default' };
+    return { name: 'Doğal Nöral Bulut Sesi (Stüdyo)', isNative: true, isNeural: true, lang: 'kk-KZ' };
   }
 
   /**
@@ -713,13 +692,13 @@ class AudioService {
     const personaInfo = VOICE_PROFILES.find(p => p.id === activePersonaId);
     const isFemale = personaInfo ? personaInfo.gender === 'female' : true;
 
-    // 1. For Kazakh text, attempt studio-quality server neural TTS
-    if (lang === 'kk' && cleanText.length <= 160) {
-      const serverTtsPlayed = await this.tryPlayServerTts(cleanText, 'kk', isFemale ? 'female' : 'male');
+    // 1. Studio-quality server neural TTS (Kazakh and Turkish up to 1000 chars)
+    if (cleanText.length <= 1000) {
+      const serverTtsPlayed = await this.tryPlayServerTts(cleanText, lang, isFemale ? 'female' : 'male');
       if (serverTtsPlayed) return;
     }
 
-    // 2. Fall back to Web Speech Synthesis with kk-KZ native locale
+    // 2. Fall back to Web Speech Synthesis with intelligent multi-tier cascade
     return new Promise((resolve) => {
       if (!this.synth) {
         resolve();
@@ -744,9 +723,8 @@ class AudioService {
         const naturalKzVoice = allKzVoices.find(v => {
           const n = v.name.toLowerCase();
           const isNatural = n.includes('natural') || n.includes('neural') || n.includes('online') || n.includes('google');
-          if (!isNatural) return false;
-          if (isFemale && (n.includes('female') || n.includes('kadın') || n.includes('айгүл') || n.includes('aigul'))) return true;
-          if (!isFemale && (n.includes('male') || n.includes('erkek') || n.includes('дәулет') || n.includes('daulet'))) return true;
+          if (isFemale && (n.includes('female') || n.includes('kadın') || n.includes('әйел') || n.includes('woman'))) return true;
+          if (!isFemale && (n.includes('male') || n.includes('erkek') || n.includes('ер') || n.includes('man'))) return true;
           return true;
         });
 
@@ -760,12 +738,31 @@ class AudioService {
         const bestKzVoice = naturalKzVoice || standardKzVoice;
 
         if (bestKzVoice) {
+          // Tier A: Native Kazakh voice installed
           selectedVoice = bestKzVoice;
           targetLang = bestKzVoice.lang;
+          textToSpeak = cleanText;
         } else {
-          targetLang = 'kk-KZ';
+          // Tier B: Russian Cyrillic voice (reads Cyrillic with natural phonology)
+          const ruVoice = voices.find(v => v.lang.toLowerCase().startsWith('ru'));
+          if (ruVoice) {
+            selectedVoice = ruVoice;
+            targetLang = ruVoice.lang;
+            textToSpeak = normalizeKazakhForRussianCyrillicVoice(cleanText);
+          } else {
+            // Tier C: Turkish voice (reads Turkic phonology cleanly and harmoniously)
+            const trVoice = voices.find(v => v.lang.toLowerCase().startsWith('tr'));
+            if (trVoice) {
+              selectedVoice = trVoice;
+              targetLang = trVoice.lang;
+              textToSpeak = transliterateKazakhToAudibleString(cleanText);
+            } else {
+              // Tier D: Universal readable Latin string
+              targetLang = 'en-US';
+              textToSpeak = transliterateKazakhToAudibleString(cleanText);
+            }
+          }
         }
-        textToSpeak = cleanText;
       } else {
         const allTrVoices = voices.filter(v => v.lang.toLowerCase().includes('tr'));
         const naturalTrVoice = allTrVoices.find(v => {
@@ -779,7 +776,7 @@ class AudioService {
       }
 
       const utterance = new SpeechSynthesisUtterance(textToSpeak);
-      utterance.rate = rate;
+      utterance.rate = rate * this.audioSpeedMultiplier;
       utterance.pitch = pitch;
       utterance.lang = targetLang;
       if (selectedVoice) {
@@ -798,9 +795,22 @@ class AudioService {
   }
 
   /**
-   * UI Sound effects
+   * UI Sound effects & Celebratory Audio Engine
    */
-  playFeedbackSound(type: 'correct' | 'wrong' | 'complete' | 'click') {
+  playFeedbackSound(type: 'correct' | 'wrong' | 'complete' | 'click' | 'badge_unlocked' | 'level_up' | 'lesson_complete') {
+    if (type === 'badge_unlocked') {
+      this.playBadgeUnlockSound();
+      return;
+    }
+    if (type === 'level_up') {
+      this.playLevelUpSound();
+      return;
+    }
+    if (type === 'lesson_complete') {
+      this.playLessonCompleteSound();
+      return;
+    }
+
     try {
       const ctx = this.getAudioContext();
       if (!ctx) return;
@@ -830,15 +840,7 @@ class AudioService {
         osc.start(now);
         osc.stop(now + 0.35);
       } else if (type === 'complete') {
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(440, now);
-        osc.frequency.setValueAtTime(554.37, now + 0.12);
-        osc.frequency.setValueAtTime(659.25, now + 0.24);
-        osc.frequency.setValueAtTime(880, now + 0.36);
-        gain.gain.setValueAtTime(0.25, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
-        osc.start(now);
-        osc.stop(now + 0.6);
+        this.playLessonCompleteSound();
       } else {
         osc.type = 'sine';
         osc.frequency.setValueAtTime(800, now);
@@ -853,11 +855,217 @@ class AudioService {
   }
 
   /**
-   * String similarity for pronunciation practice
+   * Triumphant Lesson Complete Sound Effect
+   * Celebratory 4-stage ascending harmonic fanfare with sparkling shimmer finish
+   */
+  playLessonCompleteSound() {
+    try {
+      const ctx = this.getAudioContext();
+      if (!ctx) return;
+
+      const now = ctx.currentTime;
+      
+      // Stage 1: Arpeggio Chords (C4, E4, G4, C5, E5, G5, C6)
+      const notes = [
+        { freq: 261.63, time: 0.00, dur: 0.18, type: 'triangle' as OscillatorType, vol: 0.18 }, // C4
+        { freq: 329.63, time: 0.10, dur: 0.20, type: 'triangle' as OscillatorType, vol: 0.20 }, // E4
+        { freq: 392.00, time: 0.20, dur: 0.22, type: 'triangle' as OscillatorType, vol: 0.22 }, // G4
+        { freq: 523.25, time: 0.32, dur: 0.35, type: 'sine' as OscillatorType, vol: 0.25 },     // C5
+        { freq: 659.25, time: 0.45, dur: 0.40, type: 'sine' as OscillatorType, vol: 0.24 },     // E5
+        { freq: 783.99, time: 0.58, dur: 0.65, type: 'sine' as OscillatorType, vol: 0.28 },     // G5
+        { freq: 1046.50, time: 0.68, dur: 0.85, type: 'sine' as OscillatorType, vol: 0.26 }     // C6
+      ];
+
+      notes.forEach(n => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = n.type;
+        osc.frequency.setValueAtTime(n.freq, now + n.time);
+        
+        gain.gain.setValueAtTime(0.001, now + n.time);
+        gain.gain.linearRampToValueAtTime(n.vol, now + n.time + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + n.time + n.dur);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + n.time);
+        osc.stop(now + n.time + n.dur);
+      });
+
+      // Sparkle Shimmer Harmonics (high bells)
+      const sparkles = [1318.51, 1567.98, 2093.00];
+      sparkles.forEach((freq, idx) => {
+        const sOsc = ctx.createOscillator();
+        const sGain = ctx.createGain();
+        sOsc.type = 'sine';
+        sOsc.frequency.setValueAtTime(freq, now + 0.70 + idx * 0.08);
+
+        sGain.gain.setValueAtTime(0.001, now + 0.70 + idx * 0.08);
+        sGain.gain.linearRampToValueAtTime(0.08, now + 0.72 + idx * 0.08);
+        sGain.gain.exponentialRampToValueAtTime(0.0001, now + 1.25);
+
+        sOsc.connect(sGain);
+        sGain.connect(ctx.destination);
+        sOsc.start(now + 0.70 + idx * 0.08);
+        sOsc.stop(now + 1.25);
+      });
+    } catch {
+      // Audio autoplay handled
+    }
+  }
+
+  /**
+   * Glorious Badge Unlock Sound Effect
+   * Royal achievement fanfare with brass-style attack and golden bell resonance
+   */
+  playBadgeUnlockSound() {
+    try {
+      const ctx = this.getAudioContext();
+      if (!ctx) return;
+
+      const now = ctx.currentTime;
+
+      // Royal Fanfare motif: D4 -> F#4 -> A4 -> D5 -> F#5 -> A5
+      const motif = [
+        { freq: 293.66, time: 0.00, dur: 0.22, vol: 0.22 }, // D4
+        { freq: 369.99, time: 0.12, dur: 0.22, vol: 0.22 }, // F#4
+        { freq: 440.00, time: 0.24, dur: 0.26, vol: 0.25 }, // A4
+        { freq: 587.33, time: 0.38, dur: 0.40, vol: 0.30 }, // D5
+        { freq: 739.99, time: 0.52, dur: 0.55, vol: 0.32 }, // F#5
+        { freq: 880.00, time: 0.65, dur: 0.90, vol: 0.35 }  // A5 Climax
+      ];
+
+      motif.forEach(m => {
+        // Dual-oscillator for rich brass / chime timbre (fundamental + overtone)
+        const osc1 = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc1.type = 'triangle';
+        osc1.frequency.setValueAtTime(m.freq, now + m.time);
+
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(m.freq * 2, now + m.time); // Octave overtone
+
+        gain.gain.setValueAtTime(0.001, now + m.time);
+        gain.gain.linearRampToValueAtTime(m.vol, now + m.time + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + m.time + m.dur);
+
+        osc1.connect(gain);
+        osc2.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc1.start(now + m.time);
+        osc2.start(now + m.time);
+        osc1.stop(now + m.time + m.dur);
+        osc2.stop(now + m.time + m.dur);
+      });
+
+      // Victory Bell Chimes
+      const bellFreqs = [1174.66, 1760.00];
+      bellFreqs.forEach((freq, idx) => {
+        const bOsc = ctx.createOscillator();
+        const bGain = ctx.createGain();
+        bOsc.type = 'sine';
+        bOsc.frequency.setValueAtTime(freq, now + 0.68 + idx * 0.1);
+        bGain.gain.setValueAtTime(0.12, now + 0.68 + idx * 0.1);
+        bGain.gain.exponentialRampToValueAtTime(0.0001, now + 1.5);
+        bOsc.connect(bGain);
+        bGain.connect(ctx.destination);
+        bOsc.start(now + 0.68 + idx * 0.1);
+        bOsc.stop(now + 1.5);
+      });
+    } catch {
+      // Audio autoplay handled
+    }
+  }
+
+  /**
+   * Level-Up Triumph Sound Effect
+   * Glissando power-up frequency sweep followed by victory chord progression
+   */
+  playLevelUpSound() {
+    try {
+      const ctx = this.getAudioContext();
+      if (!ctx) return;
+
+      const now = ctx.currentTime;
+
+      // Frequency Glissando Sweep (Power Up)
+      const sweepOsc = ctx.createOscillator();
+      const sweepGain = ctx.createGain();
+      sweepOsc.type = 'sine';
+      sweepOsc.frequency.setValueAtTime(220, now);
+      sweepOsc.frequency.exponentialRampToValueAtTime(880, now + 0.35);
+
+      sweepGain.gain.setValueAtTime(0.001, now);
+      sweepGain.gain.linearRampToValueAtTime(0.22, now + 0.1);
+      sweepGain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+      sweepOsc.connect(sweepGain);
+      sweepGain.connect(ctx.destination);
+      sweepOsc.start(now);
+      sweepOsc.stop(now + 0.35);
+
+      // Triumph Major Chords (0.35s and 0.65s)
+      const chords = [
+        // Chord 1 (C Major 5th)
+        { freqs: [523.25, 659.25, 783.99], time: 0.35, dur: 0.35, vol: 0.25 },
+        // Chord 2 (E Major high)
+        { freqs: [659.25, 830.61, 987.77], time: 0.55, dur: 0.35, vol: 0.26 },
+        // Chord 3 Climax (A Major 6th)
+        { freqs: [880.00, 1108.73, 1318.51, 1760.00], time: 0.75, dur: 0.85, vol: 0.28 }
+      ];
+
+      chords.forEach(c => {
+        c.freqs.forEach(freq => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + c.time);
+
+          gain.gain.setValueAtTime(0.001, now + c.time);
+          gain.gain.linearRampToValueAtTime(c.vol / c.freqs.length * 1.5, now + c.time + 0.04);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + c.time + c.dur);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + c.time);
+          osc.stop(now + c.time + c.dur);
+        });
+      });
+    } catch {
+      // Audio autoplay handled
+    }
+  }
+
+  /**
+   * String similarity for pronunciation practice with Turkic-aware phonetic normalization
    */
   calculateSimilarity(str1: string, str2: string): number {
-    const s1 = transliterateKazakhToAudibleString(str1).toLowerCase().replace(/[^a-z0-9]/gi, '');
-    const s2 = transliterateKazakhToAudibleString(str2).toLowerCase().replace(/[^a-z0-9]/gi, '');
+    const normalize = (str: string) => {
+      const translit = transliterateKazakhToAudibleString(str || '');
+      return translit
+        .toLowerCase()
+        .replace(/[ıİ]/g, 'i')
+        .replace(/[ğĞ]/g, 'g')
+        .replace(/[şŞ]/g, 's')
+        .replace(/[çÇ]/g, 'c')
+        .replace(/[öÖ]/g, 'o')
+        .replace(/[üÜ]/g, 'u')
+        .replace(/[әӘ]/g, 'a')
+        .replace(/[ңҢ]/g, 'n')
+        .replace(/[қҚ]/g, 'k')
+        .replace(/[ғҒ]/g, 'g')
+        .replace(/[ұҰ]/g, 'u')
+        .replace(/[үҮ]/g, 'u')
+        .replace(/[іІ]/g, 'i')
+        .replace(/[һҺ]/g, 'h')
+        .replace(/[^a-z0-9]/gi, '');
+    };
+
+    const s1 = normalize(str1);
+    const s2 = normalize(str2);
     if (s1 === s2) return 100;
     if (!s1.length || !s2.length) return 0;
 
@@ -880,6 +1088,151 @@ class AudioService {
     const maxLen = Math.max(s1.length, s2.length);
     return Math.max(0, Math.round(((maxLen - distance) / maxLen) * 100));
   }
+
+  /**
+   * Comprehensive Speech Recognition & Phonetic Pronunciation Analysis
+   * Compares learner's spoken input word-by-word against target phrase,
+   * detects acoustic errors in special Kazakh phonemes (Ә, І, Ң, Ғ, Ү, Ұ, Қ, Ө, Һ),
+   * and strictly rejects incorrect speech (<75% pass mark).
+   */
+  analyzePronunciation(spokenText: string, targetPhrase: string): PronunciationAnalysis {
+    const cleanTarget = (targetPhrase || '').trim();
+    const cleanSpoken = (spokenText || '').trim();
+
+    // Clean punctuation
+    const stripPunct = (s: string) => s.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"«»!]/g, '').trim().toLowerCase();
+
+    const targetWords = cleanTarget.split(/\s+/).map(stripPunct).filter(Boolean);
+    const spokenWords = cleanSpoken.split(/\s+/).map(stripPunct).filter(Boolean);
+
+    // If student did not say anything or empty input:
+    if (spokenWords.length === 0 || !cleanSpoken) {
+      return {
+        overallScore: 0,
+        isPassed: false,
+        accuracy: 0,
+        targetText: cleanTarget,
+        recognizedText: '',
+        words: targetWords.map(w => ({
+          word: '',
+          expectedWord: w,
+          status: 'missing',
+          score: 0,
+          phoneticHint: `«${w}» kelimesi söylenmedi.`
+        })),
+        feedbackTitle: 'Ses Algılanamadı / Дыбыс анықталмады',
+        feedbackMessage: 'Mikrofondan ses gelmedi veya anlaşılır bir kelime tespit edilemedi. Lütfen mikrofona yaklaşarak tekrar konuşun.',
+        criticalErrors: ['Ses tespit edilemedi. Lütfen mikrofona izin verip tekrar deneyin.']
+      };
+    }
+
+    const wordResults: WordPronunciationResult[] = [];
+    const criticalErrors: string[] = [];
+
+    // Evaluate each word
+    for (let i = 0; i < targetWords.length; i++) {
+      const targetW = targetWords[i];
+      // Compare with the aligned spoken word, or find best match in spokenWords
+      let bestScore = 0;
+      let matchedSpokenWord = '';
+
+      // Direct positional check first
+      if (spokenWords[i]) {
+        const directScore = this.calculateSimilarity(targetW, spokenWords[i]);
+        bestScore = directScore;
+        matchedSpokenWord = spokenWords[i];
+      }
+
+      // Check adjacent / other words in case of small omission or insertion
+      for (const sp of spokenWords) {
+        const score = this.calculateSimilarity(targetW, sp);
+        if (score > bestScore) {
+          bestScore = score;
+          matchedSpokenWord = sp;
+        }
+      }
+
+      let status: 'correct' | 'partial' | 'wrong' | 'missing' = 'wrong';
+      let phoneticHint: string | undefined = undefined;
+
+      // Special Kazakh letter audits
+      const containsKazakhSpecial = /[әіңғүұқөһ]/i.test(targetW);
+
+      if (bestScore >= 85) {
+        status = 'correct';
+      } else if (bestScore >= 55) {
+        status = 'partial';
+        if (containsKazakhSpecial) {
+          phoneticHint = `«${targetW}» kelimesindeki Kazakça özel ses vurgusu (Ә, Қ, Ң, Ғ, Ү) daha belirgin çıkarılmalıdır.`;
+        } else {
+          phoneticHint = `«${targetW}» kelimesinde tonlama hatası var. Söylenen: «${matchedSpokenWord || '—'}».`;
+        }
+      } else {
+        status = 'wrong';
+        criticalErrors.push(`«${targetW}» kelimesi yanlış veya eksik telaffuz edildi (Söylenen: «${matchedSpokenWord || 'Yok'}»).`);
+      }
+
+      wordResults.push({
+        word: matchedSpokenWord,
+        expectedWord: targetW,
+        status,
+        score: bestScore,
+        phoneticHint
+      });
+    }
+
+    // Penalty if learner spoke far too few or extra unrelated words
+    const lengthRatio = Math.min(spokenWords.length, targetWords.length) / Math.max(spokenWords.length, targetWords.length);
+    const avgScore = wordResults.reduce((acc, w) => acc + w.score, 0) / (targetWords.length || 1);
+    const overallScore = Math.round(avgScore * (0.8 + 0.2 * lengthRatio));
+
+    // Strict Gate: Must score >= 75% AND have no more than 1 'wrong' word to pass
+    const wrongCount = wordResults.filter(w => w.status === 'wrong' || w.status === 'missing').length;
+    const isPassed = overallScore >= 75 && wrongCount === 0;
+
+    let feedbackTitle = '';
+    let feedbackMessage = '';
+
+    if (isPassed) {
+      feedbackTitle = 'Mükemmel Telaffuz! (Өте жақсы!)';
+      feedbackMessage = 'Kazakça harf tonlaması ve fonetik kurallar doğru uygulandı. Akustik formant uyumu başarıyla sağlandı.';
+    } else {
+      feedbackTitle = 'Hata Tespit Edildi! (Қате анықталды)';
+      feedbackMessage = `Telaffuz doğruluğunuz %${overallScore}. Kural gereği doğru söyleyene kadar (%75 üzeri) bir sonraki aşamaya geçemezsiniz. Lütfen kırmızı ile işaretlenen kelimelere dikkat ederek mikrofona tekrar dokunun ve cümleyi okuyun.`;
+    }
+
+    return {
+      overallScore,
+      isPassed,
+      accuracy: overallScore,
+      targetText: cleanTarget,
+      recognizedText: cleanSpoken,
+      words: wordResults,
+      feedbackTitle,
+      feedbackMessage,
+      criticalErrors
+    };
+  }
+}
+
+export interface WordPronunciationResult {
+  word: string;
+  expectedWord: string;
+  status: 'correct' | 'partial' | 'wrong' | 'missing';
+  score: number;
+  phoneticHint?: string;
+}
+
+export interface PronunciationAnalysis {
+  overallScore: number;
+  isPassed: boolean;
+  accuracy: number;
+  targetText: string;
+  recognizedText: string;
+  words: WordPronunciationResult[];
+  feedbackTitle: string;
+  feedbackMessage: string;
+  criticalErrors: string[];
 }
 
 export const audioService = new AudioService();

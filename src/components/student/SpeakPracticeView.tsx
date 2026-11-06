@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Volume2, 
   Mic, 
@@ -7,13 +7,16 @@ import {
   CheckCircle2, 
   ArrowRight, 
   RotateCcw,
-  Settings,
   ArrowLeft,
   Flame,
-  Award
+  Award,
+  AlertTriangle,
+  XCircle,
+  HelpCircle,
+  Activity
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { audioService } from '../../services/audioService';
+import { audioService, PronunciationAnalysis, WordPronunciationResult } from '../../services/audioService';
 import { storageService } from '../../services/storageService';
 import { UserProfile } from '../../types';
 
@@ -80,6 +83,38 @@ const SPEAK_SENTENCES: PracticeSentence[] = [
     turkish: 'Afiyet olsun, sofraya hoş geldiniz!',
     difficulty: 'İleri',
     phoneticTip: 'Дастарқан Kazak kültüründe misafirperverliğin sembolüdür.'
+  },
+  {
+    id: 's-7',
+    kazakhCyrillic: 'Тіл — ұлттың ең биік туы.',
+    kazakhLatin: 'Til — ulttyñ eñ biyik tuwy.',
+    turkish: 'Dil milletin en yüce bayrağıdır.',
+    difficulty: 'Orta',
+    phoneticTip: 'Ұ sesi dudak büzülerek çıkarılan kalın u sesidir.'
+  },
+  {
+    id: 's-8',
+    kazakhCyrillic: 'Домбыра — қазақтың жүрегі мен жаны.',
+    kazakhLatin: 'Dombyra — qazaqtyñ jüregi men janı.',
+    turkish: 'Dombra Kazakların yüreği ve canıdır.',
+    difficulty: 'İleri',
+    phoneticTip: 'Ж sesi Kazakçada yumuşak j (veya c-j arası) tınlar.'
+  },
+  {
+    id: 's-9',
+    kazakhCyrillic: 'Білім — таусылмайтын байлық.',
+    kazakhLatin: 'Bilim — tawswlmaytın baylıq.',
+    turkish: 'İlim tükenmez bir zenginliktir.',
+    difficulty: 'İleri',
+    phoneticTip: 'І sesi kapalı ve kısa gırtlaksı ince sestir.'
+  },
+  {
+    id: 's-10',
+    kazakhCyrillic: 'Қонақжайлылық — біздің қасиетті салтымыз.',
+    kazakhLatin: 'Qonaqjaylılıq — bizdiñ qasiyetti saltımız.',
+    turkish: 'Misafirperverlik bizim kutsal töremizdir.',
+    difficulty: 'İleri',
+    phoneticTip: 'Қ ve ң sesleri ardışık olarak doğru boğumlanmalıdır.'
   }
 ];
 
@@ -91,13 +126,51 @@ export const SpeakPracticeView: React.FC<SpeakPracticeViewProps> = ({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isListening, setIsListening] = useState(false);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
-  const [score, setScore] = useState<number | null>(null);
-  const [isPassed, setIsPassed] = useState<boolean>(false);
-  const [feedback, setFeedback] = useState<string>('');
-  const [pulseWave, setPulseWave] = useState(false);
+  const [analysis, setAnalysis] = useState<PronunciationAnalysis | null>(null);
+  const [micVolume, setMicVolume] = useState<number>(0);
   const [energyError, setEnergyError] = useState<string | null>(null);
+  const [manualTranscriptInput, setManualTranscriptInput] = useState('');
+  const [showManualCorrection, setShowManualCorrection] = useState(false);
+
+  const recognitionRef = useRef<any>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
 
   const currentItem = SPEAK_SENTENCES[currentIndex];
+
+  // Stop mic on unmount
+  useEffect(() => {
+    return () => {
+      cleanupMic();
+    };
+  }, []);
+
+  const cleanupMic = () => {
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.abort();
+      } catch {
+        // ignore
+      }
+      recognitionRef.current = null;
+    }
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current.getTracks().forEach(t => t.stop());
+      mediaStreamRef.current = null;
+    }
+    if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+      audioContextRef.current.close().catch(() => {});
+      audioContextRef.current = null;
+    }
+    setIsListening(false);
+    setMicVolume(0);
+  };
 
   const handlePlayAudio = () => {
     setIsPlayingAudio(true);
@@ -106,16 +179,16 @@ export const SpeakPracticeView: React.FC<SpeakPracticeViewProps> = ({
     });
   };
 
-  const handleToggleMic = () => {
+  const handleToggleMic = async () => {
     if (isListening) {
-      setIsListening(false);
-      setPulseWave(false);
+      cleanupMic();
       return;
     }
 
     setEnergyError(null);
+    setAnalysis(null);
 
-    // Consume 5 energy for speaking activity (Requirement 3)
+    // Consume 5 energy for speaking activity
     const energyRes = storageService.consumeEnergy(5);
     if (!energyRes.success) {
       setEnergyError(energyRes.error || 'Yetersiz enerji!');
@@ -123,55 +196,124 @@ export const SpeakPracticeView: React.FC<SpeakPracticeViewProps> = ({
       return;
     }
 
-    setIsListening(true);
-    setPulseWave(true);
-    setScore(null);
-    setFeedback('');
     audioService.playFeedbackSound('click');
+    setIsListening(true);
 
-    // Speech recognition analysis
-    setTimeout(() => {
-      setIsListening(false);
-      setPulseWave(false);
-      
-      // Real speech evaluation logic
-      // Random generation simulates learner pronunciation: first attempt may be 70-95
-      const generatedScore = Math.floor(Math.random() * 32) + 68; // 68 - 99
-      setScore(generatedScore);
+    // 1. Start Audio Stream Volume Meter
+    try {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaStreamRef.current = stream;
 
-      // Requirement 2: Strict error detection! Must score >= 85 to pass
-      if (generatedScore >= 85) {
-        setIsPassed(true);
-        setFeedback('Mükemmel! (Өте жақсы!) Kazakça fonetik tonlama ve özel harfler doğru telaffuz edildi.');
-        audioService.playFeedbackSound('correct');
-        confetti({
-          particleCount: 50,
-          spread: 60,
-          origin: { y: 0.7 }
-        });
-        if (onEarnXp) onEarnXp(15);
-      } else {
-        // DETECTED ERROR: Block passing to next until repeated correctly!
-        setIsPassed(false);
-        setFeedback(`Hata tespit edildi! Telaffuz doğruluğunuz %${generatedScore}. Kazakça harf tonlamasında eksiklik var. Kural gereği doğru söyleyene kadar bir sonraki aşamaya geçemezsiniz. Lütfen mikrofona tekrar dokunup cümleyi okuyun.`);
-        audioService.playFeedbackSound('wrong');
+        const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+        audioContextRef.current = audioCtx;
+        const analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 64;
+        analyserRef.current = analyser;
+
+        const source = audioCtx.createMediaStreamSource(stream);
+        source.connect(analyser);
+
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+        const updateVolume = () => {
+          if (!analyserRef.current) return;
+          analyserRef.current.getByteFrequencyData(dataArray);
+          let sum = 0;
+          for (let i = 0; i < dataArray.length; i++) {
+            sum += dataArray[i];
+          }
+          const avg = sum / dataArray.length;
+          setMicVolume(Math.min(100, Math.round((avg / 128) * 100)));
+          animationFrameRef.current = requestAnimationFrame(updateVolume);
+        };
+        updateVolume();
       }
-    }, 2800);
+    } catch {
+      // mic stream blocked or unavailable, fall through to speech recognition
+    }
+
+    // 2. Browser Speech Recognition (Real Speech API)
+    const SpeechRecognitionClass = 
+      (window as any).SpeechRecognition || 
+      (window as any).webkitSpeechRecognition;
+
+    if (SpeechRecognitionClass) {
+      try {
+        const recognition = new SpeechRecognitionClass();
+        recognitionRef.current = recognition;
+        recognition.lang = 'kk-KZ';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        recognition.onresult = (event: any) => {
+          const transcript = event.results[0]?.[0]?.transcript || '';
+          evaluateSpeech(transcript);
+        };
+
+        recognition.onerror = (event: any) => {
+          console.warn('Speech recognition error/event:', event.error);
+          cleanupMic();
+          // If no speech recognized or error, evaluate as empty to enforce strict error rejection
+          evaluateSpeech('');
+        };
+
+        recognition.onend = () => {
+          cleanupMic();
+        };
+
+        recognition.start();
+        return;
+      } catch (err) {
+        console.warn('SpeechRecognition start failed, fallback to audio simulation:', err);
+      }
+    }
+
+    // 3. Fallback when browser lacks SpeechRecognition (e.g. strict iframe)
+    // Runs an authentic audio capture window then triggers phonetic diagnostic
+    setTimeout(() => {
+      cleanupMic();
+      setShowManualCorrection(true);
+      evaluateSpeech('');
+    }, 3500);
+  };
+
+  const evaluateSpeech = (spokenTranscript: string) => {
+    cleanupMic();
+    const result = audioService.analyzePronunciation(spokenTranscript, currentItem.kazakhCyrillic);
+    setAnalysis(result);
+
+    if (result.isPassed) {
+      audioService.playFeedbackSound('correct');
+      confetti({
+        particleCount: 60,
+        spread: 60,
+        origin: { y: 0.7 }
+      });
+      if (onEarnXp) onEarnXp(15);
+    } else {
+      audioService.playFeedbackSound('wrong');
+    }
+  };
+
+  const handleManualEvaluate = () => {
+    if (!manualTranscriptInput.trim()) return;
+    evaluateSpeech(manualTranscriptInput);
+    setManualTranscriptInput('');
   };
 
   const handleNext = () => {
-    if (!isPassed) {
+    if (!analysis || !analysis.isPassed) {
       audioService.playFeedbackSound('wrong');
       return;
     }
-    setScore(null);
-    setIsPassed(false);
-    setFeedback('');
+    setAnalysis(null);
+    setShowManualCorrection(false);
     if (currentIndex + 1 < SPEAK_SENTENCES.length) {
       setCurrentIndex(prev => prev + 1);
     } else {
       setCurrentIndex(0);
     }
+    audioService.playFeedbackSound('click');
   };
 
   const energyStatus = storageService.getEnergyStatus();
@@ -179,7 +321,7 @@ export const SpeakPracticeView: React.FC<SpeakPracticeViewProps> = ({
   return (
     <div className="flex-1 flex flex-col bg-slate-50 min-h-full pb-16">
       
-      {/* Top Header Bar (matches Screen 2 in Lingua) */}
+      {/* Top Header Bar */}
       <div className="bg-white border-b border-slate-100 px-4 py-3 flex items-center justify-between sticky top-0 z-20 shadow-xs">
         <div className="flex items-center gap-2">
           {onBack && (
@@ -191,15 +333,15 @@ export const SpeakPracticeView: React.FC<SpeakPracticeViewProps> = ({
             </button>
           )}
           <h2 className="text-base font-black text-slate-900 tracking-tight">
-            Konuşma & Telaffuz
+            Konuşma & Telaffuz Analizi
           </h2>
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Energy Pill (Requirement 3: 5 energy per speech attempt) */}
+          {/* Energy Pill */}
           <div 
             className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-50 border border-amber-200 text-xs font-black"
-            title={energyStatus.isUnlimited ? 'Sınırsız Enerji' : `Kalan Enerji: ${energyStatus.energy}/100. Yenilenmeye: ${energyStatus.nextRefillFormatted}`}
+            title={energyStatus.isUnlimited ? 'Sınırsız Enerji' : `Kalan Enerji: ${energyStatus.energy}/100.`}
           >
             <span className="text-amber-500">⚡</span>
             {energyStatus.isUnlimited ? (
@@ -209,7 +351,7 @@ export const SpeakPracticeView: React.FC<SpeakPracticeViewProps> = ({
             )}
           </div>
 
-          <span className="px-2.5 py-1 bg-violet-50 text-violet-700 text-xs font-black rounded-xl border border-violet-200">
+          <span className="px-2.5 py-1 bg-teal-50 text-teal-700 text-xs font-black rounded-xl border border-teal-200">
             {currentIndex + 1} / {SPEAK_SENTENCES.length}
           </span>
         </div>
@@ -218,106 +360,102 @@ export const SpeakPracticeView: React.FC<SpeakPracticeViewProps> = ({
       {/* Energy Depletion Warning */}
       {energyError && (
         <div className="m-4 p-3.5 bg-amber-50 border border-amber-300 rounded-2xl flex items-center justify-between text-xs text-amber-950 animate-in fade-in">
-          <div>
-            <span className="font-black block">Enerjiniz Tükendi!</span>
-            <span className="text-[11px] text-amber-800">
-              8 saatte bir yenilenir ({energyStatus.nextRefillFormatted}) veya Pro sürüme geçebilirsiniz.
-            </span>
+          <div className="flex items-center gap-2">
+            <span className="text-base">⚡</span>
+            <span className="font-bold">{energyError}</span>
           </div>
           <button
-            onClick={() => {
-              storageService.upgradeToPro();
-              setEnergyError(null);
-            }}
-            className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black rounded-xl text-xs shadow-xs shrink-0 ml-2"
+            onClick={() => setEnergyError(null)}
+            className="text-[10px] font-black underline"
           >
-            Pro'ya Geç (Sınırsız) 👑
+            Tamam
           </button>
         </div>
       )}
 
-      {/* Main Speak Card */}
-      <div className="p-5 flex-1 flex flex-col justify-between max-w-md mx-auto w-full">
+      {/* Main Container */}
+      <div className="p-4 max-w-md mx-auto w-full space-y-4">
         
-        {/* Prompt Header */}
-        <div className="text-center space-y-1">
-          <span className="text-[11px] font-extrabold uppercase tracking-widest text-violet-600 bg-violet-100/70 px-3 py-1 rounded-full">
-            {currentItem.difficulty} Seviye
-          </span>
-          <h3 className="text-base font-black text-slate-800 pt-2">
-            Cümleyi dinleyin ve mikrofona söyleyin
-          </h3>
-          <p className="text-xs text-slate-500 font-medium">
-            Kazakça özel seslerin (`Ә, І, Ң, Ғ, Ү, Ұ, Қ, Ө, Һ`) rezonansı ölçülür
-          </p>
-        </div>
-
-        {/* Big Speech Card with Audio Player */}
-        <div className="bg-white rounded-3xl p-6 border border-violet-100 shadow-md text-center space-y-4 my-4 relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-violet-600 to-indigo-600" />
+        {/* Practice Target Card */}
+        <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-md relative overflow-hidden flex flex-col items-center text-center">
           
-          {/* Audio Speaker Button */}
-          <div className="flex justify-center">
-            <button
-              onClick={handlePlayAudio}
-              className={`p-4 rounded-full transition-all shadow-md ${
-                isPlayingAudio 
-                  ? 'bg-violet-700 text-white scale-105 shadow-violet-500/40' 
-                  : 'bg-violet-600 hover:bg-violet-700 text-white hover:scale-105'
-              }`}
-              title="Sesli Dinle"
-            >
-              <Volume2 className="w-7 h-7" />
-            </button>
+          <div className="w-full flex items-center justify-between mb-3">
+            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
+              currentItem.difficulty === 'Kolay' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' :
+              currentItem.difficulty === 'Orta' ? 'bg-amber-50 text-amber-800 border border-amber-200' :
+              'bg-cyan-50 text-cyan-800 border border-cyan-200'
+            }`}>
+              {currentItem.difficulty} Seviye
+            </span>
+
+            <span className="text-[10px] font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-md flex items-center gap-1">
+              <Activity className="w-3 h-3 text-teal-600" />
+              <span>Sıkı Hata Denetimi</span>
+            </span>
           </div>
 
-          {/* Cyrillic Text */}
-          <div className="space-y-1">
-            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-snug">
-              {currentItem.kazakhCyrillic}
-            </h2>
-            <p className="text-xs font-bold text-violet-600">
-              {currentItem.kazakhLatin}
-            </p>
-            <p className="text-xs text-slate-500 italic pt-1">
-              "{currentItem.turkish}"
-            </p>
+          {/* Big Target Cyrillic Sentence */}
+          <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mb-1.5 leading-snug">
+            {currentItem.kazakhCyrillic}
+          </h3>
+
+          {/* Latin Transliteration */}
+          <p className="text-xs font-medium text-slate-500 mb-3">
+            {currentItem.kazakhLatin}
+          </p>
+
+          {/* Meaning in Turkish */}
+          <div className="w-full py-2.5 px-3 bg-teal-50/60 rounded-2xl border border-teal-100 mb-3 text-xs font-bold text-teal-950">
+            🇹🇷 {currentItem.turkish}
           </div>
 
           {/* Phonetic Tip */}
-          <div className="p-2.5 bg-violet-50/70 rounded-2xl border border-violet-100 text-[11px] text-violet-800 font-medium flex items-center justify-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-violet-600 shrink-0" />
-            <span>{currentItem.phoneticTip}</span>
-          </div>
+          <p className="text-[11px] text-slate-500 italic mb-4 max-w-xs">
+            💡 {currentItem.phoneticTip}
+          </p>
 
-          {/* Audio Waveform Animation (matches Screen 2 in image) */}
-          <div className="h-10 flex items-center justify-center gap-1.5 py-1">
-            {[40, 70, 30, 90, 60, 100, 45, 80, 55, 95, 35, 75].map((height, i) => (
-              <div
-                key={i}
-                className={`w-1 rounded-full transition-all duration-200 ${
-                  pulseWave || isPlayingAudio 
-                    ? 'bg-violet-600 animate-pulse' 
-                    : 'bg-violet-200'
-                }`}
-                style={{
-                  height: pulseWave || isPlayingAudio 
-                    ? `${Math.max(12, (height * (Math.sin(i + Date.now()/100) + 1.2)) / 2)}px` 
-                    : '12px'
-                }}
-              />
-            ))}
+          {/* Audio Playback Button */}
+          <button
+            onClick={handlePlayAudio}
+            disabled={isPlayingAudio}
+            className="flex items-center gap-2 py-2 px-4 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-900 text-xs font-black transition active:scale-95"
+          >
+            <Volume2 className="w-4 h-4 text-teal-700" />
+            <span>{isPlayingAudio ? 'Seslendiriliyor...' : 'Doğru Telaffuzu Dinle'}</span>
+          </button>
+        </div>
+
+        {/* Live Audio Waveform / Decibel Indicator */}
+        <div className="bg-white rounded-2xl p-3 border border-slate-200 flex flex-col items-center justify-center">
+          <div className="text-[10px] font-bold text-slate-400 mb-1.5 flex items-center gap-1">
+            <span>Ses Seviyesi & Akustik Formant:</span>
+            <span className="font-mono text-teal-600">{micVolume}%</span>
+          </div>
+          <div className="flex items-center justify-center gap-1 h-8 w-full max-w-xs">
+            {[10, 20, 35, 50, 75, 95, 60, 85, 45, 30, 65, 80, 40, 25, 15].map((baseHeight, idx) => {
+              const activeH = isListening 
+                ? Math.max(6, Math.round((baseHeight * (micVolume + 15)) / 100)) 
+                : 6;
+              return (
+                <div
+                  key={idx}
+                  className={`w-1.5 rounded-full transition-all duration-75 ${
+                    isListening ? (micVolume > 20 ? 'bg-teal-600' : 'bg-amber-400') : 'bg-slate-200'
+                  }`}
+                  style={{ height: `${activeH}px` }}
+                />
+              );
+            })}
           </div>
         </div>
 
-        {/* Microphone Button Area (Matches Screen 2 Lingua big circular mic button) */}
-        <div className="flex flex-col items-center justify-center py-4">
+        {/* Big Circular Microphone Button */}
+        <div className="flex flex-col items-center justify-center py-2">
           <div className="relative">
-            {/* Concentric Pulse Rings */}
             {isListening && (
               <>
-                <div className="absolute inset-0 rounded-full bg-violet-500/20 animate-ping duration-1000" />
-                <div className="absolute -inset-4 rounded-full bg-violet-500/10 animate-pulse" />
+                <div className="absolute inset-0 rounded-full bg-rose-500/25 animate-ping duration-1000" />
+                <div className="absolute -inset-4 rounded-full bg-teal-500/15 animate-pulse" />
               </>
             )}
 
@@ -325,8 +463,8 @@ export const SpeakPracticeView: React.FC<SpeakPracticeViewProps> = ({
               onClick={handleToggleMic}
               className={`relative z-10 w-22 h-22 rounded-full flex flex-col items-center justify-center transition-all shadow-xl active:scale-95 ${
                 isListening
-                  ? 'bg-rose-500 text-white shadow-rose-500/40 ring-4 ring-rose-200 animate-pulse'
-                  : 'bg-gradient-to-tr from-violet-700 to-purple-600 text-white hover:opacity-95 shadow-violet-600/30'
+                  ? 'bg-rose-600 text-white shadow-rose-600/40 ring-4 ring-rose-200 animate-pulse'
+                  : 'bg-gradient-to-tr from-teal-600 to-cyan-600 text-white hover:opacity-95 shadow-teal-600/30'
               }`}
             >
               {isListening ? (
@@ -337,69 +475,166 @@ export const SpeakPracticeView: React.FC<SpeakPracticeViewProps> = ({
             </button>
           </div>
 
-          <span className="mt-3 text-xs font-black text-slate-700">
-            {isListening ? 'Dinleniyor... Konuşun' : 'Konuşmak İçin Dokunun'}
+          <span className="mt-3 text-xs font-black text-slate-800">
+            {isListening ? 'Dinleniyor... Lütfen Cümleyi Okuyun' : 'Mikrofona Dokunup Cümleyi Okuyun'}
           </span>
           <span className="text-[10px] text-slate-400">
-            {isListening ? 'Mikrofon aktif' : 'Dokunun ve cümleyi okuyun'}
+            {isListening ? 'Konuşmanız bittiğinde otomatik analiz edilir' : 'Doğruluk oranı %75 altında kalırsa kabul edilmez'}
           </span>
         </div>
 
-        {/* Score & Feedback Drawer (Requirement 2: detect error and block advance until correct) */}
-        {score !== null && (
-          <div className={`p-4 rounded-3xl border shadow-md animate-in fade-in slide-in-from-bottom-2 duration-200 space-y-3 ${
-            isPassed ? 'bg-white border-emerald-200' : 'bg-rose-50/70 border-rose-300'
+        {/* Analysis Results Drawer (Strict Real Feedback) */}
+        {analysis && (
+          <div className={`p-4 rounded-3xl border shadow-lg animate-in fade-in space-y-3.5 ${
+            analysis.isPassed ? 'bg-emerald-50/60 border-emerald-300' : 'bg-rose-50/70 border-rose-300'
           }`}>
+            
+            {/* Header with Score */}
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className={`p-2 rounded-xl text-white ${isPassed ? 'bg-emerald-600' : 'bg-rose-600'}`}>
-                  <CheckCircle2 className="w-5 h-5" />
+              <div className="flex items-center gap-2.5">
+                <div className={`p-2 rounded-2xl text-white ${analysis.isPassed ? 'bg-emerald-600' : 'bg-rose-600'}`}>
+                  {analysis.isPassed ? <CheckCircle2 className="w-6 h-6" /> : <XCircle className="w-6 h-6" />}
                 </div>
                 <div>
-                  <h4 className={`text-xs font-black ${isPassed ? 'text-emerald-950' : 'text-rose-950'}`}>
-                    {isPassed ? `Harika! Telaffuz Onaylandı: %${score}` : `Hatalı Telaffuz: %${score}`}
+                  <h4 className={`text-sm font-black ${analysis.isPassed ? 'text-emerald-950' : 'text-rose-950'}`}>
+                    {analysis.feedbackTitle}
                   </h4>
-                  <p className={`text-[10px] font-bold ${isPassed ? 'text-emerald-700' : 'text-rose-700'}`}>
-                    {isPassed ? 'Doğru söylediniz, sıradaki cümleye geçebilirsiniz.' : 'Doğru söyleyene kadar sonraki cümleye geçilemez!'}
-                  </p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className={`text-xs font-black px-2 py-0.5 rounded-md text-white ${
+                      analysis.isPassed ? 'bg-emerald-600' : 'bg-rose-600'
+                    }`}>
+                      Skor: %{analysis.overallScore}
+                    </span>
+                    <span className="text-[10px] font-bold text-slate-600">
+                      Geçme Barajı: %75
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              {isPassed && (
-                <span className="px-2.5 py-1 bg-amber-100 text-amber-900 font-black text-xs rounded-xl flex items-center gap-1 shadow-2xs">
-                  <Award className="w-3.5 h-3.5 text-amber-600" />
+              {analysis.isPassed && (
+                <span className="px-3 py-1 bg-amber-100 text-amber-900 font-black text-xs rounded-xl flex items-center gap-1 shadow-2xs">
+                  <Award className="w-4 h-4 text-amber-600" />
                   <span>+15 XP</span>
                 </span>
               )}
             </div>
 
-            <p className={`text-xs leading-relaxed p-2.5 rounded-xl border font-medium ${
-              isPassed ? 'bg-slate-50 text-slate-700 border-slate-100' : 'bg-white text-rose-900 border-rose-200'
+            {/* Word-by-Word Colorized Badges */}
+            <div className="p-3 bg-white rounded-2xl border border-slate-200/80 space-y-1.5">
+              <div className="text-[10px] font-black uppercase text-slate-400 tracking-wider">
+                Kelime Bazlı Telaffuz Analizi:
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {analysis.words.map((item, idx) => {
+                  let badgeStyle = 'bg-rose-100 text-rose-900 border-rose-300';
+                  if (item.status === 'correct') {
+                    badgeStyle = 'bg-emerald-100 text-emerald-900 border-emerald-300 font-extrabold';
+                  } else if (item.status === 'partial') {
+                    badgeStyle = 'bg-amber-100 text-amber-900 border-amber-300 font-bold';
+                  }
+
+                  return (
+                    <div 
+                      key={idx}
+                      className={`px-2.5 py-1 rounded-xl text-xs border flex items-center gap-1 ${badgeStyle}`}
+                      title={item.phoneticHint || (item.status === 'correct' ? 'Doğru telaffuz' : 'Hatalı telaffuz')}
+                    >
+                      <span>{item.expectedWord}</span>
+                      <span className="text-[9px] opacity-75">
+                        {item.status === 'correct' ? '✓' : item.status === 'partial' ? '~' : '✗'}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* What the student actually said */}
+              <div className="pt-2 text-[11px] text-slate-600 border-t border-slate-100">
+                <span className="font-bold text-slate-700">Algılanan Sesiniz: </span>
+                <span className="italic">«{analysis.recognizedText || 'Hiçbir ses algılanamadı'}»</span>
+              </div>
+            </div>
+
+            {/* Critical Errors List if failed */}
+            {!analysis.isPassed && analysis.criticalErrors.length > 0 && (
+              <div className="p-3 bg-rose-100/70 border border-rose-300 rounded-2xl text-[11px] text-rose-900 space-y-1">
+                <div className="font-black flex items-center gap-1 text-rose-950">
+                  <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
+                  <span>Düzeltilmesi Gereken Hatalar:</span>
+                </div>
+                <ul className="list-disc pl-4 space-y-0.5">
+                  {analysis.criticalErrors.map((err, i) => (
+                    <li key={i}>{err}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Feedback Message */}
+            <p className={`text-xs leading-relaxed p-2.5 rounded-xl font-medium ${
+              analysis.isPassed ? 'bg-white/80 text-emerald-900' : 'bg-white/80 text-rose-900'
             }`}>
-              {feedback}
+              {analysis.feedbackMessage}
             </p>
 
-            {isPassed ? (
+            {/* Action Buttons */}
+            {analysis.isPassed ? (
               <button
                 onClick={handleNext}
                 className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-xs font-black shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 transition active:scale-98"
               >
-                <span>Sonraki Cümleye Geç (Doğrulandı ✓)</span>
+                <span>Tebrikler! Sonraki Cümleye Geç ✓</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             ) : (
               <button
                 onClick={() => {
-                  setScore(null);
+                  setAnalysis(null);
                   handleToggleMic();
                 }}
                 className="w-full py-3.5 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl text-xs font-black shadow-md shadow-rose-600/20 flex items-center justify-center gap-2 transition active:scale-98"
               >
-                <span>Mikrofona Dokun ve Tekrar Söyle 🔁</span>
+                <RotateCcw className="w-4 h-4" />
+                <span>HATA TESPİT EDİLDİ • TEKRAR OKUYUN (GEÇİLEMEZ)</span>
               </button>
             )}
+
           </div>
         )}
+
+        {/* Manual Test Verification Accordion (Fallback for environments without mic permissions) */}
+        <div className="pt-2">
+          <button
+            onClick={() => setShowManualCorrection(!showManualCorrection)}
+            className="w-full text-center text-[10px] font-bold text-slate-400 hover:text-slate-600 underline"
+          >
+            {showManualCorrection ? 'Yazılı Telaffuz Denetimini Gizle' : 'Mikrofon çalışmıyor mu? Yazılı telaffuz denetimi yap'}
+          </button>
+
+          {showManualCorrection && (
+            <div className="mt-2 p-3 bg-white rounded-2xl border border-slate-200 space-y-2 animate-in fade-in">
+              <span className="text-[11px] font-bold text-slate-700 block">
+                Okuduğunuz Kazakça cümleyi yazarak telaffuz motorunda test edin:
+              </span>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={manualTranscriptInput}
+                  onChange={(e) => setManualTranscriptInput(e.target.value)}
+                  placeholder="Örn: Сәлеметсіз бе! Қалыңыз қалай?"
+                  className="flex-1 px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+                <button
+                  onClick={handleManualEvaluate}
+                  className="px-3 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition"
+                >
+                  Analiz Et
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
 
       </div>
 

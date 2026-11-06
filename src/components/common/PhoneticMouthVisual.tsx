@@ -322,7 +322,7 @@ export const PhoneticMouthVisual: React.FC<PhoneticMouthVisualProps> = ({
             </p>
           </div>
           <div className="flex items-start gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
+            <span className="w-1.5 h-1.5 rounded-full bg-teal-500 mt-1.5 shrink-0" />
             <p>
               <strong className="text-slate-800">Dil Pozisyonu:</strong> {details.tonguePos}
             </p>

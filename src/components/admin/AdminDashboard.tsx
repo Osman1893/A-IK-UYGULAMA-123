@@ -44,6 +44,7 @@ import {
 } from '../../types';
 import { storageService, SUPER_ADMIN_EMAIL } from '../../services/storageService';
 import { audioService } from '../../services/audioService';
+import { AudioAuditPanel } from './AudioAuditPanel';
 
 interface AdminDashboardProps {
   user: UserProfile;
@@ -59,7 +60,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onExitAdmin
 }) => {
   const [activeModule, setActiveModule] = useState<
-    'overview' | 'curriculum' | 'vocabulary' | 'tickets' | 'users' | 'audit' | 'release'
+    'overview' | 'curriculum' | 'vocabulary' | 'audio_audit' | 'tickets' | 'users' | 'audit' | 'release'
   >('overview');
 
   // Tickets & System state
@@ -512,6 +513,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           { id: 'overview', label: '📊 Genel Bakış', icon: Activity },
           { id: 'curriculum', label: `📚 Müfredat & Dersler (${units.length})`, icon: BookOpen },
           { id: 'vocabulary', label: `📖 Sözlük CMS (${allVocabulary.length})`, icon: FileText },
+          { id: 'audio_audit', label: '🎙️ Seslendirme Denetimi (Gemini AI)', icon: Volume2 },
           { id: 'tickets', label: `🚨 Hata Bildirimleri (${tickets.filter(t => t.status === 'pending').length})`, icon: AlertTriangle },
           { id: 'users', label: `👥 Kullanıcılar (${usersList.length})`, icon: Users },
           { id: 'audit', label: '📜 Güvenlik Günlüğü', icon: RefreshCw },
@@ -573,7 +575,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <div className="text-2xl sm:text-3xl font-black text-white mt-1">
                   {usersList.length}
                 </div>
-                <span className="text-[11px] text-indigo-400 font-bold mt-1 block">
+                <span className="text-[11px] text-teal-400 font-bold mt-1 block">
                   Tam Üye Statüsünde
                 </span>
               </div>
@@ -614,7 +616,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     onClick={() => { setActiveModule('curriculum'); setIsNewLessonModalOpen(true); }}
                     className="p-3.5 bg-slate-700 hover:bg-slate-600 rounded-2xl text-left border border-slate-600 transition"
                   >
-                    <BookOpen className="w-5 h-5 text-indigo-400 mb-1" />
+                    <BookOpen className="w-5 h-5 text-teal-400 mb-1" />
                     <div className="text-xs font-bold text-white">Yeni Ders Ekle</div>
                     <div className="text-[10px] text-slate-400">Üniteye ders bağla</div>
                   </button>
@@ -689,7 +691,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setIsNewLessonModalOpen(true)}
-                  className="flex items-center gap-1.5 px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition shadow-sm"
+                  className="flex items-center gap-1.5 px-3 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-xl text-xs font-bold transition shadow-sm"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Ders Ekle</span>
@@ -1009,7 +1011,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           </span>
                         )}
                         {!u.isSuperAdmin && u.role === 'admin' && (
-                          <span className="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 text-[10px] font-bold border border-indigo-500/30">
+                          <span className="px-2 py-0.5 rounded bg-teal-500/20 text-teal-300 text-[10px] font-bold border border-teal-500/30">
                             YÖNETİCİ
                           </span>
                         )}
@@ -1032,7 +1034,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         className={`px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1 ${
                           u.role === 'admin'
                             ? 'bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-500/30'
-                            : 'bg-indigo-600/30 text-indigo-300 hover:bg-indigo-600/50 border border-indigo-500/30'
+                            : 'bg-teal-600/30 text-teal-300 hover:bg-teal-600/50 border border-teal-500/30'
                         }`}
                       >
                         <UserCheck className="w-3.5 h-3.5" />
@@ -1051,6 +1053,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               ))}
             </div>
           </div>
+        )}
+
+        {/* ========================================================= */}
+        {/* MODULE: AUDIO AUDIT & GEMINI AI SYNTHESIS PANEL */}
+        {/* ========================================================= */}
+        {activeModule === 'audio_audit' && (
+          <AudioAuditPanel units={units} />
         )}
 
         {/* ========================================================= */}
@@ -1479,7 +1488,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-xl"
+                  className="px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white font-black rounded-xl"
                 >
                   Dersi Kaydet ✓
                 </button>
@@ -1584,7 +1593,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-xl"
+                  className="px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white font-black rounded-xl"
                 >
                   Değişiklikleri Kaydet ✓
                 </button>

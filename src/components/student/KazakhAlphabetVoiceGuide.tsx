@@ -65,10 +65,17 @@ export const KazakhAlphabetVoiceGuide: React.FC<KazakhAlphabetVoiceGuideProps> =
     setActiveLetter(null);
   };
 
-  const handlePlayAcousticFormant = async (char: string, e: React.MouseEvent) => {
+  const handlePlayExampleWord = async (char: string, e: React.MouseEvent) => {
     e.stopPropagation();
     setActiveLetter(char);
-    await audioService.playAcousticPhoneme(char);
+    audioService.playFeedbackSound('click');
+    const item = ALL_42_KAZAKH_LETTERS.find(l => l.char === char);
+    if (item && item.exampleKz) {
+      const exampleWordOnly = item.exampleKz.split(' ')[0];
+      await audioService.speak(`${char}. ${exampleWordOnly}`, 'kk', 0.85);
+    } else {
+      await audioService.speak(char, 'kk', 0.78);
+    }
     setActiveLetter(null);
   };
 
@@ -216,22 +223,36 @@ export const KazakhAlphabetVoiceGuide: React.FC<KazakhAlphabetVoiceGuideProps> =
                   `${selectedMouthLetter} Harfi`
                 }
               />
-              <div className="mt-2.5 flex items-center gap-2">
-                <button
-                  onClick={() => handlePlayLetter(selectedMouthLetter)}
-                  className="flex-1 py-2.5 px-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-black text-xs shadow-xs transition flex items-center justify-center gap-1.5 active:scale-95"
-                >
-                  <Volume2 className="w-3.5 h-3.5" />
-                  <span>🔊 Doğru Kazakça Telaffuz ({selectedMouthLetter})</span>
-                </button>
-                <button
-                  onClick={(e) => handlePlayAcousticFormant(selectedMouthLetter, e)}
-                  className="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition flex items-center gap-1 active:scale-95"
-                  title="F1, F2, F3 saf formant frekans rezonansı"
-                >
-                  <Activity className="w-3.5 h-3.5 text-teal-600" />
-                  <span>Saf Akustik Formant</span>
-                </button>
+              <div className="mt-2.5 space-y-1.5">
+                <div className="flex items-center justify-between text-[10px] text-teal-800 font-bold px-1">
+                  <span className="flex items-center gap-1">
+                    <Sparkles className="w-3 h-3 text-amber-500 fill-amber-500" />
+                    <span>Gemini AI Stüdyo Kazakça Telaffuzu</span>
+                  </span>
+                  <span className="text-teal-700 bg-teal-50 px-1.5 py-0.2 rounded font-semibold border border-teal-200">
+                    Orijinal Bozkır Fonetiği
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handlePlayLetter(selectedMouthLetter)}
+                    className="flex-1 py-2.5 px-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-black text-xs shadow-xs transition flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer"
+                  >
+                    <Volume2 className="w-3.5 h-3.5" />
+                    <span>🔊 Doğru Kazakça Telaffuz ({selectedMouthLetter})</span>
+                    <span className="text-[9px] bg-white/20 px-1.5 py-0.5 rounded font-bold ml-0.5">
+                      ✨ Gemini AI
+                    </span>
+                  </button>
+                  <button
+                    onClick={(e) => handlePlayExampleWord(selectedMouthLetter, e)}
+                    className="py-2.5 px-3 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 font-bold text-xs transition flex items-center gap-1 active:scale-95 border border-teal-200 cursor-pointer"
+                    title="Örnek kelime ve doğal telaffuz"
+                  >
+                    <Volume2 className="w-3.5 h-3.5 text-teal-600" />
+                    <span>Örnek Kelime ile Dinle</span>
+                  </button>
+                </div>
               </div>
             </div>
           )}
