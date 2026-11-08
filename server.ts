@@ -138,7 +138,27 @@ app.post('/api/tts', async (req, res) => {
         });
         base64Audio = fallbackResponse.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
       } catch (secErr: any) {
-        console.error('All TTS models failed:', secErr?.message);
+        console.warn('Second TTS model (gemini-3.8-flash-tts) error/rate-limit, attempting gemini-2.5-flash:', secErr?.message);
+        try {
+          const thirdResponse = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: [{
+              role: 'user',
+              parts: [{ text: cleanText }]
+            }],
+            config: {
+              responseModalities: ['AUDIO'],
+              speechConfig: {
+                voiceConfig: {
+                  prebuiltVoiceConfig: { voiceName }
+                }
+              }
+            }
+          });
+          base64Audio = thirdResponse.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+        } catch (thirdErr: any) {
+          console.error('All TTS models failed:', thirdErr?.message);
+        }
       }
     }
 
@@ -423,19 +443,40 @@ app.post('/api/admin/synthesize-audio', async (req, res) => {
       base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
     } catch (primaryErr: any) {
       console.warn('Admin synth primary model error:', primaryErr?.message);
-      const fallbackResponse = await ai.models.generateContent({
-        model: 'gemini-3.8-flash-lite-tts',
-        contents: [{ role: 'user', parts: [{ text: cleanText }] }],
-        config: {
-          responseModalities: ['AUDIO'],
-          speechConfig: {
-            voiceConfig: {
-              prebuiltVoiceConfig: { voiceName }
+      try {
+        const fallbackResponse = await ai.models.generateContent({
+          model: 'gemini-3.8-flash-lite-tts',
+          contents: [{ role: 'user', parts: [{ text: cleanText }] }],
+          config: {
+            responseModalities: ['AUDIO'],
+            speechConfig: {
+              voiceConfig: {
+                prebuiltVoiceConfig: { voiceName }
+              }
             }
           }
+        });
+        base64Audio = fallbackResponse.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+      } catch (secErr: any) {
+        console.warn('Admin synth fallback model error, trying gemini-2.5-flash:', secErr?.message);
+        try {
+          const thirdResponse = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: [{ role: 'user', parts: [{ text: cleanText }] }],
+            config: {
+              responseModalities: ['AUDIO'],
+              speechConfig: {
+                voiceConfig: {
+                  prebuiltVoiceConfig: { voiceName }
+                }
+              }
+            }
+          });
+          base64Audio = thirdResponse.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+        } catch (thirdErr: any) {
+          console.error('All synth models failed:', thirdErr?.message);
         }
-      });
-      base64Audio = fallbackResponse.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+      }
     }
 
     if (!base64Audio) {

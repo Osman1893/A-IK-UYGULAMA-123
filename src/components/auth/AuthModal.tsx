@@ -16,6 +16,7 @@ import {
   UserPlus
 } from 'lucide-react';
 import { LanguageDirection, CefrLevel } from '../../types';
+import { UzaktanTurkologEmblem } from '../common/UzaktanTurkologEmblem';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -113,9 +114,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         )}
 
         {/* Brand Header */}
-        <div className="pt-7 pb-4 px-6 text-center bg-gradient-to-b from-teal-50/70 via-slate-50/40 to-white shrink-0">
-          <div className="w-12 h-12 mx-auto mb-2.5 rounded-2xl bg-gradient-to-tr from-teal-700 to-teal-600 flex items-center justify-center text-white shadow-md shadow-teal-600/25">
-            <Globe className="w-6 h-6 stroke-[2.2]" />
+        <div className="pt-6 pb-3 px-6 text-center bg-gradient-to-b from-teal-50/70 via-slate-50/40 to-white shrink-0">
+          <div className="flex justify-center mb-2">
+            <UzaktanTurkologEmblem size="sm" showGlow={false} />
           </div>
           <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
             UZAKTAN TÜRKOLOG

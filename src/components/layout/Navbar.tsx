@@ -11,8 +11,8 @@ import {
   LogIn
 } from 'lucide-react';
 import { UserProfile, LanguageDirection } from '../../types';
-import duoDeerMascotImg from '../../assets/images/duo_style_deer_mascot_1793124498058.jpg';
-import { audioService } from '../../services/audioService';
+import { UzaktanTurkologEmblem } from '../common/UzaktanTurkologEmblem';
+import { audioService, AudioPlaybackSpeed } from '../../services/audioService';
 
 interface NavbarProps {
   user: UserProfile;
@@ -33,24 +33,26 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const isTrToKz = user.currentDirection === 'TR_TO_KZ';
   const isGuest = user.isGuest || user.email === 'misafir@uzaktanturkolog.com';
-  const [audioSpeed, setAudioSpeed] = React.useState<0.75 | 1.0>(audioService.getAudioSpeed());
+  const [audioSpeed, setAudioSpeed] = React.useState<AudioPlaybackSpeed>(audioService.getAudioSpeed());
+
+  const handleCycleSpeed = () => {
+    let next: AudioPlaybackSpeed = 1.0;
+    if (audioSpeed === 0.75) next = 1.0;
+    else if (audioSpeed === 1.0) next = 1.25;
+    else if (audioSpeed === 1.25) next = 1.5;
+    else next = 0.75;
+
+    audioService.setAudioSpeed(next);
+    setAudioSpeed(next);
+  };
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         
-        {/* Brand Logo & Name with Alageyik Mascot */}
+        {/* Brand Logo & Name with Memorable Emblem */}
         <div className="flex items-center gap-3">
-          <div 
-            className="w-11 h-11 rounded-2xl p-0.5 bg-gradient-to-tr from-amber-400 via-teal-500 to-emerald-600 shadow-md shadow-teal-500/25 flex items-center justify-center overflow-hidden transition-transform hover:scale-105 active:scale-95 group" 
-            title="Uzaktan Türkolog Resmi Maskotu: Alageyik"
-          >
-            <img 
-              src={duoDeerMascotImg} 
-              alt="Alageyik Amblemi" 
-              className="w-full h-full object-cover rounded-[14px]"
-            />
-          </div>
+          <UzaktanTurkologEmblem size={44} withGlow={true} />
           <div>
             <div className="flex items-center gap-2">
               <span className="font-extrabold text-lg sm:text-xl tracking-tight text-slate-900">
@@ -71,24 +73,19 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Center: Language Direction & Mode Switches */}
         <div className="flex items-center gap-2">
-          {/* Audio Speed Global Switch (0.75x slow vs 1.0x normal) */}
+          {/* Audio Speed Global Switch (0.75x, 1.0x, 1.25x, 1.5x) */}
           <button
-            onClick={() => {
-              const next = audioSpeed === 1.0 ? 0.75 : 1.0;
-              audioService.setAudioSpeed(next);
-              setAudioSpeed(next);
-              audioService.playFeedbackSound('click');
-            }}
+            onClick={handleCycleSpeed}
             className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs font-black transition-all shadow-2xs cursor-pointer ${
-              audioSpeed === 0.75
+              audioSpeed !== 1.0
                 ? 'bg-amber-100 text-amber-950 border-amber-300 ring-1 ring-amber-300'
                 : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
             }`}
-            title="Kazakça Telaffuz Hızı: 0.75x Tane Tane (Zor Harfler için) / 1.0x Doğal Hız"
+            title="Seslendirme Hızı (0.75x, 1.0x, 1.25x, 1.5x)"
           >
-            <span>{audioSpeed === 0.75 ? '🐢 0.75x' : '⚡ 1.0x'}</span>
+            <span>⚡ {audioSpeed}x</span>
             <span className="text-[10px] text-slate-500 font-bold hidden lg:inline">
-              {audioSpeed === 0.75 ? 'Yavaş' : 'Doğal'}
+              {audioSpeed === 0.75 ? 'Yavaş' : audioSpeed === 1.0 ? 'Normal' : audioSpeed === 1.25 ? 'Hızlı' : 'Çok Hızlı'}
             </span>
           </button>
 
@@ -189,7 +186,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
 
               <div className="hidden lg:flex items-center gap-2 px-2.5 py-1 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 text-xs">
-                <span className="font-extrabold">{user.name.split(' ')[0]}</span>
+                <span className="font-extrabold">{(user?.name || 'Admin').split(' ')[0]}</span>
               </div>
               <button
                 onClick={onLogout}

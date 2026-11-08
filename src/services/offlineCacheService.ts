@@ -16,8 +16,12 @@ export interface OfflineCacheStats {
 const SIMULATED_OFFLINE_KEY = 'uzaktan_turkolog_simulated_offline';
 const CACHE_NAME = 'turkolog-cache-v3';
 
-// 9 Authentic Kazakh letter codes
-const KAZAKH_LETTER_CODES = [1240, 1030, 1186, 1170, 1198, 1200, 1178, 1256, 1210];
+// All 42 Authentic Kazakh letter character codes for complete offline coverage
+export const ALL_42_KAZAKH_LETTER_CODES = [
+  'А', 'Ә', 'Б', 'В', 'Г', 'Ғ', 'Д', 'Е', 'Ё', 'Ж', 'З', 'И', 'Й', 'К', 'Қ', 'Л', 'М', 'Н', 'Ң', 'О', 'Ө', 'П', 'Р', 'С', 'Т', 'У', 'Ұ', 'Ү', 'Ф', 'Х', 'Һ', 'Ц', 'Ч', 'Ш', 'Щ', 'Ъ', 'Ы', 'І', 'Ь', 'Э', 'Ю', 'Я'
+].map(c => c.charCodeAt(0));
+
+const KAZAKH_LETTER_CODES = ALL_42_KAZAKH_LETTER_CODES;
 
 class OfflineCacheService {
   private isSimulatedOffline: boolean = false;
@@ -99,9 +103,9 @@ class OfflineCacheService {
       } catch {}
     }
 
-    // Default to at least the pre-cached 9 special letter audios if cache inspection isn't supported
+    // Default to 42 letter audios if cache inspection isn't supported
     if (cachedAudios === 0 && typeof window !== 'undefined') {
-      cachedAudios = 9;
+      cachedAudios = 42;
     }
 
     return {

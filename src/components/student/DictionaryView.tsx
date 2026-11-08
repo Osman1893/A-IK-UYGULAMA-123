@@ -13,7 +13,7 @@ import {
   Zap
 } from 'lucide-react';
 import { VocabItem, UserProfile } from '../../types';
-import { audioService } from '../../services/audioService';
+import { audioService, AudioPlaybackSpeed } from '../../services/audioService';
 import { storageService } from '../../services/storageService';
 import { SuffixAnalyzerModal } from '../common/SuffixAnalyzerModal';
 import { FlashcardPracticeModal } from './FlashcardPracticeModal';
@@ -36,10 +36,21 @@ export const DictionaryView: React.FC<DictionaryViewProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [useLatinScript, setUseLatinScript] = useState(false);
-  const [audioSpeed, setAudioSpeedState] = useState<0.75 | 1.0>(audioService.getAudioSpeed());
+  const [audioSpeed, setAudioSpeedState] = useState<AudioPlaybackSpeed>(audioService.getAudioSpeed());
   const [isAnalyzerOpen, setIsAnalyzerOpen] = useState(false);
   const [selectedWordForAnalysis, setSelectedWordForAnalysis] = useState<string | undefined>(undefined);
   const [isFavoriteQuizOpen, setIsFavoriteQuizOpen] = useState(false);
+
+  const handleCycleSpeed = () => {
+    let next: AudioPlaybackSpeed = 1.0;
+    if (audioSpeed === 0.75) next = 1.0;
+    else if (audioSpeed === 1.0) next = 1.25;
+    else if (audioSpeed === 1.25) next = 1.5;
+    else next = 0.75;
+
+    audioService.setAudioSpeed(next);
+    setAudioSpeedState(next);
+  };
 
   const favoriteIds = user.favoriteWordIds || [];
   const favoriteCount = favoriteIds.length;
@@ -78,23 +89,20 @@ export const DictionaryView: React.FC<DictionaryViewProps> = ({
         </div>
 
         <div className="flex items-center gap-1.5">
-          {/* Audio Speed Toggle (0.75x slow for hard phonemes / 1.0x natural) */}
+          {/* Audio Speed Toggle (0.75x, 1.0x, 1.25x, 1.5x) */}
           <button
-            onClick={() => {
-              const nextSpeed = audioSpeed === 1.0 ? 0.75 : 1.0;
-              audioService.setAudioSpeed(nextSpeed);
-              setAudioSpeedState(nextSpeed);
-              audioService.playFeedbackSound('click');
-            }}
+            onClick={handleCycleSpeed}
             className={`text-xs font-bold px-2.5 py-1 rounded-xl transition flex items-center gap-1 cursor-pointer ${
-              audioSpeed === 0.75
+              audioSpeed !== 1.0
                 ? 'bg-amber-100 text-amber-900 border border-amber-300 font-black shadow-2xs'
                 : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
             }`}
-            title="Kazakça telaffuz hızı (0.75x tane tane / 1.0x doğal hız)"
+            title="Seslendirme hızı (0.75x, 1.0x, 1.25x, 1.5x)"
           >
-            <span>{audioSpeed === 0.75 ? '🐢 0.75x' : '⚡ 1.0x'}</span>
-            <span className="hidden sm:inline text-[10px]">{audioSpeed === 0.75 ? 'Yavaş' : 'Doğal'}</span>
+            <span>⚡ {audioSpeed}x</span>
+            <span className="hidden sm:inline text-[10px]">
+              {audioSpeed === 0.75 ? 'Yavaş' : audioSpeed === 1.0 ? 'Normal' : audioSpeed === 1.25 ? 'Hızlı' : 'Çok Hızlı'}
+            </span>
           </button>
 
           {/* Latin / Cyrillic Toggle */}
@@ -219,9 +227,18 @@ export const DictionaryView: React.FC<DictionaryViewProps> = ({
                       </span>
                     )}
                   </div>
-                  <p className="text-xs font-bold text-teal-700 mt-0.5">
-                    {word.turkish}
-                  </p>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <p className="text-xs font-bold text-teal-700">
+                      {word.turkish}
+                    </p>
+                    <button
+                      onClick={() => audioService.speak(word.turkish, 'tr')}
+                      className="p-1 rounded text-slate-400 hover:text-teal-700 hover:bg-teal-50 transition cursor-pointer"
+                      title="Türkçe Telaffuzu Dinle"
+                    >
+                      <Volume2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
 
                 {/* Badges and Actions */}
@@ -281,10 +298,28 @@ export const DictionaryView: React.FC<DictionaryViewProps> = ({
                 </div>
               </div>
 
-              {/* Example sentences */}
-              <div className="mt-2.5 pt-2 border-t border-slate-100 text-[11px] space-y-0.5 text-slate-600">
-                <div className="font-semibold text-slate-800">🇰🇿 {word.exampleKazakh}</div>
-                <div>🇹🇷 {word.exampleTurkish}</div>
+              {/* Example sentences with authentic native pronunciation */}
+              <div className="mt-2.5 pt-2 border-t border-slate-100 text-[11px] space-y-1 text-slate-600">
+                <div className="font-semibold text-slate-800 flex items-center justify-between">
+                  <span>🇰🇿 {word.exampleKazakh}</span>
+                  <button 
+                    onClick={() => audioService.speak(word.exampleKazakh, 'kk')}
+                    className="p-1 text-teal-600 hover:text-teal-800 transition cursor-pointer"
+                    title="Kazakça Cümleyi Dinle"
+                  >
+                    <Volume2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>🇹🇷 {word.exampleTurkish}</span>
+                  <button 
+                    onClick={() => audioService.speak(word.exampleTurkish, 'tr')}
+                    className="p-1 text-slate-400 hover:text-slate-700 transition cursor-pointer"
+                    title="Türkçe Cümleyi Dinle"
+                  >
+                    <Volume2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
 
               {/* False friend warning */}

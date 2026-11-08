@@ -19,7 +19,9 @@ import {
   X,
   Mic,
   Share2,
-  Tv
+  Tv,
+  Edit3,
+  Save
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { READING_STORIES, ReadingStory, StoryVocabItem, StoryQuestion } from '../../data/readingStories';
@@ -109,6 +111,11 @@ export const StoryReaderView: React.FC<StoryReaderViewProps> = ({
     latin: string;
   } | null>(null);
 
+  // Custom Translation Editor States
+  const [isEditingWord, setIsEditingWord] = useState(false);
+  const [editedTr, setEditedTr] = useState('');
+  const [editedGrammar, setEditedGrammar] = useState('');
+
   // Audio Playback
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [activeSentenceIndex, setActiveSentenceIndex] = useState<number | null>(null);
@@ -150,9 +157,9 @@ export const StoryReaderView: React.FC<StoryReaderViewProps> = ({
     const clean = cleanWordForLookup(word);
     if (!clean) return;
 
-    audioService.playFeedbackSound('click');
-
-    // Look up in dictionary or story vocabulary
+    // Look up custom translations first, then dictionary or story vocabulary
+    const customTranslations = storageService.getCustomWordTranslations();
+    const customMatch = customTranslations[clean];
     const dictMatch = MORPHO_DICTIONARY[clean];
     const storyMatch = currentStory.vocabulary.find(v => cleanWordForLookup(v.kz) === clean);
 
@@ -161,7 +168,12 @@ export const StoryReaderView: React.FC<StoryReaderViewProps> = ({
     let pos = 'Kelime';
     let grammarTip: string | undefined = undefined;
 
-    if (dictMatch) {
+    if (customMatch) {
+      translation = customMatch.translation;
+      root = customMatch.root || clean;
+      pos = 'Yetkili Öğretmen Tercümesi';
+      grammarTip = customMatch.grammarTip;
+    } else if (dictMatch) {
       translation = dictMatch.tr;
       root = dictMatch.root;
       pos = dictMatch.pos;
@@ -211,8 +223,26 @@ export const StoryReaderView: React.FC<StoryReaderViewProps> = ({
       latin
     });
 
+    setEditedTr(translation);
+    setEditedGrammar(grammarTip || '');
+    setIsEditingWord(false);
+
     // Pronounce the word with natural voice
     audioService.speak(clean, 'kk', 0.85);
+  };
+
+  // Save teacher-authorized custom word translation
+  const handleSaveCustomTranslation = () => {
+    if (!activeWordPopup || !editedTr.trim()) return;
+    storageService.saveCustomWordTranslation(activeWordPopup.cleanWord, editedTr, editedGrammar);
+    setActiveWordPopup(prev => prev ? {
+      ...prev,
+      translation: editedTr.trim(),
+      grammarTip: editedGrammar.trim() || undefined,
+      pos: 'Yetkili Öğretmen Tercümesi'
+    } : null);
+    setIsEditingWord(false);
+    audioService.playFeedbackSound('correct');
   };
 
   // Add word to user vocabulary
@@ -763,30 +793,81 @@ export const StoryReaderView: React.FC<StoryReaderViewProps> = ({
 
             {/* Word Content */}
             <div className="p-5 space-y-3">
-              <div className="flex items-center justify-between">
+              <div className="flex items-start justify-between">
                 <div>
                   <h3 className="text-2xl font-black text-slate-900">
                     {activeWordPopup.cleanWord}
                   </h3>
-                  <p className="text-base font-bold text-teal-700 mt-0.5">
-                    {activeWordPopup.translation}
-                  </p>
+                  {!isEditingWord ? (
+                    <p className="text-base font-bold text-teal-700 mt-0.5">
+                      {activeWordPopup.translation}
+                    </p>
+                  ) : null}
                 </div>
 
-                <button
-                  onClick={() => audioService.speak(activeWordPopup.cleanWord, 'kk', 0.85)}
-                  className="p-3 rounded-2xl bg-teal-50 hover:bg-teal-100 text-teal-700 transition shadow-xs"
-                  title="Doğal Aksanla Dinle"
-                >
-                  <Volume2 className="w-5 h-5" />
-                </button>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => setIsEditingWord(!isEditingWord)}
+                    className={`p-2 rounded-xl border text-xs font-bold transition flex items-center gap-1 ${
+                      isEditingWord
+                        ? 'bg-amber-100 text-amber-900 border-amber-300'
+                        : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
+                    }`}
+                    title="Bu kelimenin çevirisini veya notunu yetkili olarak düzelt"
+                  >
+                    <Edit3 className="w-3.5 h-3.5 text-amber-600" />
+                    <span className="text-[10px] hidden sm:inline">{isEditingWord ? 'Vazgeç' : 'Düzenle'}</span>
+                  </button>
+
+                  <button
+                    onClick={() => audioService.speak(activeWordPopup.cleanWord, 'kk', 0.85)}
+                    className="p-2.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-700 transition shadow-xs"
+                    title="Doğal Aksanla Dinle"
+                  >
+                    <Volume2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
 
-              {activeWordPopup.grammarTip && (
+              {/* Translation Editing Form (When active) */}
+              {isEditingWord ? (
+                <div className="p-3 rounded-2xl bg-amber-50/90 border border-amber-300 space-y-2.5 animate-in fade-in">
+                  <span className="text-[10px] font-black uppercase text-amber-900 tracking-wider block">
+                    ✏️ Yetkili Çeviri Düzenleme:
+                  </span>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-700 block mb-0.5">Türkçe Karşılığı / Çevirisi:</label>
+                    <input
+                      type="text"
+                      value={editedTr}
+                      onChange={(e) => setEditedTr(e.target.value)}
+                      placeholder="Örn: Ev / Yurt"
+                      className="w-full px-2.5 py-1.5 rounded-xl border border-amber-300 bg-white text-xs font-bold text-slate-900 focus:outline-teal-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-700 block mb-0.5">Gramer Notu / Açıklama:</label>
+                    <input
+                      type="text"
+                      value={editedGrammar}
+                      onChange={(e) => setEditedGrammar(e.target.value)}
+                      placeholder="Örn: İsim kökü / Çoğul eki"
+                      className="w-full px-2.5 py-1.5 rounded-xl border border-amber-300 bg-white text-xs font-semibold text-slate-900 focus:outline-teal-600"
+                    />
+                  </div>
+                  <button
+                    onClick={handleSaveCustomTranslation}
+                    className="w-full py-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-black text-xs transition shadow-sm flex items-center justify-center gap-1.5"
+                  >
+                    <Save className="w-3.5 h-3.5" />
+                    <span>Tercümeyi Kaydet ve Güncelle</span>
+                  </button>
+                </div>
+              ) : activeWordPopup.grammarTip ? (
                 <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-medium leading-relaxed">
                   💡 <span className="font-bold">Gramer Analizi:</span> {activeWordPopup.grammarTip}
                 </div>
-              )}
+              ) : null}
 
               <div className="pt-2 flex gap-2">
                 <button

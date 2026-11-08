@@ -112,18 +112,27 @@ export const FlashcardPracticeModal: React.FC<FlashcardPracticeModalProps> = ({
 
   if (!isOpen || deck.length === 0) return null;
 
-  // Handle Play Kazakh Audio
+  // Handle Play Audio (matches current language)
   const handlePlayAudio = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     if (!currentWord) return;
-    audioService.speakWord(currentWord.kazakhCyrillic, 'kk');
+    if (!isFlipped && guessDirection === 'TR_TO_KZ') {
+      audioService.speakWord(currentWord.turkish, 'tr');
+    } else {
+      audioService.speakWord(currentWord.kazakhCyrillic, 'kk');
+    }
+  };
+
+  const handlePlayTurkish = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (!currentWord) return;
+    audioService.speakWord(currentWord.turkish, 'tr');
   };
 
   // Flip card
   const handleFlipCard = () => {
     const nextState = !isFlipped;
     setIsFlipped(nextState);
-    audioService.playFeedbackSound('click');
     if (nextState) {
       handlePlayAudio();
     }
@@ -547,14 +556,38 @@ export const FlashcardPracticeModal: React.FC<FlashcardPracticeModalProps> = ({
                   </div>
 
                   {/* Example Sentences */}
-                  <div className="bg-white/80 p-3 rounded-2xl border border-teal-100 text-left text-xs space-y-1 shadow-2xs">
-                    <div className="font-bold text-teal-950 flex items-center gap-1.5">
-                      <span>🇰🇿</span>
-                      <span>{currentWord?.exampleKazakh}</span>
+                  <div className="bg-white/80 p-3 rounded-2xl border border-teal-100 text-left text-xs space-y-1.5 shadow-2xs">
+                    <div className="font-bold text-teal-950 flex items-center justify-between gap-1.5">
+                      <div className="flex items-center gap-1.5">
+                        <span>🇰🇿</span>
+                        <span>{currentWord?.exampleKazakh}</span>
+                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (currentWord?.exampleKazakh) audioService.speak(currentWord.exampleKazakh, 'kk');
+                        }}
+                        className="p-1 text-teal-700 hover:text-teal-950 transition cursor-pointer shrink-0"
+                        title="Kazakça Cümleyi Dinle"
+                      >
+                        <Volume2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
-                    <div className="font-medium text-slate-600 flex items-center gap-1.5 pl-5">
-                      <span>🇹🇷</span>
-                      <span>{currentWord?.exampleTurkish}</span>
+                    <div className="font-medium text-slate-600 flex items-center justify-between gap-1.5">
+                      <div className="flex items-center gap-1.5">
+                        <span>🇹🇷</span>
+                        <span>{currentWord?.exampleTurkish}</span>
+                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (currentWord?.exampleTurkish) audioService.speak(currentWord.exampleTurkish, 'tr');
+                        }}
+                        className="p-1 text-slate-400 hover:text-slate-700 transition cursor-pointer shrink-0"
+                        title="Türkçe Cümleyi Dinle"
+                      >
+                        <Volume2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   </div>
 

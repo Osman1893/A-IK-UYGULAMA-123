@@ -6,6 +6,14 @@
 
 export type VoiceProfileId = 'kk-male' | 'kk-female' | 'tr-male' | 'tr-female';
 
+export type AudioPlaybackSpeed = 0.75 | 1.0 | 1.25 | 1.5;
+
+export interface AudioPlaybackState {
+  isPlaying: boolean;
+  text: string | null;
+  lang: 'kk' | 'tr' | 'ru' | null;
+}
+
 // Standard voice persona type
 export type VoicePersona = VoiceProfileId;
 // Backwards-compatible type alias
@@ -329,7 +337,7 @@ export function transliterateKazakhToAudibleString(text: string): string {
     'Ә': 'E', 'ә': 'e',
     'Ғ': 'Ğ', 'ғ': 'ğ',
     'Қ': 'K', 'қ': 'k',
-    'Ң': 'n', 'ң': 'n',
+    'Ң': 'Ng', 'ң': 'ng',
     'Ө': 'Ö', 'ө': 'ö',
     'Ұ': 'U', 'ұ': 'u',
     'Ү': 'Ü', 'ү': 'ü',
@@ -370,25 +378,7 @@ export function transliterateKazakhToAudibleString(text: string): string {
   return result.split('').map(c => map[c] ?? c).join('');
 }
 
-/**
- * Normalizes Kazakh Cyrillic special letters into standard Cyrillic phonemes
- * Allows any Slavic/Russian TTS engine (pre-installed on Windows/Android/iOS)
- * to vocalize Kazakh text with genuine Cyrillic phonology instead of choking.
- */
-export function normalizeKazakhForRussianCyrillicVoice(text: string): string {
-  const map: Record<string, string> = {
-    'Ә': 'Э', 'ә': 'э',
-    'Ғ': 'Г', 'ғ': 'г',
-    'Қ': 'К', 'қ': 'к',
-    'Ң': 'Н', 'ң': 'н',
-    'Ө': 'О', 'ө': 'о',
-    'Ұ': 'У', 'ұ': 'у',
-    'Ү': 'Ю', 'ү': 'ю',
-    'Һ': 'Х', 'һ': 'х',
-    'І': 'И', 'і': 'и'
-  };
-  return text.split('').map(c => map[c] ?? c).join('');
-}
+
 
 class AudioService {
   private synth: SpeechSynthesis | null = null;
@@ -397,12 +387,41 @@ class AudioService {
   private audioBlobUrlCache: Map<string, string> = new Map();
   private activeAudioElement: HTMLAudioElement | null = null;
   private audioSpeedMultiplier: number = 1.0;
+  private playbackListeners: Set<(state: AudioPlaybackState) => void> = new Set();
+  private currentPlaybackState: AudioPlaybackState = {
+    isPlaying: false,
+    text: null,
+    lang: null
+  };
 
-  getAudioSpeed(): 0.75 | 1.0 {
-    return this.audioSpeedMultiplier === 0.75 ? 0.75 : 1.0;
+  public getPlaybackState(): AudioPlaybackState {
+    return { ...this.currentPlaybackState };
   }
 
-  setAudioSpeed(speed: 0.75 | 1.0): void {
+  public isAudioPlaying(): boolean {
+    return this.currentPlaybackState.isPlaying;
+  }
+
+  public onPlaybackStateChange(callback: (state: AudioPlaybackState) => void): () => void {
+    this.playbackListeners.add(callback);
+    callback(this.getPlaybackState());
+    return () => this.playbackListeners.delete(callback);
+  }
+
+  private setPlaybackState(isPlaying: boolean, text: string | null = null, lang: 'kk' | 'tr' | 'ru' | null = null): void {
+    this.currentPlaybackState = { isPlaying, text, lang };
+    this.playbackListeners.forEach(cb => {
+      try { cb({ ...this.currentPlaybackState }); } catch {}
+    });
+  }
+
+  getAudioSpeed(): AudioPlaybackSpeed {
+    const s = this.audioSpeedMultiplier;
+    if (s === 0.75 || s === 1.0 || s === 1.25 || s === 1.5) return s;
+    return 1.0;
+  }
+
+  setAudioSpeed(speed: AudioPlaybackSpeed): void {
     this.audioSpeedMultiplier = speed;
     if (this.activeAudioElement) {
       this.activeAudioElement.playbackRate = speed;
@@ -425,27 +444,32 @@ class AudioService {
   /**
    * Try playing an audio URL (e.g. static bundled audio files in /audio/letters)
    */
-  async tryPlayAudioUrl(url: string): Promise<boolean> {
+  async tryPlayAudioUrl(url: string, associatedText?: string, lang: 'kk' | 'tr' | 'ru' = 'kk'): Promise<boolean> {
     if (typeof window === 'undefined') return false;
+
+    // Immediately stop any ongoing SpeechSynthesis or previous audio element to prevent overlapping
+    this.stop(false);
+
     return new Promise((resolve) => {
       try {
-        if (this.activeAudioElement) {
-          this.activeAudioElement.pause();
-          this.activeAudioElement.currentTime = 0;
-          this.activeAudioElement = null;
-        }
-
         const audio = new Audio(url);
         audio.playbackRate = this.audioSpeedMultiplier;
         this.activeAudioElement = audio;
+        this.setPlaybackState(true, associatedText || url, lang);
 
         audio.onended = () => {
-          this.activeAudioElement = null;
+          if (this.activeAudioElement === audio) {
+            this.activeAudioElement = null;
+          }
+          this.setPlaybackState(false);
           resolve(true);
         };
 
         audio.onerror = () => {
-          this.activeAudioElement = null;
+          if (this.activeAudioElement === audio) {
+            this.activeAudioElement = null;
+          }
+          this.setPlaybackState(false);
           resolve(false);
         };
 
@@ -456,11 +480,15 @@ class AudioService {
               // Playing started successfully
             })
             .catch(() => {
-              this.activeAudioElement = null;
+              if (this.activeAudioElement === audio) {
+                this.activeAudioElement = null;
+              }
+              this.setPlaybackState(false);
               resolve(false);
             });
         }
       } catch {
+        this.setPlaybackState(false);
         resolve(false);
       }
     });
@@ -477,15 +505,15 @@ class AudioService {
     // Fast check: Single Kazakh letter uses pre-bundled studio wav
     if (cleanText.length === 1) {
       const code = cleanText.toUpperCase().charCodeAt(0);
-      const staticWavUrl = `/audio/letters/letter_${code}.wav?v=gemini-ai-tts`;
-      const played = await this.tryPlayAudioUrl(staticWavUrl);
+      const staticWavUrl = `/audio/letters/letter_${code}.wav?v=gemini-ai-studio-hd-v3`;
+      const played = await this.tryPlayAudioUrl(staticWavUrl, cleanText, lang);
       if (played) return true;
     }
 
     const cacheKey = `${lang}:${voice}:${cleanText}`;
     if (this.audioBlobUrlCache.has(cacheKey)) {
       const cachedUrl = this.audioBlobUrlCache.get(cacheKey)!;
-      return this.tryPlayAudioUrl(cachedUrl);
+      return this.tryPlayAudioUrl(cachedUrl, cleanText, lang);
     }
 
     try {
@@ -507,7 +535,7 @@ class AudioService {
 
       const objectUrl = URL.createObjectURL(blob);
       this.audioBlobUrlCache.set(cacheKey, objectUrl);
-      return this.tryPlayAudioUrl(objectUrl);
+      return this.tryPlayAudioUrl(objectUrl, cleanText, lang);
     } catch {
       return false;
     }
@@ -563,7 +591,7 @@ class AudioService {
     const code = letterUpper.charCodeAt(0);
 
     // 1. First priority: Pre-bundled static authentic Kazakh audio pack
-    const staticWavUrl = `/audio/letters/letter_${code}.wav?v=gemini-ai-tts`;
+    const staticWavUrl = `/audio/letters/letter_${code}.wav?v=gemini-ai-studio-hd-v3`;
     const staticPlayed = await this.tryPlayAudioUrl(staticWavUrl);
     if (staticPlayed) return;
 
@@ -637,17 +665,6 @@ class AudioService {
       return { name: kzVoice.name, isNative: true, isNeural, lang: kzVoice.lang };
     }
 
-    if (isKk) {
-      const ruVoice = voices.find(v => v.lang.toLowerCase().startsWith('ru'));
-      if (ruVoice) {
-        return {
-          name: `${ruVoice.name} (Kiril Doğal Fonetik)`,
-          isNative: false,
-          isNeural: true,
-          lang: ruVoice.lang
-        };
-      }
-    }
 
     const trVoice = voices.find(v => v.lang.toLowerCase().includes('tr'));
     if (trVoice) {
@@ -681,19 +698,23 @@ class AudioService {
   }
 
   /**
-   * Speak full text in Kazakh or Turkish with natural tone calibration
+   * Speak full text in Kazakh, Turkish or Russian with natural tone calibration
    * Prioritizes neural server TTS, then authentic native SpeechSynthesis
    */
-  async speak(text: string, lang: 'kk' | 'tr' = 'kk', rate: number = 0.88, customPitch?: number): Promise<void> {
+  async speak(text: string, lang: 'kk' | 'tr' | 'ru' = 'kk', rate: number = 0.88, customPitch?: number): Promise<void> {
     const cleanText = text.trim();
     if (!cleanText) return;
+
+    // Immediately stop any previous audio or speech to prevent overlapping sounds
+    this.stop(false);
+    this.setPlaybackState(true, cleanText, lang);
 
     const activePersonaId = lang === 'kk' ? this.currentKazakhPersona : this.currentTurkishPersona;
     const personaInfo = VOICE_PROFILES.find(p => p.id === activePersonaId);
     const isFemale = personaInfo ? personaInfo.gender === 'female' : true;
 
     // 1. Studio-quality server neural TTS (Kazakh and Turkish up to 1000 chars)
-    if (cleanText.length <= 1000) {
+    if (cleanText.length <= 1000 && lang !== 'ru') {
       const serverTtsPlayed = await this.tryPlayServerTts(cleanText, lang, isFemale ? 'female' : 'male');
       if (serverTtsPlayed) return;
     }
@@ -701,6 +722,7 @@ class AudioService {
     // 2. Fall back to Web Speech Synthesis with intelligent multi-tier cascade
     return new Promise((resolve) => {
       if (!this.synth) {
+        this.setPlaybackState(false);
         resolve();
         return;
       }
@@ -709,9 +731,9 @@ class AudioService {
 
       const voices = this.cachedVoices.length > 0 ? this.cachedVoices : this.synth.getVoices();
       let textToSpeak = cleanText;
-      let targetLang = lang === 'kk' ? 'kk-KZ' : 'tr-TR';
+      let targetLang = lang === 'kk' ? 'kk-KZ' : lang === 'ru' ? 'ru-RU' : 'tr-TR';
       let selectedVoice: SpeechSynthesisVoice | undefined;
-      const pitch = customPitch ?? (isFemale ? 1.02 : 0.98);
+      const pitch = customPitch ?? (lang === 'tr' ? 1.0 : isFemale ? 1.02 : 0.98);
 
       if (lang === 'kk') {
         const allKzVoices = voices.filter(v => {
@@ -725,7 +747,7 @@ class AudioService {
           const isNatural = n.includes('natural') || n.includes('neural') || n.includes('online') || n.includes('google');
           if (isFemale && (n.includes('female') || n.includes('kadın') || n.includes('әйел') || n.includes('woman'))) return true;
           if (!isFemale && (n.includes('male') || n.includes('erkek') || n.includes('ер') || n.includes('man'))) return true;
-          return true;
+          return isNatural;
         });
 
         const standardKzVoice = allKzVoices.find(v => {
@@ -738,36 +760,42 @@ class AudioService {
         const bestKzVoice = naturalKzVoice || standardKzVoice;
 
         if (bestKzVoice) {
-          // Tier A: Native Kazakh voice installed
+          // Tier A: Native Kazakh voice installed in user system
           selectedVoice = bestKzVoice;
           targetLang = bestKzVoice.lang;
           textToSpeak = cleanText;
         } else {
-          // Tier B: Russian Cyrillic voice (reads Cyrillic with natural phonology)
-          const ruVoice = voices.find(v => v.lang.toLowerCase().startsWith('ru'));
-          if (ruVoice) {
-            selectedVoice = ruVoice;
-            targetLang = ruVoice.lang;
-            textToSpeak = normalizeKazakhForRussianCyrillicVoice(cleanText);
+          // Tier B: Harmonic Turkic Voice (Turkish engine has natural vowel harmony & authentic Turkic phonetics)
+          const trVoice = voices.find(v => v.lang.toLowerCase().startsWith('tr'));
+          if (trVoice) {
+            selectedVoice = trVoice;
+            targetLang = trVoice.lang;
+            textToSpeak = transliterateKazakhToAudibleString(cleanText);
           } else {
-            // Tier C: Turkish voice (reads Turkic phonology cleanly and harmoniously)
-            const trVoice = voices.find(v => v.lang.toLowerCase().startsWith('tr'));
-            if (trVoice) {
-              selectedVoice = trVoice;
-              targetLang = trVoice.lang;
-              textToSpeak = transliterateKazakhToAudibleString(cleanText);
-            } else {
-              // Tier D: Universal readable Latin string
-              targetLang = 'en-US';
-              textToSpeak = transliterateKazakhToAudibleString(cleanText);
-            }
+            // Tier C: Clean Universal phonetic text
+            selectedVoice = voices[0];
+            targetLang = selectedVoice?.lang || 'tr-TR';
+            textToSpeak = transliterateKazakhToAudibleString(cleanText);
           }
         }
+      } else if (lang === 'ru') {
+        const ruVoices = voices.filter(v => v.lang.toLowerCase().includes('ru'));
+        selectedVoice = ruVoices.find(v => {
+          const n = v.name.toLowerCase();
+          return n.includes('natural') || n.includes('neural') || n.includes('online') || n.includes('google');
+        }) || ruVoices[0];
+        targetLang = 'ru-RU';
+        textToSpeak = cleanText;
       } else {
+        // Turkish: Standard Istanbul Turkish
         const allTrVoices = voices.filter(v => v.lang.toLowerCase().includes('tr'));
         const naturalTrVoice = allTrVoices.find(v => {
           const n = v.name.toLowerCase();
-          return n.includes('natural') || n.includes('neural') || n.includes('online') || n.includes('google');
+          const isNatural = n.includes('natural') || n.includes('neural') || n.includes('online') || n.includes('google') ||
+                            n.includes('ahmet') || n.includes('emel') || n.includes('tolga') || n.includes('yelda') || n.includes('cem');
+          if (isFemale && (n.includes('female') || n.includes('emel') || n.includes('yelda') || n.includes('kadın'))) return true;
+          if (!isFemale && (n.includes('male') || n.includes('ahmet') || n.includes('tolga') || n.includes('cem') || n.includes('erkek'))) return true;
+          return isNatural;
         }) || allTrVoices[0];
 
         if (naturalTrVoice) selectedVoice = naturalTrVoice;
@@ -783,15 +811,23 @@ class AudioService {
         utterance.voice = selectedVoice;
       }
 
-      utterance.onend = () => resolve();
-      utterance.onerror = () => resolve();
+      utterance.onend = () => {
+        this.setPlaybackState(false);
+        resolve();
+      };
+      utterance.onerror = () => {
+        this.setPlaybackState(false);
+        resolve();
+      };
 
       try {
         this.synth.speak(utterance);
       } catch {
+        this.setPlaybackState(false);
         resolve();
       }
     });
+  }
   }
 
   /**
@@ -1212,6 +1248,27 @@ class AudioService {
       feedbackMessage,
       criticalErrors
     };
+  }
+
+  /**
+   * Stop any current speech synthesis or active audio playback
+   */
+  public stop(notify: boolean = true): void {
+    if (this.activeAudioElement) {
+      try {
+        this.activeAudioElement.pause();
+        this.activeAudioElement.currentTime = 0;
+      } catch {}
+      this.activeAudioElement = null;
+    }
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      try {
+        window.speechSynthesis.cancel();
+      } catch {}
+    }
+    if (notify) {
+      this.setPlaybackState(false);
+    }
   }
 }
 

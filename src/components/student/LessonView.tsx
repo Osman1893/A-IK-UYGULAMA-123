@@ -203,8 +203,14 @@ export const LessonView: React.FC<LessonViewProps> = ({
 
   // Audio Playback state
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
-  const [audioSpeed, setAudioSpeed] = useState<number>(0.9);
+  const [audioSpeed, setAudioSpeed] = useState<number>(1.0);
   const [activeSpeakingLine, setActiveSpeakingLine] = useState<number | null>(null);
+
+  const handleCycleSpeed = () => {
+    const next = audioSpeed === 0.75 ? 1.0 : audioSpeed === 1.0 ? 1.25 : audioSpeed === 1.25 ? 1.5 : 0.75;
+    setAudioSpeed(next);
+    audioService.setAudioSpeed(next as any);
+  };
 
   // Vocabulary Flashcards State
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
@@ -244,10 +250,17 @@ export const LessonView: React.FC<LessonViewProps> = ({
     }
   }, [currentExerciseIndex, currentExercise, lesson.id]);
 
-  // Play audio for a word
+  // Play audio for a word (respects language direction)
   const handlePlayWord = (word: VocabItem) => {
-    audioService.playFeedbackSound('click');
-    audioService.speak(word.kazakhCyrillic, 'kk', audioSpeed);
+    if (!isTr) {
+      audioService.speak(word.turkish, 'tr', audioSpeed);
+    } else {
+      audioService.speak(word.kazakhCyrillic, 'kk', audioSpeed);
+    }
+  };
+
+  const handlePlayTurkishWord = (word: VocabItem) => {
+    audioService.speak(word.turkish, 'tr', audioSpeed);
   };
 
   // Sesli Sözlük & Word Tap Pronunciation States
@@ -555,14 +568,15 @@ export const LessonView: React.FC<LessonViewProps> = ({
             </span>
           </button>
 
-          {/* Speed Adjustment Pill */}
-          <div className="flex items-center gap-1 bg-black/20 px-2 py-1 rounded-xl text-[11px] font-bold">
+          {/* Speed Adjustment Pill (0.75x, 1x, 1.25x, 1.5x) */}
+          <div className="flex items-center gap-1 bg-black/20 px-2.5 py-1 rounded-xl text-[11px] font-bold">
             <span className="text-teal-200">Hız:</span>
             <button
-              onClick={() => setAudioSpeed(audioSpeed === 0.9 ? 0.7 : 0.9)}
+              onClick={handleCycleSpeed}
               className="hover:text-teal-300 font-extrabold cursor-pointer"
+              title="Telaffuz Hızı (0.75x, 1.0x, 1.25x, 1.5x)"
             >
-              {audioSpeed === 0.9 ? '1x' : '0.7x'}
+              {audioSpeed}x
             </button>
           </div>
         </div>
@@ -810,7 +824,6 @@ export const LessonView: React.FC<LessonViewProps> = ({
                         key={p.letter}
                         onClick={() => {
                           setSelectedLetter(p.letter);
-                          audioService.playFeedbackSound('click');
                           audioService.speakKazakhLetterComplete(p.letter);
                         }}
                         className={`flex flex-col items-center justify-center p-2 rounded-xl transition border ${
@@ -836,7 +849,6 @@ export const LessonView: React.FC<LessonViewProps> = ({
                         key={l.char}
                         onClick={() => {
                           setSelectedLetter(l.char);
-                          audioService.playFeedbackSound('click');
                           audioService.speakKazakhLetterComplete(l.char);
                         }}
                         className={`p-1.5 rounded-lg text-center font-black text-xs transition border ${
@@ -1076,25 +1088,52 @@ export const LessonView: React.FC<LessonViewProps> = ({
                       <span>✓ Türkçe Anlamı:</span>
                       <button 
                         onClick={() => setIsMeaningRevealed(false)}
-                        className="text-slate-400 hover:text-slate-600 lowercase text-[9px] flex items-center gap-0.5"
+                        className="text-slate-400 hover:text-slate-600 lowercase text-[9px] flex items-center gap-0.5 cursor-pointer"
                       >
                         <EyeOff className="w-3 h-3" /> gizle
                       </button>
                     </div>
-                    <div className="text-base font-extrabold text-slate-900">
-                      {currentWord.turkish}
+                    <div className="flex items-center justify-between">
+                      <div className="text-base font-extrabold text-slate-900">
+                        {currentWord.turkish}
+                      </div>
+                      <button
+                        onClick={() => handlePlayTurkishWord(currentWord)}
+                        className="p-1.5 rounded-lg text-teal-700 hover:text-teal-900 hover:bg-emerald-100 transition cursor-pointer"
+                        title="Türkçe Telaffuzu Dinle"
+                      >
+                        <Volume2 className="w-4 h-4" />
+                      </button>
                     </div>
                   </div>
                 )}
 
-                {/* Example sentence with tap-to-listen words */}
-                <div className="w-full text-left p-3.5 bg-cyan-50/50 rounded-2xl border border-cyan-100 text-xs space-y-1 mb-2">
-                  <div className="font-bold text-cyan-950 flex items-center gap-1 flex-wrap">
-                    <span>🇰🇿</span>
-                    {renderClickableKazakhText(currentWord.exampleKazakh)}
+                {/* Example sentence with tap-to-listen words and sentence audio buttons */}
+                <div className="w-full text-left p-3.5 bg-cyan-50/50 rounded-2xl border border-cyan-100 text-xs space-y-2 mb-2">
+                  <div className="font-bold text-cyan-950 flex items-center justify-between gap-1 flex-wrap">
+                    <div className="flex items-center gap-1 flex-wrap">
+                      <span>🇰🇿</span>
+                      {renderClickableKazakhText(currentWord.exampleKazakh)}
+                    </div>
+                    <button
+                      onClick={() => audioService.speak(currentWord.exampleKazakh, 'kk', audioSpeed)}
+                      className="p-1 text-teal-700 hover:text-teal-900 transition cursor-pointer shrink-0"
+                      title="Kazakça Cümleyi Dinle"
+                    >
+                      <Volume2 className="w-4 h-4" />
+                    </button>
                   </div>
-                  <div className="font-medium text-slate-600 flex items-center gap-1">
-                    <span>🇹🇷</span> {currentWord.exampleTurkish}
+                  <div className="font-medium text-slate-600 flex items-center justify-between gap-1">
+                    <div className="flex items-center gap-1">
+                      <span>🇹🇷</span> {currentWord.exampleTurkish}
+                    </div>
+                    <button
+                      onClick={() => audioService.speak(currentWord.exampleTurkish, 'tr', audioSpeed)}
+                      className="p-1 text-slate-400 hover:text-slate-700 transition cursor-pointer shrink-0"
+                      title="Türkçe Cümleyi Dinle"
+                    >
+                      <Volume2 className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                   <div className="text-[10px] text-teal-600 font-semibold pt-0.5">
                     💡 İpucu: Kelimelere dokunarak doğru Kazakça telaffuzlarını anında dinleyin
@@ -1597,7 +1636,6 @@ export const LessonView: React.FC<LessonViewProps> = ({
             <div className="flex items-center gap-2.5 min-w-0">
               <button
                 onClick={() => {
-                  audioService.playFeedbackSound('click');
                   audioService.speak(clickedWordPopup.word, 'kk', audioSpeed);
                 }}
                 className="w-10 h-10 rounded-xl bg-teal-600 hover:bg-teal-500 text-white flex items-center justify-center shrink-0 shadow-md active:scale-95 transition cursor-pointer"
@@ -1753,10 +1791,11 @@ export const LessonView: React.FC<LessonViewProps> = ({
                 <div className="flex items-center gap-1 text-[11px] font-bold text-slate-600">
                   <span>Hız:</span>
                   <button
-                    onClick={() => setAudioSpeed(audioSpeed === 0.9 ? 0.7 : 0.9)}
-                    className="px-2 py-0.5 rounded bg-teal-50 text-teal-800 border border-teal-200 hover:bg-teal-100 transition"
+                    onClick={handleCycleSpeed}
+                    className="px-2 py-0.5 rounded bg-teal-50 text-teal-800 border border-teal-200 hover:bg-teal-100 transition cursor-pointer"
+                    title="Telaffuz Hızı (0.75x, 1.0x, 1.25x, 1.5x)"
                   >
-                    {audioSpeed === 0.9 ? '1.0x Normal' : '0.7x Yavaş'}
+                    ⚡ {audioSpeed}x
                   </button>
                 </div>
               </div>
@@ -1862,13 +1901,21 @@ export const LessonView: React.FC<LessonViewProps> = ({
 
                         <button
                           onClick={() => {
-                            audioService.playFeedbackSound('click');
                             audioService.speak(w.kazakhCyrillic, 'kk', audioSpeed);
                           }}
                           className="w-9 h-9 rounded-xl bg-teal-50 hover:bg-teal-600 text-teal-700 hover:text-white border border-teal-200 hover:border-teal-600 flex items-center justify-center shrink-0 transition active:scale-95 shadow-2xs group-hover:bg-teal-600 group-hover:text-white cursor-pointer"
                           title="Kazakça Doğru Telaffuzu Dinle"
                         >
                           <Volume2 className="w-4.5 h-4.5" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            audioService.speak(w.turkish, 'tr', audioSpeed);
+                          }}
+                          className="w-9 h-9 rounded-xl bg-slate-50 hover:bg-slate-700 text-slate-600 hover:text-white border border-slate-200 flex items-center justify-center shrink-0 transition active:scale-95 shadow-2xs cursor-pointer"
+                          title="Türkçe Telaffuzu Dinle"
+                        >
+                          <Volume2 className="w-4 h-4" />
                         </button>
                       </div>
                     </div>

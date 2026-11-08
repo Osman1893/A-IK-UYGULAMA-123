@@ -36,6 +36,7 @@ const STORAGE_KEYS = {
   ADMIN_SESSION_VERIFIED: 'uzaktan_turkolog_admin_session_v1',
   ADMIN_PASSWORD_HASH: 'uzaktan_turkolog_admin_hash_v1',
   QUEST_STAGES: 'uzaktan_turkolog_quest_stages_v2',
+  CUSTOM_TRANSLATIONS: 'uzaktan_turkolog_custom_translations_v1',
 };
 
 // Safe localStorage wrapper with in-memory fallback for SSR / Unit Testing
@@ -87,18 +88,18 @@ const INITIAL_ADMIN_HASH = 'ef4c6e47783ed719aed3586dbfc6dcfb97c5763a888d638aea6a
 
 // Default Guest / Standard Learner profile for visitors who have not logged in yet
 export const defaultGuestProfile: UserProfile = {
-  id: 'usr-student-1',
-  email: 'dadasosman2525@gmail.com',
-  name: 'Osman Dadaş',
-  nickname: 'Dadaş Hoca',
-  bio: 'Türk dilleri ve Kazak kültürünü öğrenen araştırmacı ve Türkolog.',
-  customTitle: 'Öğrenci & Araştırmacı',
-  targetGoal: 'Kazakça A1 ve A2 seviyelerini tamamlamak',
+  id: 'usr-guest-default',
+  email: 'misafir@uzaktanturkolog.com',
+  name: 'Misafir Öğrenci',
+  nickname: 'Yeni Yolcu',
+  bio: 'Kazakça ve Türk dillerini öğrenmeye yeni başlayan misafir öğrenci.',
+  customTitle: 'Yeni Öğrenci',
+  targetGoal: 'Kazakça temel kelimeleri ve alfabeyi öğrenmek',
   themeColor: 'teal',
-  avatarUrl: 'https://api.dicebear.com/7.x/adventurer/svg?seed=KipcakYolcusu',
+  avatarUrl: 'https://api.dicebear.com/7.x/adventurer/svg?seed=MisafirOgrenci',
   role: 'user',
   isSuperAdmin: false,
-  isGuest: false,
+  isGuest: true,
   currentDirection: 'TR_TO_KZ',
   currentLevel: 'A1',
   dailyGoalType: 'xp',
@@ -250,33 +251,39 @@ class StorageService {
         }
         user.maxEnergy = 100;
 
-        // Ensure newly introduced weekly goal fields are safely populated for existing local storage sessions
-        if (typeof user.weeklyGoalDays !== 'number') {
-          user.weeklyGoalDays = 5;
-        }
+        // Ensure all arrays and metrics are defensively initialized to prevent client runtime crashes
+        if (!Array.isArray(user.completedLessonIds)) user.completedLessonIds = [];
+        if (!Array.isArray(user.masteredWordIds)) user.masteredWordIds = [];
+        if (!Array.isArray(user.reviewWordIds)) user.reviewWordIds = [];
+        if (!Array.isArray(user.favoriteWordIds)) user.favoriteWordIds = [];
+        if (!Array.isArray(user.badges) || user.badges.length === 0) user.badges = [initialBadges[0]];
+        if (!user.name) user.name = 'Misafir Öğrenci';
+        if (!user.email) user.email = 'misafir@uzaktanturkolog.com';
+        if (!user.currentLevel) user.currentLevel = 'A1';
+        if (!user.currentDirection) user.currentDirection = 'TR_TO_KZ';
+        if (typeof user.streakDays !== 'number') user.streakDays = 1;
+        if (typeof user.streakShields !== 'number') user.streakShields = 1;
+        if (typeof user.xpPoints !== 'number') user.xpPoints = 0;
+        if (typeof user.dailyXpTarget !== 'number') user.dailyXpTarget = 50;
+        if (typeof user.todayEarnedXp !== 'number') user.todayEarnedXp = 0;
+        if (typeof user.weeklyGoalDays !== 'number') user.weeklyGoalDays = 5;
         if (typeof user.weeklyCompletedDays !== 'number') {
           user.weeklyCompletedDays = Math.min(user.weeklyGoalDays, Math.max(1, (user.streakDays || 1) % 7 || 3));
         }
-        if (!user.weeklyGoalType) {
-          user.weeklyGoalType = 'days';
-        }
-        if (typeof user.weeklyXpTarget !== 'number') {
-          user.weeklyXpTarget = 250;
-        }
-        if (typeof user.weeklyLessonsTarget !== 'number') {
-          user.weeklyLessonsTarget = 5;
-        }
-        if (!Array.isArray(user.favoriteWordIds)) {
-          user.favoriteWordIds = [];
-        }
+        if (!user.weeklyGoalType) user.weeklyGoalType = 'days';
+        if (typeof user.weeklyXpTarget !== 'number') user.weeklyXpTarget = 250;
+        if (typeof user.weeklyLessonsTarget !== 'number') user.weeklyLessonsTarget = 5;
 
-        // Critical safeguard: If stored profile is Super Admin email, BUT admin session
+        // Critical safeguard: If stored profile has Super Admin identity, BUT admin session
         // has NOT been explicitly verified by password/admin login:
-        if (user.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()) {
+        const isSuperAdminEmail = Boolean(user.email && user.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase());
+        const hasAdminIdentity = isSuperAdminEmail || Boolean(user.name && user.name.toLowerCase().includes('osman'));
+
+        if (hasAdminIdentity) {
           if (!adminVerified) {
-            user.isSuperAdmin = false;
-            user.role = 'user';
-            return user;
+            // Overwrite stale localStorage with clean guest profile so visitors never see Osman
+            safeStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(defaultGuestProfile));
+            return { ...defaultGuestProfile };
           }
           user.isSuperAdmin = true;
           user.role = 'super_admin';
@@ -1819,10 +1826,41 @@ class StorageService {
       grammaticalSummaryKz: segments.map(s => `${s.nameKz} (${s.text})`).join(' + ')
     };
   }
+  /**
+   * Get all custom/teacher-corrected word translations
+   */
+  getCustomWordTranslations(): Record<string, { translation: string; grammarTip?: string; root?: string }> {
+    try {
+      const data = safeStorage.getItem(STORAGE_KEYS.CUSTOM_TRANSLATIONS);
+      if (data) return JSON.parse(data);
+    } catch {}
+    return {};
+  }
+
+  /**
+   * Save teacher/author corrected translation for reading popup and prompter
+   */
+  saveCustomWordTranslation(word: string, translation: string, grammarTip?: string, root?: string): void {
+    const clean = word.toLowerCase().trim();
+    const all = this.getCustomWordTranslations();
+    all[clean] = {
+      translation: translation.trim(),
+      grammarTip: grammarTip?.trim(),
+      root: root?.trim()
+    };
+    safeStorage.setItem(STORAGE_KEYS.CUSTOM_TRANSLATIONS, JSON.stringify(all));
+    this.logAudit(
+      this.getCurrentUser().email,
+      'UPDATE_TRANSLATION',
+      'Okuma Çevirisi',
+      `Kelime çevirisi güncellendi: «${clean}» -> «${translation.trim()}»`
+    );
+  }
+
   resetAllData(): void {
     safeStorage.clear();
     this.saveUnits(initialUnits);
-    this.saveCurrentUser(defaultSuperAdminProfile);
+    this.saveCurrentUser(defaultGuestProfile);
     this.saveAppConfig(defaultAppConfig);
   }
 }

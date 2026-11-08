@@ -157,7 +157,7 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({ user }) => {
                     className="w-12 h-12 rounded-full object-cover border-2 border-slate-300 mt-2 mb-1 shadow-xs"
                   />
                   <h4 className="text-xs font-black text-slate-900 truncate w-full">
-                    {topThree[1].name.split(' ')[0]}
+                    {(topThree[1].name || 'Öğrenci').split(' ')[0]}
                   </h4>
                   <span className="text-[10px] font-extrabold text-teal-700">
                     {topThree[1].xp} XP
@@ -180,7 +180,7 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({ user }) => {
                     className="w-14 h-14 rounded-full object-cover border-3 border-amber-400 mt-2 mb-1 shadow-md"
                   />
                   <h4 className="text-xs font-black text-slate-900 truncate w-full">
-                    {topThree[0].name.split(' ')[0]}
+                    {(topThree[0].name || 'Öğrenci').split(' ')[0]}
                   </h4>
                   <span className="text-xs font-black text-amber-600">
                     {topThree[0].xp} XP
@@ -203,7 +203,7 @@ export const LeaderboardView: React.FC<LeaderboardViewProps> = ({ user }) => {
                     className="w-12 h-12 rounded-full object-cover border-2 border-amber-600/40 mt-2 mb-1 shadow-xs"
                   />
                   <h4 className="text-xs font-black text-slate-900 truncate w-full">
-                    {topThree[2].name.split(' ')[0]}
+                    {(topThree[2].name || 'Öğrenci').split(' ')[0]}
                   </h4>
                   <span className="text-[10px] font-extrabold text-teal-700">
                     {topThree[2].xp} XP

@@ -68,7 +68,6 @@ export const WordMatchingGameModal: React.FC<WordMatchingGameModalProps> = ({
   };
 
   const handleSelectKazakh = (id: string) => {
-    audioService.playFeedbackSound('click');
     const item = kazakhItems.find(k => k.id === id);
     if (item) audioService.speak(item.text, 'kk');
     setSelectedKazakhId(id);
@@ -78,7 +77,8 @@ export const WordMatchingGameModal: React.FC<WordMatchingGameModalProps> = ({
   };
 
   const handleSelectTurkish = (id: string) => {
-    audioService.playFeedbackSound('click');
+    const item = turkishItems.find(t => t.id === id);
+    if (item) audioService.speak(item.text, 'tr');
     setSelectedTurkishId(id);
     if (selectedKazakhId) {
       checkMatch(selectedKazakhId, id);

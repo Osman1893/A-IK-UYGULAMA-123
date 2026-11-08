@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Sparkles, BookOpen, Heart, X, Award, Info, ChevronRight, Volume2 } from 'lucide-react';
+import { UzaktanTurkologEmblem } from './UzaktanTurkologEmblem';
 import { audioService } from '../../services/audioService';
-import duoDeerMascotImg from '../../assets/images/duo_style_deer_mascot_1793124498058.jpg';
 
 export type AlageyikPose = 
   | 'guide'        // Bilge Yol Gösterici
@@ -62,14 +62,8 @@ export const AlageyikMascot: React.FC<AlageyikMascotProps> = ({
         {/* Glow / Aura Behind Alageyik */}
         <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-amber-400/30 via-teal-400/30 to-emerald-500/30 blur-md group-hover:blur-lg transition-all animate-pulse" />
 
-        {/* Official Duolingo-Style Circular Emblem Badge */}
-        <div className={`${sizeDimensions.img} relative rounded-full p-1 bg-gradient-to-br from-amber-400 via-teal-500 to-emerald-600 shadow-lg shadow-teal-500/25 border-2 border-white/90 overflow-hidden flex items-center justify-center z-10 transition-transform group-hover:-translate-y-0.5`}>
-          <img 
-            src={duoDeerMascotImg} 
-            alt="Alageyik Duolingo Tarzı Resmi Maskot" 
-            className="w-full h-full object-cover rounded-full"
-          />
-        </div>
+        {/* Official Memorable Vector Emblem */}
+        <UzaktanTurkologEmblem size={size === 'sm' ? 44 : size === 'md' ? 64 : 88} withGlow={true} />
 
         {/* Mascot Name / Pose Badge under character */}
         <span className="absolute -bottom-1 px-1.5 py-0.5 rounded-full bg-amber-500 text-slate-950 text-[9px] font-black uppercase tracking-wider shadow-xs border border-amber-300 z-20">

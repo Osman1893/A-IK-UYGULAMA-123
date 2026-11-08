@@ -60,7 +60,6 @@ export const KazakhAlphabetVoiceGuide: React.FC<KazakhAlphabetVoiceGuideProps> =
 
   const handlePlayLetter = async (char: string) => {
     setActiveLetter(char);
-    audioService.playFeedbackSound('click');
     await audioService.speakKazakhLetterComplete(char);
     setActiveLetter(null);
   };
@@ -68,7 +67,6 @@ export const KazakhAlphabetVoiceGuide: React.FC<KazakhAlphabetVoiceGuideProps> =
   const handlePlayExampleWord = async (char: string, e: React.MouseEvent) => {
     e.stopPropagation();
     setActiveLetter(char);
-    audioService.playFeedbackSound('click');
     const item = ALL_42_KAZAKH_LETTERS.find(l => l.char === char);
     if (item && item.exampleKz) {
       const exampleWordOnly = item.exampleKz.split(' ')[0];
@@ -82,7 +80,6 @@ export const KazakhAlphabetVoiceGuide: React.FC<KazakhAlphabetVoiceGuideProps> =
   const handleVoiceChange = (personaId: VoicePersona) => {
     setSelectedVoice(personaId);
     audioService.setKazakhPersona(personaId);
-    audioService.playFeedbackSound('click');
     audioService.speakWithPersona('Сәлеметсіз бе! Бұл табиғи дауыс үлгісі.', personaId);
   };
 

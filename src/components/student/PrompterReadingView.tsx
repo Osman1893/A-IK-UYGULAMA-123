@@ -103,6 +103,15 @@ export const PrompterReadingView: React.FC = () => {
     }
   };
 
+  const [isVoicePlaying, setIsVoicePlaying] = useState<boolean>(false);
+
+  // Stop audio on unmount or story switch
+  useEffect(() => {
+    return () => {
+      audioService.stop();
+    };
+  }, [selectedStoryId]);
+
   const handleTogglePlay = () => {
     if (!isPlaying && prompterRef.current) {
       // If at end, loop back to start
@@ -115,7 +124,6 @@ export const PrompterReadingView: React.FC = () => {
       }
     }
     setIsPlaying(!isPlaying);
-    audioService.playFeedbackSound('click');
   };
 
   const handleReset = () => {
@@ -125,16 +133,27 @@ export const PrompterReadingView: React.FC = () => {
       scrollPosRef.current = 0;
       setScrollProgress(0);
     }
-    audioService.playFeedbackSound('click');
   };
 
   const handlePlayVoice = (text?: string, lineIdx?: number) => {
+    if (isVoicePlaying) {
+      audioService.stop();
+      setIsVoicePlaying(false);
+      setActiveSpeakingLine(null);
+      return;
+    }
+
     const textToRead = text || currentStory.contentKz;
     if (lineIdx !== undefined) setActiveSpeakingLine(lineIdx);
+    setIsVoicePlaying(true);
+    
     audioService.speak(textToRead, 'kk', 0.84);
   };
 
   const handleSelectStory = (id: string) => {
+    audioService.stop();
+    setIsVoicePlaying(false);
+    setActiveSpeakingLine(null);
     setSelectedStoryId(id);
     handleReset();
     setQuizAnswers({});
@@ -441,10 +460,14 @@ export const PrompterReadingView: React.FC = () => {
             <div className="mt-4 pt-3 border-t border-slate-700 flex items-center justify-between">
               <button
                 onClick={() => handlePlayVoice()}
-                className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 transition shadow-sm"
+                className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition shadow-sm ${
+                  isVoicePlaying 
+                    ? 'bg-amber-600 hover:bg-amber-700 text-white animate-pulse'
+                    : 'bg-teal-600 hover:bg-teal-700 text-white'
+                }`}
               >
-                <Volume2 className="w-4 h-4" />
-                <span>Hikayeyi Baştan Sona Sesli Dinle</span>
+                {isVoicePlaying ? <Pause className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                <span>{isVoicePlaying ? 'Seslendirmeyi Durdur' : 'Hikayeyi Baştan Sona Sesli Dinle'}</span>
               </button>
 
               <button

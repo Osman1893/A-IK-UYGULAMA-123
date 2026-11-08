@@ -54,8 +54,17 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(event.request.url);
 
-  // Exclude real-time synthesis admin APIs from caching
-  if (url.pathname.startsWith('/api/admin/synthesize')) {
+  // Bypass all API calls and Vite development modules
+  if (
+    url.pathname.startsWith('/api/') ||
+    url.pathname.startsWith('/src/') ||
+    url.pathname.startsWith('/@vite/') ||
+    url.pathname.startsWith('/@fs/') ||
+    url.pathname.startsWith('/node_modules/') ||
+    url.pathname.endsWith('.tsx') ||
+    url.pathname.endsWith('.ts') ||
+    url.search.includes('v=')
+  ) {
     return;
   }
 

@@ -238,7 +238,7 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
             <div>
               <div className="flex items-center gap-1.5">
                 <p className="text-lg font-black tracking-tight leading-tight">
-                  {isTr ? `MERHABA, ${user.name.split(' ')[0].toUpperCase()}!` : `СӘЛЕМ, ${user.name.split(' ')[0].toUpperCase()}!`}
+                  {isTr ? `MERHABA, ${(user?.name || 'ÖĞRENCİ').split(' ')[0].toUpperCase()}!` : `СӘЛЕМ, ${(user?.name || 'ОҚУШЫ').split(' ')[0].toUpperCase()}!`}
                 </p>
                 {user.nickname && (
                   <span className="text-[10px] font-bold bg-white/20 text-cyan-100 px-1.5 py-0.2 rounded-md">
